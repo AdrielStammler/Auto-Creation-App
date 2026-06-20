@@ -1,9 +1,9 @@
-package com.cpr3663.autocreation;
+package com.cpr3663.autocreation.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class HelloController {
+public class FieldController {
     private int timesClicked = 0;
     @FXML
     private Label welcomeText;
