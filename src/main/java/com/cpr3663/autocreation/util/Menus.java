@@ -15,6 +15,7 @@ public class Menus {
 
         // Add Menus to MenuBar
         menuBar.getMenus().add(getFileMenu());
+        menuBar.getMenus().add(getThemeMenu());
         menuBar.getMenus().add(getHelpMenu());
 
         return menuBar;
@@ -59,7 +60,6 @@ public class Menus {
     private static Menu getHelpMenu() {
         // Create Menu Items
         MenuItem reportIssue = new MenuItem("Report Issue");
-        MenuItem showShortcuts = new MenuItem("Show Shortcuts");
         MenuItem openGitHub = new MenuItem("Open GitHub");
         MenuItem about = new MenuItem("About");
 
@@ -70,9 +70,25 @@ public class Menus {
         // Create menu and add items
         Menu menu = new Menu("Help");
         menu.getItems().add(reportIssue);
-        menu.getItems().add(showShortcuts);
         menu.getItems().add(openGitHub);
         menu.getItems().add(about);
+
+        return menu;
+    }
+
+    private static Menu getThemeMenu() {
+        // Create Menu Items
+        MenuItem dark = new MenuItem("Dark Theme");
+        MenuItem light = new MenuItem("Light Theme");
+
+        // Creating Events
+        dark.setOnAction(e -> AppStateManager.getInstance().setIsDarkMode(true));
+        light.setOnAction(e -> AppStateManager.getInstance().setIsDarkMode(false));
+
+        // Create menu and add items
+        Menu menu = new Menu("Theme");
+        menu.getItems().add(dark);
+        menu.getItems().add(light);
 
         return menu;
     }

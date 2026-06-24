@@ -1,6 +1,7 @@
 package com.cpr3663.autocreation.util;
 
 import com.cpr3663.autocreation.AppStateManager;
+import com.cpr3663.autocreation.Constants;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
@@ -21,7 +22,7 @@ public class PopUpHelper {
         ButtonType buttonDiscard = new ButtonType("Continue & Discard");
         ButtonType buttonCancel = new ButtonType("Cancel");
 
-        Image icon = new Image(Menus.class.getResource("/icons/AlertIcon.png").toExternalForm());
+        Image icon = new Image(Menus.class.getResource(Constants.Paths.ALERT_ICON).toExternalForm());
         Stage stage = (Stage) ask.getDialogPane().getScene().getWindow();
         stage.getIcons().add(icon);
         ImageView iconView = new ImageView(icon);
@@ -41,7 +42,7 @@ public class PopUpHelper {
                 FileHelper.save();
                 return true;
             }
-            if (result.get().equals(buttonDiscard)) return true;
+            return result.get().equals(buttonDiscard);
         }
         return false;
     }

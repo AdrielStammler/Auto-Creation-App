@@ -11,8 +11,13 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Main extends Application {
+    private Stage stage;
+
     @Override
     public void start(Stage stage) throws IOException {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> AppStateManager.getInstance().saveState()));
+
+        this.stage = stage;
         AppStateManager.getInstance().setHostServices(getHostServices());
 
         FXMLLoader fieldFxml = new FXMLLoader(Main.class.getResource("field-view.fxml"));
@@ -28,5 +33,25 @@ public class Main extends Application {
         stage.setTitle(Constants.Stage.TITLE);
         stage.setScene(scene);
         stage.show();
+        stage.toFront();
+        stage.requestFocus();
+
+        setDarkMode(AppStateManager.getInstance().isDarkMode());
+        AppStateManager.getInstance().isDarkModeProperty().addListener((observable, oldTheme, newTheme) -> setDarkMode(newTheme));
+    }
+
+    @Override
+    public void stop() {
+        AppStateManager.getInstance().saveState();
+    }
+
+    private void setDarkMode(boolean isDarkMode) {
+        Scene scene = stage.getScene();
+        scene.getStylesheets().clear();
+        if (isDarkMode) {
+            scene.getStylesheets().add(Constants.Paths.DARK_THEME);
+        } else {
+//                scene.getStylesheets().add(Constants.Paths.LIGHT_THEME);
+        }
     }
 }
