@@ -18,7 +18,7 @@ public class AppStateManager {
 
     // Creating Properties
     private final ObjectProperty<HostServices> hostServices = new SimpleObjectProperty<>(null);
-    private final BooleanProperty isSaved = new SimpleBooleanProperty(false);
+    private final BooleanProperty isSaved = new SimpleBooleanProperty(true);
 
     // Getting properties, Getting values, and Setting values
     public ObjectProperty<HostServices> hostServicesProperty() {
