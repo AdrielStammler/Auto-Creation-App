@@ -20,13 +20,15 @@ public class Main extends Application {
         this.stage = stage;
         AppStateManager.getInstance().setHostServices(getHostServices());
 
-        FXMLLoader fieldFxml = new FXMLLoader(Main.class.getResource("field-view.fxml"));
         MenuBar menus = Menus.getMenuBar();
+        FXMLLoader fieldFxml = new FXMLLoader(Main.class.getResource("field-view.fxml"));
+        FXMLLoader eventsFxml = new FXMLLoader(Main.class.getResource("events-view.fxml"));
 
         // Creating and defining the BorderPane
         BorderPane root = new BorderPane();
-        root.setCenter(fieldFxml.load());
         root.setTop(menus);
+        root.setCenter(fieldFxml.load());
+        root.setLeft(eventsFxml.load());
 
         // Creating scene and setting stage properties
         Scene scene = new Scene(root, Constants.Stage.WIDTH, Constants.Stage.HEIGHT);

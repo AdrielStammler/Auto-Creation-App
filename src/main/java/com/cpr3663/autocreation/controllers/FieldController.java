@@ -6,8 +6,7 @@ import javafx.scene.control.Label;
 
 public class FieldController {
     private int timesClicked = 0;
-    @FXML
-    private Label welcomeText;
+    @FXML private Label welcomeText;
 
     @FXML
     protected void onHelloButtonClick() {

@@ -1,6 +1,8 @@
 package com.cpr3663.autocreation;
 
 public final class Constants {
+    public static final String DRIVE_NAME = "drive";
+
     public static final class Websites {
         public static final String CREATE_GITHUB_ISSUE = "https://github.com/AdrielStammler/Auto-Creation-App/issues/new";
         public static final String OPEN_GITHUB = "https://github.com/AdrielStammler/Auto-Creation-App";

@@ -23,9 +23,10 @@ public class Menus {
 
     private static Menu getFileMenu() {
         // Create Menu Items
-        MenuItem newFile = new MenuItem("New");
-        MenuItem open = new MenuItem("Open");
-        MenuItem save = new MenuItem("Save");
+        MenuItem newFile = new MenuItem("_New");
+        MenuItem open = new MenuItem("_Open");
+        MenuItem save = new MenuItem("_Save");
+        save.disableProperty().bind(AppStateManager.getInstance().isSavedProperty().not());
         MenuItem exit = new MenuItem("Exit");
 
         // Setting Accelerators
@@ -48,7 +49,7 @@ public class Menus {
         exit.setOnAction(e -> Platform.exit());
 
         // Create menu and add items
-        Menu menu = new Menu("File");
+        Menu menu = new Menu("_File");
         menu.getItems().add(newFile);
         menu.getItems().add(open);
         menu.getItems().add(save);
@@ -59,16 +60,16 @@ public class Menus {
 
     private static Menu getHelpMenu() {
         // Create Menu Items
-        MenuItem reportIssue = new MenuItem("Report Issue");
-        MenuItem openGitHub = new MenuItem("Open GitHub");
-        MenuItem about = new MenuItem("About");
+        MenuItem reportIssue = new MenuItem("_Report Issue");
+        MenuItem openGitHub = new MenuItem("Open _GitHub");
+        MenuItem about = new MenuItem("_About");
 
         // Creating Events
         reportIssue.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Websites.CREATE_GITHUB_ISSUE));
         openGitHub.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Websites.OPEN_GITHUB));
 
         // Create menu and add items
-        Menu menu = new Menu("Help");
+        Menu menu = new Menu("_Help");
         menu.getItems().add(reportIssue);
         menu.getItems().add(openGitHub);
         menu.getItems().add(about);
@@ -78,15 +79,15 @@ public class Menus {
 
     private static Menu getThemeMenu() {
         // Create Menu Items
-        MenuItem dark = new MenuItem("Dark Theme");
-        MenuItem light = new MenuItem("Light Theme");
+        MenuItem dark = new MenuItem("_Dark Theme");
+        MenuItem light = new MenuItem("_Light Theme");
 
         // Creating Events
         dark.setOnAction(e -> AppStateManager.getInstance().setIsDarkMode(true));
         light.setOnAction(e -> AppStateManager.getInstance().setIsDarkMode(false));
 
         // Create menu and add items
-        Menu menu = new Menu("Theme");
+        Menu menu = new Menu("_Theme");
         menu.getItems().add(dark);
         menu.getItems().add(light);
 

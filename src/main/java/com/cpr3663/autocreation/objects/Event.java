@@ -16,6 +16,10 @@ public class Event {
         this.delay = delay;
     }
 
+    public Event(String name, String[] parameters) {
+        this(name, parameters, true, DelayTypes.NONE, 0);
+    }
+
     public String getName() {
         return name;
     }
@@ -55,6 +59,11 @@ public class Event {
 
     public void setDelay(int delay) {
         this.delay = delay;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     public enum DelayTypes {

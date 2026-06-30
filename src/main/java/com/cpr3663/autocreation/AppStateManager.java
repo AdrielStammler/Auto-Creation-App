@@ -1,12 +1,12 @@
 package com.cpr3663.autocreation;
 
+import com.cpr3663.autocreation.objects.Event;
 import javafx.application.HostServices;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
-
+import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
 public class AppStateManager {
@@ -36,21 +36,20 @@ public class AppStateManager {
     }
 
     // Creating Properties
-    private final ObjectProperty<HostServices> hostServices = new SimpleObjectProperty<>(null);
+    private HostServices hostServices;
     private final BooleanProperty isSaved = new SimpleBooleanProperty(true);
+
+    private final ListProperty<Event> events = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    // Persistent Ones
     private final BooleanProperty isDarkMode = new SimpleBooleanProperty(false);
 
-    // Getting properties, Getting values, and Setting values
-    public ObjectProperty<HostServices> hostServicesProperty() {
+    public HostServices getHostServices() {
         return hostServices;
     }
 
-    public HostServices getHostServices() {
-        return hostServices.get();
-    }
-
     public void setHostServices(HostServices hostServices) {
-        this.hostServices.set(hostServices);
+        this.hostServices = hostServices;
     }
 
     public BooleanProperty isSavedProperty() {
@@ -63,6 +62,26 @@ public class AppStateManager {
 
     public void setIsSaved(boolean isSaved) {
         this.isSaved.set(isSaved);
+    }
+
+    public ListProperty<Event> eventsProperty() {
+        return events;
+    }
+
+    public ObservableList<Event> getEvents() {
+        return events.get();
+    }
+
+    public void addEvent(Event event) {
+        this.events.add(event);
+    }
+
+    public void setEvents(ArrayList<Event> events) {
+        setEvents(FXCollections.observableArrayList(events));
+    }
+
+    public void setEvents(ObservableList<Event> events) {
+        this.events.set(events);
     }
 
     public BooleanProperty isDarkModeProperty() {
