@@ -1,6 +1,8 @@
 package com.cpr3663.autocreation.objects;
 
 public class Event {
+    protected Runnable onChangeCallback;
+
     private String name;
     private String[] parameters;
     private boolean afterPrev;
@@ -20,12 +22,17 @@ public class Event {
         this(name, parameters, true, DelayTypes.NONE, 0);
     }
 
+    public void setOnChangeCallback(Runnable onChangeCallback) {
+        this.onChangeCallback = onChangeCallback;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+        if (onChangeCallback != null) onChangeCallback.run();
     }
 
     public String[] getParameters() {
@@ -34,6 +41,7 @@ public class Event {
 
     public void setParameters(String[] parameters) {
         this.parameters = parameters;
+        onChangeCallback.run();
     }
 
     public boolean isAfterPrev() {
@@ -42,6 +50,7 @@ public class Event {
 
     public void setAfterPrev(boolean afterPrev) {
         this.afterPrev = afterPrev;
+        if (onChangeCallback != null) onChangeCallback.run();
     }
 
     public DelayTypes getDelayType() {
@@ -49,8 +58,10 @@ public class Event {
     }
 
     public void setDelayType(DelayTypes delayType) {
-        if (!afterPrev || delayType.worksAfterPrev())
+        if (!afterPrev || delayType.worksAfterPrev()) {
             this.delayType = delayType;
+            if (onChangeCallback != null) onChangeCallback.run();
+        }
     }
 
     public int getDelay() {
@@ -59,6 +70,7 @@ public class Event {
 
     public void setDelay(int delay) {
         this.delay = delay;
+        if (onChangeCallback != null) onChangeCallback.run();
     }
 
     @Override

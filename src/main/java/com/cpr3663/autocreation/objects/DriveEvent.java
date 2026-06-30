@@ -6,18 +6,18 @@ public class DriveEvent extends Event {
     // TODO TEMP (Makes events distinguishable because they are identical currently)
     private final int rand;
 
-    private int xPos;
-    private int yPos;
-    private int theta;
-    private int maxVelocity;
-    private int maxAcceleration;
+    private double xPos;
+    private double yPos;
+    private double theta;
+    private double maxVelocity;
+    private double maxAcceleration;
 
-    public DriveEvent(int xPos, int yPos, int theta, boolean afterPrev, DelayTypes delayType, int delay) {
+    public DriveEvent(double xPos, double yPos, double theta, boolean afterPrev, DelayTypes delayType, int delay) {
         this(xPos, yPos, theta, -1, -1, afterPrev, delayType, delay);
     }
 
-    public DriveEvent(int xPos, int yPos, int theta, int maxVel, int maxAccel, boolean afterPrev, DelayTypes delayType, int delay) {
-        super(Constants.DRIVE_NAME, new String[]{Integer.toString(xPos), Integer.toString(yPos), Integer.toString(theta), Integer.toString(maxVel), Integer.toString(maxAccel)}, afterPrev, delayType, delay);
+    public DriveEvent(double xPos, double yPos, double theta, double maxVel, double maxAccel, boolean afterPrev, DelayTypes delayType, int delay) {
+        super(Constants.DRIVE_NAME, new String[]{Double.toString(xPos), Double.toString(yPos), Double.toString(theta), Double.toString(maxVel), Double.toString(maxAccel)}, afterPrev, delayType, delay);
         this.xPos = xPos;
         this.yPos = yPos;
         this.theta = theta;
@@ -29,18 +29,18 @@ public class DriveEvent extends Event {
     }
 
     public DriveEvent() {
-        super(Constants.DRIVE_NAME, new String[]{"0", "0", "0", "-1", "-1"});
-        this.xPos = 0;
-        this.yPos = 0;
-        this.theta = 0;
-        this.maxVelocity = -1;
-        this.maxAcceleration = -1;
+        super(Constants.DRIVE_NAME, new String[]{"0.0", "0.0", "0.0", "-1.0", "-1.0"});
+        this.xPos = 0.0;
+        this.yPos = 0.0;
+        this.theta = 0.0;
+        this.maxVelocity = -1.0;
+        this.maxAcceleration = -1.0;
 
 
         this.rand = Math.toIntExact(Math.round(Math.random() * 1000));
     }
 
-    public int getXPos() {
+    public double getXPos() {
         return xPos;
     }
 
@@ -49,7 +49,7 @@ public class DriveEvent extends Event {
         updateParams();
     }
 
-    public int getYPos() {
+    public double getYPos() {
         return yPos;
     }
 
@@ -58,7 +58,7 @@ public class DriveEvent extends Event {
         updateParams();
     }
 
-    public int getTheta() {
+    public double getTheta() {
         return theta;
     }
 
@@ -67,7 +67,7 @@ public class DriveEvent extends Event {
         updateParams();
     }
 
-    public int getMaxVelocity() {
+    public double getMaxVelocity() {
         return maxVelocity;
     }
 
@@ -76,7 +76,7 @@ public class DriveEvent extends Event {
         updateParams();
     }
 
-    public int getMaxAcceleration() {
+    public double getMaxAcceleration() {
         return maxAcceleration;
     }
 
@@ -86,11 +86,12 @@ public class DriveEvent extends Event {
     }
 
     private void updateParams() {
-        super.setParameters(new String[]{Integer.toString(xPos), Integer.toString(yPos), Integer.toString(theta), Integer.toString(maxVelocity), Integer.toString(maxAcceleration)});
+        super.setParameters(new String[]{Double.toString(xPos), Double.toString(yPos), Double.toString(theta), Double.toString(maxVelocity), Double.toString(maxAcceleration)});
+        if (super.onChangeCallback != null) super.onChangeCallback.run();
     }
 
     @Override
     public String toString() {
-        return "Drive " + rand;
+        return "Drive to (" + xPos + ", " + yPos + ")" + rand;
     }
 }

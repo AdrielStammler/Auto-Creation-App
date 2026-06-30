@@ -26,7 +26,7 @@ public class Menus {
         MenuItem newFile = new MenuItem("_New");
         MenuItem open = new MenuItem("_Open");
         MenuItem save = new MenuItem("_Save");
-        save.disableProperty().bind(AppStateManager.getInstance().isSavedProperty().not());
+        save.disableProperty().bind(AppStateManager.getInstance().isSavedProperty());
         MenuItem exit = new MenuItem("Exit");
 
         // Setting Accelerators

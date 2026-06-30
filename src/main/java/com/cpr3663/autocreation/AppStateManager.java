@@ -14,13 +14,11 @@ public class AppStateManager {
     private static final Preferences prefs = Preferences.userNodeForPackage(AppStateManager.class);
 
     public void saveState() {
-        System.out.println("Saved state");
         prefs.putBoolean("isDarkMode", this.isDarkMode.get());
     }
 
     public void loadState() {
         // Syntax: prefs.get("KEY", "DEFAULT_VALUE_IF_NOT_FOUND");
-        System.out.println("Loaded state");
         setIsDarkMode(prefs.getBoolean("isDarkMode", isDarkMode()));
     }
 
