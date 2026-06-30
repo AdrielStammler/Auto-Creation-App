@@ -13,7 +13,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 
 public class EventsController {
-    @FXML private ListView<Event> listView;
+    @FXML public ListView<Event> listView;
     @FXML private Button addButton;
     @FXML private Button deleteButton;
 
@@ -38,15 +38,19 @@ public class EventsController {
     }
 
     @FXML
-    public void addEventAction() {
+    protected void addEventAction() {
         // TODO ask for event type
         AppStateManager.getInstance().addEvent(new DriveEvent());
     }
 
     @FXML
-    public void deleteEventAction() {
+    protected void deleteEventAction() {
         Event selectedEvent = listView.getSelectionModel().getSelectedItem();
+        int index = listView.getSelectionModel().getSelectedIndex();
         AppStateManager.getInstance().getEvents().remove(selectedEvent);
-        listView.getSelectionModel().clearSelection();
+        if (listView.getItems().size() >= index)
+            listView.getSelectionModel().clearSelection();
+        else
+            listView.getSelectionModel().select(index);
     }
 }

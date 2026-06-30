@@ -5,9 +5,9 @@
 
 
 <VBox xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.cpr3663.autocreation.controllers.EventsController">
-    <ListView fx:id="listView" prefHeight="200.0" prefWidth="200.0"/>
-    <HBox prefHeight="100.0" prefWidth="200.0">
+      fx:controller="com.cpr3663.autocreation.controllers.EventsController" prefWidth="200" prefHeight="Infinity">
+    <ListView fx:id="listView"/>
+    <HBox>
         <Button fx:id="addButton" onAction="#addEventAction" text="Add Event"/>
         <Button fx:id="deleteButton" onAction="#deleteEventAction" text="Delete Event"/>
     </HBox>
