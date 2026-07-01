@@ -1,5 +1,6 @@
 package com.cpr3663.autocreation;
 
+import com.cpr3663.autocreation.util.FileHelper;
 import com.cpr3663.autocreation.util.Menus;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -40,6 +41,7 @@ public class Main extends Application {
 
         setDarkMode(AppStateManager.getInstance().isDarkMode());
         AppStateManager.getInstance().isDarkModeProperty().addListener((observable, oldTheme, newTheme) -> setDarkMode(newTheme));
+        AppStateManager.getInstance().openAutoNameProperty().addListener((observable, oldName, newName) -> FileHelper.open(newName));
     }
 
     @Override

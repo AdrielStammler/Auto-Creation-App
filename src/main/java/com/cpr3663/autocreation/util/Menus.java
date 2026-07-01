@@ -42,7 +42,7 @@ public class Menus {
         });
         open.setOnAction(e -> {
             if (!PopUpHelper.confirmOverride()) return;
-            FileHelper.open();
+            PopUpHelper.selectAutoToOpen(open.getParentPopup().getScene().getWindow());
         });
         save.setOnAction(e -> FileHelper.save());
 
@@ -65,8 +65,8 @@ public class Menus {
         MenuItem about = new MenuItem("_About");
 
         // Creating Events
-        reportIssue.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Websites.CREATE_GITHUB_ISSUE));
-        openGitHub.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Websites.OPEN_GITHUB));
+        reportIssue.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Links.CREATE_GITHUB_ISSUE));
+        openGitHub.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Links.OPEN_GITHUB));
 
         // Create menu and add items
         Menu menu = new Menu("_Help");

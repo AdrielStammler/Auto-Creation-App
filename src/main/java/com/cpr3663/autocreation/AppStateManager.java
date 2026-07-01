@@ -14,12 +14,16 @@ public class AppStateManager {
     private static final Preferences prefs = Preferences.userNodeForPackage(AppStateManager.class);
 
     public void saveState() {
-        prefs.putBoolean("isDarkMode", this.isDarkMode.get());
+        prefs.putBoolean("isDarkMode", isDarkMode());
+        prefs.put("openAutoName", getOpenAutoName());
+        prefs.put("robotRepoPath", getRobotRepoPath());
     }
 
     public void loadState() {
         // Syntax: prefs.get("KEY", "DEFAULT_VALUE_IF_NOT_FOUND");
         setIsDarkMode(prefs.getBoolean("isDarkMode", isDarkMode()));
+        setOpenAutoName(prefs.get("openAutoName", getOpenAutoName()));
+        setRobotRepoPath(prefs.get("robotRepoPath", getRobotRepoPath()));
     }
 
     // Single instance of the state manager
@@ -39,9 +43,12 @@ public class AppStateManager {
 
     private final ListProperty<Event> events = new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    // Persistent Ones
+    // Persistent Ones      MUST HAVE DEFAULT VALUE OR WILL CRASH APP UPON THE ATTEMPT TO SAVE IT INTO PREFERENCES
     private final BooleanProperty isDarkMode = new SimpleBooleanProperty(false);
+    private final StringProperty openAutoName = new SimpleStringProperty("");
+    private final StringProperty robotRepoPath = new SimpleStringProperty(System.getProperty("user.home"));
 
+    // Getters and Setters
     public HostServices getHostServices() {
         return hostServices;
     }
@@ -92,5 +99,29 @@ public class AppStateManager {
 
     public void setIsDarkMode(boolean isDarkMode) {
         this.isDarkMode.set(isDarkMode);
+    }
+
+    public StringProperty openAutoNameProperty() {
+        return openAutoName;
+    }
+
+    public String getOpenAutoName() {
+        return openAutoName.get();
+    }
+
+    public void setOpenAutoName(String openAutoName) {
+        this.openAutoName.set(openAutoName);
+    }
+
+    public StringProperty robotRepoPathProperty() {
+        return robotRepoPath;
+    }
+
+    public String getRobotRepoPath() {
+        return robotRepoPath.get();
+    }
+
+    public void setRobotRepoPath(String robotRepoPath) {
+        this.robotRepoPath.set(robotRepoPath);
     }
 }

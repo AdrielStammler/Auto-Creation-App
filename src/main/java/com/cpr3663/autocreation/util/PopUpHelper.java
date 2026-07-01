@@ -7,8 +7,12 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
+import java.io.File;
+import java.util.Objects;
 import java.util.Optional;
 
 public class PopUpHelper {
@@ -22,7 +26,7 @@ public class PopUpHelper {
         ButtonType buttonDiscard = new ButtonType("Continue & Discard");
         ButtonType buttonCancel = new ButtonType("Cancel");
 
-        Image icon = new Image(Menus.class.getResource(Constants.Paths.ALERT_ICON).toExternalForm());
+        Image icon = new Image(Objects.requireNonNull(Menus.class.getResource(Constants.Paths.ALERT_ICON)).toExternalForm());
         Stage stage = (Stage) ask.getDialogPane().getScene().getWindow();
         stage.getIcons().add(icon);
         ImageView iconView = new ImageView(icon);
@@ -45,5 +49,16 @@ public class PopUpHelper {
             return result.get().equals(buttonDiscard);
         }
         return false;
+    }
+
+    public static void selectAutoToOpen(Window targetWindow) {
+        File deployFolder = new File(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_DEPLOY);
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialDirectory(deployFolder);
+        chooser.setTitle("Select an Auto");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Auto Files", "*.dsv"));
+        File auto = chooser.showOpenDialog(targetWindow);
+        if (auto == null) return;
+        AppStateManager.getInstance().setOpenAutoName(auto.getName());
     }
 }
