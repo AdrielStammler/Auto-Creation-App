@@ -6,6 +6,6 @@
 <VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.FieldController">
     <Label fx:id="welcomeText" />
     <Button onAction="#onHelloButtonClick" text="Hello!" />
-    <Button onAction="#handleSelectFolder" text="Select Path ..." />
-    <Button onAction="#handleOpenFolder" text="Open Deploy" />
+    <Button onAction="#selectFolder" text="Select Path ..." />
+    <Button onAction="#openFolder" text="Open Deploy" />
 </VBox>

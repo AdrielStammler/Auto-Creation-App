@@ -23,7 +23,7 @@ public class FieldController {
     }
 
     @FXML
-    private void handleSelectFolder(ActionEvent event) {
+    private void selectFolder(ActionEvent event) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select a Folder");
 
@@ -37,7 +37,7 @@ public class FieldController {
     }
 
     @FXML
-    private void handleOpenFolder() {
+    private void openFolder() {
         File fullPath = new File(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_DEPLOY);
         AppStateManager.getInstance().getHostServices().showDocument(fullPath.toURI().toString());
     }

@@ -65,13 +65,13 @@ public class EventsController {
     }
 
     @FXML
-    protected void addEventAction() {
+    protected void addEvent() {
         // TODO ask for event type
         AppStateManager.getInstance().addEvent(new DriveEvent());
     }
 
     @FXML
-    protected void deleteEventAction() {
+    protected void deleteEvent() {
         Event selectedEvent = listView.getSelectionModel().getSelectedItem();
         int index = listView.getSelectionModel().getSelectedIndex();
         AppStateManager.getInstance().getEvents().remove(selectedEvent);

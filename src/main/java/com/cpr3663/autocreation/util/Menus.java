@@ -8,6 +8,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 
+import java.io.IOException;
+
 public class Menus {
     public static MenuBar getMenuBar() {
         // Create MenuBar
@@ -38,7 +40,11 @@ public class Menus {
         // Creating Events
         newFile.setOnAction(e -> {
             if (!PopUpHelper.confirmOverride()) return;
-            FileHelper.create();
+            try {
+                FileHelper.create(newFile.getParentPopup().getScene().getWindow());
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         });
         open.setOnAction(e -> {
             if (!PopUpHelper.confirmOverride()) return;

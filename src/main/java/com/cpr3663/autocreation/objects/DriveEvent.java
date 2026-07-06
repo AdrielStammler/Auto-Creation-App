@@ -17,7 +17,7 @@ public class DriveEvent extends Event {
     }
 
     public DriveEvent(double xPos, double yPos, double theta, double maxVel, double maxAccel, boolean afterPrev, DelayTypes delayType, int delay) {
-        super(Constants.DRIVE_NAME, new String[]{Double.toString(xPos), Double.toString(yPos), Double.toString(theta), Double.toString(maxVel), Double.toString(maxAccel)}, afterPrev, delayType, delay);
+        super(Constants.Events.DRIVE_NAME, new String[]{Double.toString(xPos), Double.toString(yPos), Double.toString(theta), Double.toString(maxVel), Double.toString(maxAccel)}, afterPrev, delayType, delay);
         this.xPos = xPos;
         this.yPos = yPos;
         this.theta = theta;
@@ -29,15 +29,7 @@ public class DriveEvent extends Event {
     }
 
     public DriveEvent() {
-        super(Constants.DRIVE_NAME, new String[]{"0.0", "0.0", "0.0", "-1.0", "-1.0"});
-        this.xPos = 0.0;
-        this.yPos = 0.0;
-        this.theta = 0.0;
-        this.maxVelocity = -1.0;
-        this.maxAcceleration = -1.0;
-
-
-        this.rand = Math.toIntExact(Math.round(Math.random() * 1000));
+        this(0, 0, 0, -1, -1, true, DelayTypes.NONE, 0);
     }
 
     public double getXPos() {

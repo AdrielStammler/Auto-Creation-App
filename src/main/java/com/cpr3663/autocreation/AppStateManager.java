@@ -17,6 +17,7 @@ public class AppStateManager {
         prefs.putBoolean("isDarkMode", isDarkMode());
         prefs.put("openAutoName", getOpenAutoName());
         prefs.put("robotRepoPath", getRobotRepoPath());
+        prefs.put("aprilTagPath", getAprilTagPath());
     }
 
     public void loadState() {
@@ -24,6 +25,7 @@ public class AppStateManager {
         setIsDarkMode(prefs.getBoolean("isDarkMode", isDarkMode()));
         setOpenAutoName(prefs.get("openAutoName", getOpenAutoName()));
         setRobotRepoPath(prefs.get("robotRepoPath", getRobotRepoPath()));
+        setAprilTagPath(prefs.get("aprilTagPath", getAprilTagPath()));
     }
 
     // Single instance of the state manager
@@ -47,6 +49,7 @@ public class AppStateManager {
     private final BooleanProperty isDarkMode = new SimpleBooleanProperty(false);
     private final StringProperty openAutoName = new SimpleStringProperty("");
     private final StringProperty robotRepoPath = new SimpleStringProperty(System.getProperty("user.home"));
+    private final StringProperty aprilTagPath = new SimpleStringProperty(System.getProperty("user.home"));
 
     // Getters and Setters
     public HostServices getHostServices() {
@@ -123,5 +126,17 @@ public class AppStateManager {
 
     public void setRobotRepoPath(String robotRepoPath) {
         this.robotRepoPath.set(robotRepoPath);
+    }
+
+    public StringProperty aprilTagPathProperty() {
+        return aprilTagPath;
+    }
+
+    public String getAprilTagPath() {
+        return aprilTagPath.get();
+    }
+
+    public void setAprilTagPath(String aprilTagPath) {
+        this.aprilTagPath.set(aprilTagPath);
     }
 }

@@ -1,5 +1,7 @@
 package com.cpr3663.autocreation.objects;
 
+import com.cpr3663.autocreation.Constants;
+
 public class Event {
     protected Runnable onChangeCallback;
 
@@ -76,6 +78,11 @@ public class Event {
     @Override
     public String toString() {
         return name;
+    }
+
+    public String toFileRow() {
+        String params = String.join(Constants.Events.PARAM_DELIMITER, parameters);
+        return String.join(Constants.Events.DELIMITER, name, params, Boolean.toString(afterPrev), delayType.name(), Integer.toString(delay));
     }
 
     public enum DelayTypes {
