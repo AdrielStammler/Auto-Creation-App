@@ -1,6 +1,8 @@
 package com.cpr3663.autocreation;
 
 import com.cpr3663.autocreation.objects.Event;
+import com.cpr3663.autocreation.objects.RefreshableListProperty;
+import edu.wpi.first.apriltag.AprilTagFields;
 import javafx.application.HostServices;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -17,15 +19,16 @@ public class AppStateManager {
         prefs.putBoolean("isDarkMode", isDarkMode());
         prefs.put("openAutoName", getOpenAutoName());
         prefs.put("robotRepoPath", getRobotRepoPath());
-        prefs.put("aprilTagPath", getAprilTagPath());
+        prefs.put("fieldImagePath", getFieldImagePath());
+        prefs.put("aprilTagField", getAprilTagField().name());
     }
 
     public void loadState() {
-        // Syntax: prefs.get("KEY", "DEFAULT_VALUE_IF_NOT_FOUND");
         setIsDarkMode(prefs.getBoolean("isDarkMode", isDarkMode()));
         setOpenAutoName(prefs.get("openAutoName", getOpenAutoName()));
         setRobotRepoPath(prefs.get("robotRepoPath", getRobotRepoPath()));
-        setAprilTagPath(prefs.get("aprilTagPath", getAprilTagPath()));
+        setFieldImagePath(prefs.get("fieldImagePath", getFieldImagePath()));
+        setAprilTagField(AprilTagFields.valueOf(prefs.get("aprilTagField", getAprilTagField().name())));
     }
 
     // Single instance of the state manager
@@ -42,14 +45,16 @@ public class AppStateManager {
     // Creating Properties
     private HostServices hostServices;
     private final BooleanProperty isSaved = new SimpleBooleanProperty(true);
+    private final ObjectProperty<Event> selectedEvent = new SimpleObjectProperty<>();
 
-    private final ListProperty<Event> events = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final RefreshableListProperty<Event> events = new RefreshableListProperty<>(FXCollections.observableArrayList());
 
     // Persistent Ones      MUST HAVE DEFAULT VALUE OR WILL CRASH APP UPON THE ATTEMPT TO SAVE IT INTO PREFERENCES
     private final BooleanProperty isDarkMode = new SimpleBooleanProperty(false);
     private final StringProperty openAutoName = new SimpleStringProperty("");
     private final StringProperty robotRepoPath = new SimpleStringProperty(System.getProperty("user.home"));
-    private final StringProperty aprilTagPath = new SimpleStringProperty(System.getProperty("user.home"));
+    private final StringProperty fieldImagePath = new SimpleStringProperty(System.getProperty("user.home"));
+    private final ObjectProperty<AprilTagFields> aprilTagField = new SimpleObjectProperty<>(AprilTagFields.kDefaultField);
 
     // Getters and Setters
     public HostServices getHostServices() {
@@ -72,7 +77,15 @@ public class AppStateManager {
         this.isSaved.set(isSaved);
     }
 
-    public ListProperty<Event> eventsProperty() {
+    public ObjectProperty<Event> selectedEventProperty() {
+        return selectedEvent;
+    }
+
+    public Event getSelectedEvent() {
+        return selectedEvent.get();
+    }
+
+    public RefreshableListProperty<Event> eventsProperty() {
         return events;
     }
 
@@ -128,15 +141,27 @@ public class AppStateManager {
         this.robotRepoPath.set(robotRepoPath);
     }
 
-    public StringProperty aprilTagPathProperty() {
-        return aprilTagPath;
+    public StringProperty fieldImagePathProperty() {
+        return fieldImagePath;
     }
 
-    public String getAprilTagPath() {
-        return aprilTagPath.get();
+    public String getFieldImagePath() {
+        return fieldImagePath.get();
     }
 
-    public void setAprilTagPath(String aprilTagPath) {
-        this.aprilTagPath.set(aprilTagPath);
+    public void setFieldImagePath(String fieldImagePath) {
+        this.fieldImagePath.set(fieldImagePath);
+    }
+
+    public ObjectProperty<AprilTagFields> aprilTagFieldProperty() {
+        return aprilTagField;
+    }
+
+    public AprilTagFields getAprilTagField() {
+        return aprilTagField.get();
+    }
+
+    public void setAprilTagField(AprilTagFields aprilTagField) {
+        this.aprilTagField.set(aprilTagField);
     }
 }

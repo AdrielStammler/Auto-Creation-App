@@ -11,9 +11,11 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven(uri("https://frcmaven.wpi.edu/artifactory/release/"))
 }
 
 val junitVersion = "5.12.1"
+var wpilibVersion = "2026.2.1"
 
 java {
     toolchain {
@@ -38,6 +40,13 @@ javafx {
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+
+    implementation("edu.wpi.first.apriltag:apriltag-java:${wpilibVersion}")
+    implementation("edu.wpi.first.wpimath:wpimath-java:${wpilibVersion}")
+    implementation("edu.wpi.first.wpiutil:wpiutil-java:${wpilibVersion}")
+    implementation("edu.wpi.first.wpiunits:wpiunits-java:${wpilibVersion}")
+    implementation("us.hebi.quickbuf:quickbuf-runtime:1.4")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4")
 }
 
 tasks.withType<Test> {

@@ -1,16 +1,23 @@
 package com.cpr3663.autocreation.objects;
 
 import com.cpr3663.autocreation.Constants;
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.math.geometry.Pose3d;
 
 public class DriveEvent extends Event {
     // TODO TEMP (Makes events distinguishable because they are identical currently)
     private final int rand;
 
+    // TODO make pose2d and so make cleaner implementation
     private double xPos;
     private double yPos;
     private double theta;
     private double maxVelocity;
     private double maxAcceleration;
+
+    // TODO implement
+    // IF ID = -1 then it's not a tag it's other (e.g. origin)
+    private AprilTag relativeFrom = new AprilTag(-1, new Pose3d());
 
     public DriveEvent(double xPos, double yPos, double theta, boolean afterPrev, DelayTypes delayType, int delay) {
         this(xPos, yPos, theta, -1, -1, afterPrev, delayType, delay);
@@ -30,6 +37,26 @@ public class DriveEvent extends Event {
 
     public DriveEvent() {
         this(0, 0, 0, -1, -1, true, DelayTypes.NONE, 0);
+    }
+
+    public AprilTag getRelativeFrom() {
+        return relativeFrom;
+    }
+
+    public void setRelativeFrom(AprilTag relativeFrom) {
+        this.relativeFrom = relativeFrom;
+    }
+
+    public double getRelativeX() {
+        return xPos - relativeFrom.pose.getX();
+    }
+
+    public double getRelativeY() {
+        return yPos - relativeFrom.pose.getY();
+    }
+
+    public double getRelativeTheta() {
+        return theta - relativeFrom.pose.getRotation().toRotation2d().getDegrees();
     }
 
     public double getXPos() {

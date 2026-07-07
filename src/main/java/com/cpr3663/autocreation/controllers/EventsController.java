@@ -4,7 +4,6 @@ import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.objects.DriveEvent;
 import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.util.DragDropCell;
-import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -22,6 +21,7 @@ public class EventsController {
     public void initialize() {
         listView.itemsProperty().bind(AppStateManager.getInstance().eventsProperty());
         listView.setCellFactory(lv -> new DragDropCell());
+        AppStateManager.getInstance().selectedEventProperty().bind(listView.getSelectionModel().selectedItemProperty());
 
         // Wait for the button to be attached to a scene
         addButton.sceneProperty().addListener((observable, oldScene, newScene) -> {
@@ -31,30 +31,6 @@ public class EventsController {
         });
 
         deleteButton.disableProperty().bind(listView.getSelectionModel().selectedItemProperty().isNull());
-
-        AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> {
-            while (change.next()) {
-                // Structural change or reorder detected
-                if (change.wasAdded() || change.wasRemoved() || change.wasPermutated()) {
-                    AppStateManager.getInstance().setIsSaved(false);
-                }
-
-                // Attach callbacks to new events
-                if (change.wasAdded()) {
-                    for (Event event : change.getAddedSubList()) {
-                        event.setOnChangeCallback(() -> {
-                            AppStateManager.getInstance().setIsSaved(false);
-                            listView.refresh();
-                        });
-                    }
-                }
-
-                // Clean up callbacks from removed events to prevent potential memory leaks
-                if (change.wasRemoved()) {
-                    for (Event event : change.getRemoved()) event.setOnChangeCallback(null);
-                }
-            }
-        });
     }
 
     private void setupAccelerator(Scene scene) {

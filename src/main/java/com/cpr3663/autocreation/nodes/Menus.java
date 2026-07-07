@@ -1,7 +1,9 @@
-package com.cpr3663.autocreation.util;
+package com.cpr3663.autocreation.nodes;
 
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
+import com.cpr3663.autocreation.util.FileHelper;
+import com.cpr3663.autocreation.util.PopUpHelper;
 import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -17,7 +19,6 @@ public class Menus {
 
         // Add Menus to MenuBar
         menuBar.getMenus().add(getFileMenu());
-        menuBar.getMenus().add(getThemeMenu());
         menuBar.getMenus().add(getHelpMenu());
 
         return menuBar;
@@ -29,12 +30,17 @@ public class Menus {
         MenuItem open = new MenuItem("_Open");
         MenuItem save = new MenuItem("_Save");
         save.disableProperty().bind(AppStateManager.getInstance().isSavedProperty());
+        MenuItem settings = new MenuItem("S_ettings");
         MenuItem exit = new MenuItem("Exit");
+
+        SeparatorMenuItem separator1 = new SeparatorMenuItem();
+        SeparatorMenuItem separator2 = new SeparatorMenuItem();
 
         // Setting Accelerators
         newFile.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         save.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
+        settings.setAccelerator(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN));
         exit.setAccelerator(new KeyCodeCombination(KeyCode.F4, KeyCombination.ALT_DOWN));
 
         // Creating Events
@@ -51,15 +57,12 @@ public class Menus {
             PopUpHelper.selectAutoToOpen(open.getParentPopup().getScene().getWindow());
         });
         save.setOnAction(e -> FileHelper.save());
-
+        settings.setOnAction(e -> PopUpHelper.showSettings());
         exit.setOnAction(e -> Platform.exit());
 
         // Create menu and add items
         Menu menu = new Menu("_File");
-        menu.getItems().add(newFile);
-        menu.getItems().add(open);
-        menu.getItems().add(save);
-        menu.getItems().add(exit);
+        menu.getItems().addAll(newFile, open, save, separator1, settings, separator2, exit);
 
         return menu;
     }
@@ -76,26 +79,7 @@ public class Menus {
 
         // Create menu and add items
         Menu menu = new Menu("_Help");
-        menu.getItems().add(reportIssue);
-        menu.getItems().add(openGitHub);
-        menu.getItems().add(about);
-
-        return menu;
-    }
-
-    private static Menu getThemeMenu() {
-        // Create Menu Items
-        MenuItem dark = new MenuItem("_Dark Theme");
-        MenuItem light = new MenuItem("_Light Theme");
-
-        // Creating Events
-        dark.setOnAction(e -> AppStateManager.getInstance().setIsDarkMode(true));
-        light.setOnAction(e -> AppStateManager.getInstance().setIsDarkMode(false));
-
-        // Create menu and add items
-        Menu menu = new Menu("_Theme");
-        menu.getItems().add(dark);
-        menu.getItems().add(light);
+        menu.getItems().addAll(reportIssue, openGitHub, about);
 
         return menu;
     }

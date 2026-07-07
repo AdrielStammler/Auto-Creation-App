@@ -14,6 +14,7 @@ public final class Constants {
     }
 
     public static final class Paths {
+        public static final String ROBOT_ICON = "/icons/RobotIcon.png";
         public static final String ALERT_ICON = "/icons/AlertIcon.png";
         public static final String DARK_THEME = "/themes/dark-theme.css";
 

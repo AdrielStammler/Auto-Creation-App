@@ -31,7 +31,7 @@ public class PopUpHelper {
         ButtonType buttonDiscard = new ButtonType("Continue & Discard");
         ButtonType buttonCancel = new ButtonType("Cancel");
 
-        Image icon = new Image(Objects.requireNonNull(Menus.class.getResource(Constants.Paths.ALERT_ICON)).toExternalForm());
+        Image icon = new Image(Objects.requireNonNull(PopUpHelper.class.getResource(Constants.Paths.ALERT_ICON)).toExternalForm());
         Stage stage = (Stage) ask.getDialogPane().getScene().getWindow();
         stage.getIcons().add(icon);
         ImageView iconView = new ImageView(icon);
@@ -54,6 +54,10 @@ public class PopUpHelper {
             return result.get().equals(buttonDiscard);
         }
         return false;
+    }
+
+    public static void showSettings() {
+        // TODO
     }
 
     public static void selectAutoToOpen(Window targetWindow) {
