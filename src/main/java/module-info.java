@@ -3,6 +3,7 @@ module com.cpr3663.autocreation {
     requires javafx.fxml;
     requires java.prefs;
     requires java.desktop;
+    requires java.logging;
 
     opens com.cpr3663.autocreation to javafx.fxml;
     exports com.cpr3663.autocreation;

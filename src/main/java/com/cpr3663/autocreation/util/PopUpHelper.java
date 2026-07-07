@@ -2,6 +2,7 @@ package com.cpr3663.autocreation.util;
 
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
+import com.cpr3663.autocreation.Main;
 import com.cpr3663.autocreation.controllers.NewAutoController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -81,6 +82,7 @@ public class PopUpHelper {
 
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
+            Main.setDarkMode(popupStage, AppStateManager.getInstance().isDarkMode());
 
             NewAutoController controller = loader.getController();
             controller.setStage(popupStage);

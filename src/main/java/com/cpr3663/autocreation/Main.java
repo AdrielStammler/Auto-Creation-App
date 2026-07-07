@@ -12,13 +12,11 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Main extends Application {
-    private Stage stage;
 
     @Override
     public void start(Stage stage) throws IOException {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> AppStateManager.getInstance().saveState()));
 
-        this.stage = stage;
         AppStateManager.getInstance().setHostServices(getHostServices());
 
         MenuBar menus = Menus.getMenuBar();
@@ -39,8 +37,8 @@ public class Main extends Application {
         stage.toFront();
         stage.requestFocus();
 
-        setDarkMode(AppStateManager.getInstance().isDarkMode());
-        AppStateManager.getInstance().isDarkModeProperty().addListener((observable, oldTheme, newTheme) -> setDarkMode(newTheme));
+        setDarkMode(stage, AppStateManager.getInstance().isDarkMode());
+        AppStateManager.getInstance().isDarkModeProperty().addListener((observable, oldTheme, newTheme) -> setDarkMode(stage, newTheme));
         AppStateManager.getInstance().openAutoNameProperty().addListener((observable, oldName, newName) -> FileHelper.open(newName));
     }
 
@@ -49,7 +47,7 @@ public class Main extends Application {
         AppStateManager.getInstance().saveState();
     }
 
-    private void setDarkMode(boolean isDarkMode) {
+    public static void setDarkMode(Stage stage, boolean isDarkMode) {
         Scene scene = stage.getScene();
         scene.getStylesheets().clear();
         if (isDarkMode) {
