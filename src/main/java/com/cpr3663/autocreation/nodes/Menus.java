@@ -47,14 +47,14 @@ public class Menus {
         newFile.setOnAction(e -> {
             if (!PopUpHelper.confirmOverride()) return;
             try {
-                FileHelper.create(newFile.getParentPopup().getScene().getWindow());
+                FileHelper.create();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
         open.setOnAction(e -> {
             if (!PopUpHelper.confirmOverride()) return;
-            PopUpHelper.selectAutoToOpen(open.getParentPopup().getScene().getWindow());
+            PopUpHelper.selectAutoToOpen();
         });
         save.setOnAction(e -> FileHelper.save());
         settings.setOnAction(e -> PopUpHelper.showSettings());

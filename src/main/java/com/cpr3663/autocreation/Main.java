@@ -5,13 +5,18 @@ import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.util.FileHelper;
 import com.cpr3663.autocreation.nodes.Menus;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.io.IOException;
 
@@ -28,10 +33,20 @@ public class Main extends Application {
         Pane field = Field.getFieldPane();
 
         // Creating and defining the BorderPane
-        BorderPane root = new BorderPane();
-        root.setTop(menus);
-        root.setCenter(field);
-        root.setLeft(eventsFxml.load());
+        BorderPane borderPane = new BorderPane();
+        borderPane.setTop(menus);
+        borderPane.setCenter(field);
+        borderPane.setLeft(eventsFxml.load());
+
+        Rectangle overlay = new Rectangle();
+        overlay.widthProperty().bind(borderPane.widthProperty());
+        overlay.heightProperty().bind(borderPane.heightProperty());
+        overlay.setFill(Color.BLACK);
+        overlay.setMouseTransparent(true);
+        overlay.setOpacity(0);
+
+        StackPane root = new StackPane(borderPane, overlay);
+        AppStateManager.getInstance().setRoot(root);
 
         // Creating scene and setting stage properties
         Scene scene = new Scene(root, Constants.Stage.WIDTH, Constants.Stage.HEIGHT);
@@ -41,9 +56,9 @@ public class Main extends Application {
         stage.toFront();
         stage.requestFocus();
 
-        setDarkMode(stage, AppStateManager.getInstance().isDarkMode());
-        AppStateManager.getInstance().isDarkModeProperty().addListener((observable, oldTheme, newTheme) -> setDarkMode(stage, newTheme));
-        AppStateManager.getInstance().openAutoNameProperty().addListener((observable, oldName, newName) -> FileHelper.open(newName));
+        setDarkMode(stage);
+        AppStateManager.getInstance().isDarkModeProperty().addListener(run(() -> setDarkMode(stage)));
+        AppStateManager.getInstance().openAutoNameProperty().addListener(run(FileHelper::open));
         AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved() || change.wasPermutated())
@@ -58,7 +73,7 @@ public class Main extends Application {
                 if (change.wasRemoved()) for (Event event : change.getRemoved()) event.setOnChangeCallback(null);
             }
         });
-        AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> root.setCenter(Field.getFieldPane()));
+        AppStateManager.getInstance().eventsProperty().addListener(run(() -> borderPane.setCenter(Field.getFieldPane())));
     }
 
     @Override
@@ -66,13 +81,18 @@ public class Main extends Application {
         AppStateManager.getInstance().saveState();
     }
 
-    public static void setDarkMode(Stage stage, boolean isDarkMode) {
+    public static void setDarkMode(Window stage) {
         Scene scene = stage.getScene();
         scene.getStylesheets().clear();
-        if (isDarkMode) {
+        if (AppStateManager.getInstance().isDarkMode()) {
             scene.getStylesheets().add(Constants.Paths.DARK_THEME);
-        } else {
-//                scene.getStylesheets().add(Constants.Paths.LIGHT_THEME);
         }
+//        else {
+//                scene.getStylesheets().add(Constants.Paths.LIGHT_THEME);
+//        }
+    }
+
+    private static <T> ChangeListener<T> run(Runnable runnable) {
+        return (observable, oldValue, newValue) -> runnable.run();
     }
 }

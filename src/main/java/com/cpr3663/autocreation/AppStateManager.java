@@ -7,6 +7,8 @@ import javafx.application.HostServices;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Window;
 
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
@@ -44,6 +46,7 @@ public class AppStateManager {
 
     // Creating Properties
     private HostServices hostServices;
+    private StackPane root;
     private final BooleanProperty isSaved = new SimpleBooleanProperty(true);
     private final ObjectProperty<Event> selectedEvent = new SimpleObjectProperty<>();
 
@@ -83,6 +86,18 @@ public class AppStateManager {
 
     public Event getSelectedEvent() {
         return selectedEvent.get();
+    }
+
+    public void setRoot(StackPane root) {
+        this.root = root;
+    }
+
+    public StackPane getRoot() {
+        return root;
+    }
+
+    public Window getWindow() {
+        return getRoot().getScene().getWindow();
     }
 
     public RefreshableListProperty<Event> eventsProperty() {

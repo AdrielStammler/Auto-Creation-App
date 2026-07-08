@@ -6,7 +6,6 @@ import com.cpr3663.autocreation.objects.Event;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.stage.Window;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,8 +13,8 @@ import java.nio.file.Files;
 import java.util.Optional;
 
 public class FileHelper {
-    public static void create(Window owner) throws IOException {
-        Optional<String> optName = PopUpHelper.chooseNewAutoName(owner);
+    public static void create() throws IOException {
+        Optional<String> optName = PopUpHelper.chooseNewAutoName();
         if (optName.isEmpty()) return;
         String name = optName.get() + ".dsv";
 
@@ -47,19 +46,21 @@ public class FileHelper {
         }
     }
 
-    public static void open(String autoName) {
+    public static void open() {
+        String autoName = AppStateManager.getInstance().getOpenAutoName();
         File deployFolder = new File(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_DEPLOY);
         File auto = new File(deployFolder, autoName);
-        // TODO make work
-
-        AppStateManager.getInstance().setOpenAutoName(autoName);
+        // TODO
     }
 
     public static void save() {
+        String autoString = getAuto();
+        System.out.println(autoString);
+        // TODO
         AppStateManager.getInstance().setIsSaved(true);
     }
 
-    private String getAuto() {
+    private static String getAuto() {
         ObservableList<Event> events = AppStateManager.getInstance().getEvents();
         String[] stringEvents = events.stream().map(Event::toFileRow).toArray(String[]::new);
         return String.join(Constants.Events.NEW_LINE, stringEvents);

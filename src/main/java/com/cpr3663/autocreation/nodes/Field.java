@@ -119,7 +119,7 @@ public class Field {
         for (Event event : AppStateManager.getInstance().getEvents())
             if (event.getName().equals(Constants.Events.DRIVE_NAME)) {
                 DriveEvent driveEvent = (DriveEvent) event;
-                Image robot = new Image(Objects.requireNonNull(Field.class.getResource(Constants.Paths.ALERT_ICON)).toExternalForm());
+                Image robot = new Image(Objects.requireNonNull(Field.class.getResource(Constants.Paths.ROBOT_ICON)).toExternalForm());
                 ImageView robotView = new ImageView(robot);
 
                 robotView.setX(driveEvent.getXPos() * PIXELS_PER_METER);
