@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class autoNameController {
+public class AutoNameController {
     @FXML private TextField inputField;
     private Stage stage;
     private String userInput = null;

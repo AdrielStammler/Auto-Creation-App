@@ -36,11 +36,8 @@
         </HBox>
 
         <!-- Row 3: Field Image Path -->
-        <Label text="Path to the Field Image:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-        <HBox alignment="CENTER_LEFT" spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
-            <TextField fx:id="fieldImageLabel" editable="false" promptText="No image selected" HBox.hgrow="ALWAYS" />
-            <Button onAction="#browseFieldImage" text="Browse..." />
-        </HBox>
+        <Label text="Upload Field Image:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+        <Button onAction="#uploadFieldImage" text="Upload Image" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
         <!-- Row 4: April Tag Field -->
         <Label text="Select an April Tag Field:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
@@ -59,7 +56,7 @@
       <RowConstraints />
       <RowConstraints />
       <RowConstraints />
-      <RowConstraints />
-      <RowConstraints />
+       <RowConstraints />
+       <RowConstraints />
    </rowConstraints>
 </GridPane>

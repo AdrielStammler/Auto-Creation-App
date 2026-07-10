@@ -3,7 +3,8 @@ package com.cpr3663.autocreation.util;
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.Main;
-import com.cpr3663.autocreation.controllers.autoNameController;
+import com.cpr3663.autocreation.controllers.UploadImageController;
+import com.cpr3663.autocreation.controllers.AutoNameController;
 import com.cpr3663.autocreation.controllers.SettingsController;
 import javafx.animation.*;
 import javafx.fxml.FXMLLoader;
@@ -121,7 +122,7 @@ public class PopUpHelper {
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
             Main.setDarkMode(popupStage);
-            autoNameController controller = loader.getController();
+            AutoNameController controller = loader.getController();
             controller.setStage(popupStage);
 
             showPopUp(popupStage);
@@ -131,6 +132,31 @@ public class PopUpHelper {
         } catch (IOException e) {
             Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, null, e);
             return Optional.empty();
+        }
+    }
+
+    public static Image getImage(Stage stage) {
+        try {
+            FXMLLoader loader = new FXMLLoader(PopUpHelper.class.getResource("/com/cpr3663/autocreation/uploadImage-view.fxml"));
+            Stage popupStage = new Stage();
+            popupStage.initModality(Modality.APPLICATION_MODAL);
+            popupStage.initStyle(StageStyle.UTILITY);
+            popupStage.initOwner(stage);
+            popupStage.setTitle("Upload Image");
+
+            Scene scene = new Scene(loader.load());
+            popupStage.setScene(scene);
+            Main.setDarkMode(popupStage);
+            UploadImageController controller = loader.getController();
+            controller.setStage(popupStage);
+
+            popupStage.showAndWait();
+
+            return controller.getImage();
+
+        } catch (IOException e) {
+            Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, null, e);
+            return null;
         }
     }
 

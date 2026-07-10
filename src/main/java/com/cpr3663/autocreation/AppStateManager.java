@@ -7,10 +7,14 @@ import javafx.application.HostServices;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Window;
+import javafx.embed.swing.SwingFXUtils;
 
-import java.util.ArrayList;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 import java.util.prefs.Preferences;
 
 public class AppStateManager {
@@ -21,16 +25,23 @@ public class AppStateManager {
         prefs.putBoolean("isDarkMode", isDarkMode());
         prefs.put("openAutoName", getOpenAutoName());
         prefs.put("robotRepoPath", getRobotRepoPath());
-        prefs.put("fieldImagePath", getFieldImagePath());
         prefs.put("aprilTagField", getAprilTagField().name());
+        File file = new File(Constants.Paths.FIELD_IMAGE);
+        file.getParentFile().mkdirs();
+        try {
+            ImageIO.write(SwingFXUtils.fromFXImage(getFieldImage(), null), "png", file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void loadState() {
         setIsDarkMode(prefs.getBoolean("isDarkMode", isDarkMode()));
         setOpenAutoName(prefs.get("openAutoName", getOpenAutoName()));
         setRobotRepoPath(prefs.get("robotRepoPath", getRobotRepoPath()));
-        setFieldImagePath(prefs.get("fieldImagePath", getFieldImagePath()));
         setAprilTagField(AprilTagFields.valueOf(prefs.get("aprilTagField", getAprilTagField().name())));
+        File file = new File(Constants.Paths.FIELD_IMAGE);
+        if (file.exists()) setFieldImage(new Image(file.toURI().toString()));
     }
 
     // Single instance of the state manager
@@ -56,7 +67,7 @@ public class AppStateManager {
     private final BooleanProperty isDarkMode = new SimpleBooleanProperty(false);
     private final StringProperty openAutoName = new SimpleStringProperty("");
     private final StringProperty robotRepoPath = new SimpleStringProperty(System.getProperty("user.home"));
-    private final StringProperty fieldImagePath = new SimpleStringProperty(System.getProperty("user.home"));
+    private final ObjectProperty<Image> fieldImage = new SimpleObjectProperty<>(null);
     private final ObjectProperty<AprilTagFields> aprilTagField = new SimpleObjectProperty<>(AprilTagFields.kDefaultField);
 
     // Getters and Setters
@@ -112,14 +123,6 @@ public class AppStateManager {
         this.events.add(event);
     }
 
-    public void setEvents(ArrayList<Event> events) {
-        setEvents(FXCollections.observableArrayList(events));
-    }
-
-    public void setEvents(ObservableList<Event> events) {
-        this.events.set(events);
-    }
-
     public BooleanProperty isDarkModeProperty() {
         return isDarkMode;
     }
@@ -156,16 +159,16 @@ public class AppStateManager {
         this.robotRepoPath.set(robotRepoPath);
     }
 
-    public StringProperty fieldImagePathProperty() {
-        return fieldImagePath;
+    public ObjectProperty<Image> fieldImageProperty() {
+        return fieldImage;
     }
 
-    public String getFieldImagePath() {
-        return fieldImagePath.get();
+    public Image getFieldImage() {
+        return fieldImage.get();
     }
 
-    public void setFieldImagePath(String fieldImagePath) {
-        this.fieldImagePath.set(fieldImagePath);
+    public void setFieldImage(Image fieldImage) {
+        this.fieldImage.set(fieldImage);
     }
 
     public ObjectProperty<AprilTagFields> aprilTagFieldProperty() {

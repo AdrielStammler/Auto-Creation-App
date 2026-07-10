@@ -1,6 +1,7 @@
 package com.cpr3663.autocreation.controllers;
 
 import com.cpr3663.autocreation.AppStateManager;
+import com.cpr3663.autocreation.util.PopUpHelper;
 import edu.wpi.first.apriltag.AprilTagFields;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -8,8 +9,8 @@ import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -18,15 +19,14 @@ import java.io.File;
 public class SettingsController {
     @FXML private CheckBox darkModeBox;
     @FXML private TextField robotRepoLabel;
-    @FXML private TextField fieldImageLabel;
     @FXML private ComboBox<AprilTagFields> aprilTagDropdown;
     private Stage stage;
+    private Image fieldImage;
 
     @FXML
     private void initialize() {
         darkModeBox.setSelected(AppStateManager.getInstance().isDarkMode());
         robotRepoLabel.setText(AppStateManager.getInstance().getRobotRepoPath());
-        fieldImageLabel.setText(AppStateManager.getInstance().getFieldImagePath());
         aprilTagDropdown.getItems().addAll(AprilTagFields.values());
         aprilTagDropdown.getSelectionModel().select(AppStateManager.getInstance().getAprilTagField());
     }
@@ -49,16 +49,10 @@ public class SettingsController {
     }
 
     @FXML
-    private void browseFieldImage(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select an Image");
-
-        fileChooser.setInitialDirectory(new File(fieldImageLabel.getText()).getParentFile());
-
-        Window window = ((Node) event.getSource()).getScene().getWindow();
-        File selectedImage = fileChooser.showOpenDialog(window);
-
-        if (selectedImage != null) fieldImageLabel.setText(selectedImage.getAbsolutePath());
+    private void uploadFieldImage(ActionEvent e) {
+        Image image = PopUpHelper.getImage(stage);
+        if  (image == null || image.isError()) return;
+        fieldImage = image;
     }
 
     @FXML
@@ -71,8 +65,9 @@ public class SettingsController {
         AppStateManager stateManager = AppStateManager.getInstance();
         stateManager.setIsDarkMode(darkModeBox.isSelected());
         stateManager.setRobotRepoPath(robotRepoLabel.getText());
-        stateManager.setFieldImagePath(fieldImageLabel.getText());
+        stateManager.setFieldImage(fieldImage);
         stateManager.setAprilTagField(aprilTagDropdown.getSelectionModel().getSelectedItem());
+        stateManager.setIsSaved(false);
         stage.close();
     }
 }

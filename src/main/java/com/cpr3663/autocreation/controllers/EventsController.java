@@ -42,8 +42,10 @@ public class EventsController {
 
     @FXML
     protected void addEvent() {
+        Event event = new DriveEvent();
         // TODO ask for event type
-        AppStateManager.getInstance().addEvent(new DriveEvent());
+        AppStateManager.getInstance().addEvent(event);
+        listView.getSelectionModel().select(event);
     }
 
     @FXML

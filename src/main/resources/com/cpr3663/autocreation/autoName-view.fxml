@@ -5,7 +5,7 @@
 
 <VBox xmlns="http://javafx.com"
       xmlns:fx="http://javafx.com"
-      fx:controller="com.cpr3663.autocreation.controllers.autoNameController"
+      fx:controller="com.cpr3663.autocreation.controllers.AutoNameController"
       alignment="CENTER" spacing="15.0" style="-fx-padding: 20;">
 
     <Label text="Enter the name for the auto:" />

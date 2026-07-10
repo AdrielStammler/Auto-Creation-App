@@ -17,8 +17,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Objects;
 
 public class Field {
@@ -40,10 +38,8 @@ public class Field {
         pane.setPrefSize(xSize, ySize);
         pane.setMaxSize(xSize, ySize);
 
-        Path fieldImage = Path.of(AppStateManager.getInstance().getFieldImagePath());
-        if (!Files.exists(fieldImage) || !Files.isRegularFile(fieldImage)) return pane;
-        Image image = new Image(fieldImage.toString());
-        if (image.isError()) return pane;
+        Image image = AppStateManager.getInstance().getFieldImage();
+        if (image == null || image.isError()) return pane;
         BackgroundImage backgroundImage = new BackgroundImage(
                 image,
                 BackgroundRepeat.NO_REPEAT,

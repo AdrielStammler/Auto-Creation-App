@@ -55,6 +55,7 @@ public class FileHelper {
     }
 
     public static void save() {
+        AppStateManager.getInstance().saveState();
         String autoString = getAuto();
         System.out.println(autoString);
         // TODO

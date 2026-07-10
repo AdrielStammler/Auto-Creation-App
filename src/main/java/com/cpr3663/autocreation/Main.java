@@ -61,6 +61,8 @@ public class Main extends Application {
         setDarkMode(stage);
         AppStateManager.getInstance().isDarkModeProperty().addListener(run(() -> setDarkMode(stage)));
         AppStateManager.getInstance().openAutoNameProperty().addListener(run(FileHelper::open));
+        AppStateManager.getInstance().fieldImageProperty().addListener(run(refreshField(borderPane)));
+        AppStateManager.getInstance().aprilTagFieldProperty().addListener(run(refreshField(borderPane)));
         AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved() || change.wasPermutated())
@@ -75,7 +77,7 @@ public class Main extends Application {
                 if (change.wasRemoved()) for (Event event : change.getRemoved()) event.setOnChangeCallback(null);
             }
         });
-        AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> borderPane.setCenter(Field.getFieldPane()));
+        AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> refreshField(borderPane).run());
         AppStateManager.getInstance().selectedEventProperty().addListener(run(() -> {
             FXMLLoader editorFxml2 = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
             try {
@@ -108,6 +110,10 @@ public class Main extends Application {
 //        else {
 //                scene.getStylesheets().add(Constants.Paths.LIGHT_THEME);
 //        }
+    }
+
+    private static Runnable refreshField(BorderPane borderPane) {
+        return () -> borderPane.setCenter(Field.getFieldPane());
     }
 
     private static <T> ChangeListener<T> run(Runnable runnable) {

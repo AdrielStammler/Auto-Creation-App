@@ -18,8 +18,7 @@ public class Menus {
         MenuBar menuBar = new MenuBar();
 
         // Add Menus to MenuBar
-        menuBar.getMenus().add(getFileMenu());
-        menuBar.getMenus().add(getHelpMenu());
+        menuBar.getMenus().addAll(getFileMenu(), getAppMenu(), getHelpMenu());
 
         return menuBar;
     }
@@ -31,18 +30,15 @@ public class Menus {
         MenuItem save = new MenuItem("_Save");
         save.disableProperty().bind(AppStateManager.getInstance().isSavedProperty());
         MenuItem rename = new MenuItem("_Rename");
-        MenuItem settings = new MenuItem("S_ettings");
         MenuItem exit = new MenuItem("Exit");
 
-        SeparatorMenuItem separator1 = new SeparatorMenuItem();
-        SeparatorMenuItem separator2 = new SeparatorMenuItem();
+        SeparatorMenuItem separator = new SeparatorMenuItem();
 
         // Setting Accelerators
         newFile.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         save.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         rename.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
-        settings.setAccelerator(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN));
         exit.setAccelerator(new KeyCodeCombination(KeyCode.F4, KeyCombination.ALT_DOWN));
 
         // Creating Events
@@ -60,14 +56,31 @@ public class Menus {
         });
         save.setOnAction(e -> FileHelper.save());
         rename.setOnAction(e -> FileHelper.rename());
-        settings.setOnAction(e -> PopUpHelper.showSettings());
         exit.setOnAction(e -> Platform.exit());
 
         // Create menu and add items
         Menu menu = new Menu("_File");
-        menu.getItems().addAll(newFile, open, save, rename, separator1, settings, separator2, exit);
+        menu.getItems().addAll(newFile, open, save, rename, separator, exit);
 
         return menu;
+    }
+
+    private static Menu getAppMenu() {
+        // Create Menu Items
+        MenuItem settings = new MenuItem("S_ettings");
+
+        // Setting Accelerators
+        settings.setAccelerator(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN));
+
+        // Creating Events
+        settings.setOnAction(e -> PopUpHelper.showSettings());
+
+        // Create menu and add items
+        Menu menu = new Menu("_App");
+        menu.getItems().addAll(settings);
+
+        return menu;
+
     }
 
     private static Menu getHelpMenu() {
