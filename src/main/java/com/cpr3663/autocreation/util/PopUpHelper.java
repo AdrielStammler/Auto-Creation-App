@@ -3,7 +3,7 @@ package com.cpr3663.autocreation.util;
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.Main;
-import com.cpr3663.autocreation.controllers.NewAutoController;
+import com.cpr3663.autocreation.controllers.autoNameController;
 import com.cpr3663.autocreation.controllers.SettingsController;
 import javafx.animation.*;
 import javafx.fxml.FXMLLoader;
@@ -18,15 +18,21 @@ import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PopUpHelper {
-    public static boolean confirmOverride() {
+    /**
+     * @return a {@link Boolean} representing if the caller may continue with overriding (if overriding would occur).
+     *  {@link Boolean true}: Do not override. {@link Boolean false}: Override or continue
+     */
+    public static boolean checkForOverride() {
         if (AppStateManager.getInstance().isSaved())
-            return true;
+            return false;
 
         Alert ask = new Alert(Alert.AlertType.CONFIRMATION);
 
@@ -52,11 +58,11 @@ public class PopUpHelper {
         if (result.isPresent() && !result.get().equals(buttonCancel)) {
             if (result.get().equals(buttonSave)) {
                 FileHelper.save();
-                return true;
+                return false;
             }
-            return result.get().equals(buttonDiscard);
+            return !result.get().equals(buttonDiscard);
         }
-        return false;
+        return true;
     }
 
     public static void showSettings() {
@@ -82,9 +88,16 @@ public class PopUpHelper {
     }
 
     public static void selectAutoToOpen() {
-        File deployFolder = new File(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_DEPLOY);
+        Path autosFolder = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER).toAbsolutePath();
+        if (Files.notExists(autosFolder)) {
+            try {
+                Files.createDirectories(autosFolder);
+            } catch (IOException e) {
+                Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, "Failed to create directory at " + autosFolder, e);
+            }
+        }
         FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(deployFolder);
+        chooser.setInitialDirectory(autosFolder.toFile());
         chooser.setTitle("Select an Auto");
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Auto Files", "*.dsv"));
         File auto = chooser.showOpenDialog(AppStateManager.getInstance().getWindow());
@@ -96,9 +109,9 @@ public class PopUpHelper {
         AppStateManager.getInstance().setOpenAutoName(auto.getName());
     }
 
-    public static Optional<String> chooseNewAutoName() {
+    public static Optional<String> chooseAutoName() {
         try {
-            FXMLLoader loader = new FXMLLoader(PopUpHelper.class.getResource("/com/cpr3663/autocreation/newAuto-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(PopUpHelper.class.getResource("/com/cpr3663/autocreation/autoName-view.fxml"));
             Stage popupStage = new Stage();
             popupStage.initModality(Modality.APPLICATION_MODAL);
             popupStage.initStyle(StageStyle.UNDECORATED);
@@ -108,7 +121,7 @@ public class PopUpHelper {
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
             Main.setDarkMode(popupStage);
-            NewAutoController controller = loader.getController();
+            autoNameController controller = loader.getController();
             controller.setStage(popupStage);
 
             showPopUp(popupStage);
@@ -121,7 +134,15 @@ public class PopUpHelper {
         }
     }
 
-    public static void showPopUp(Stage popupStage) {
+    public static Optional<ButtonType> showAlert(Alert.AlertType type, String title, String message, ButtonType... buttons) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(message);
+        alert.getButtonTypes().setAll(buttons);
+        return alert.showAndWait();
+    }
+
+    private static void showPopUp(Stage popupStage) {
         FadeTransition fadeTransition = new FadeTransition(Duration.millis(1));
         fadeTransition.setNode(AppStateManager.getInstance().getRoot().getChildren().get(1));
         fadeTransition.setFromValue(0.0);

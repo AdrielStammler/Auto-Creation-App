@@ -5,10 +5,10 @@
 
 <VBox xmlns="http://javafx.com"
       xmlns:fx="http://javafx.com"
-      fx:controller="com.cpr3663.autocreation.controllers.NewAutoController"
+      fx:controller="com.cpr3663.autocreation.controllers.autoNameController"
       alignment="CENTER" spacing="15.0" style="-fx-padding: 20;">
 
-    <Label text="Enter the name for the new auto:" />
+    <Label text="Enter the name for the auto:" />
     <TextField fx:id="inputField" promptText="Type here..." />
 
     <HBox spacing="10" alignment="CENTER">

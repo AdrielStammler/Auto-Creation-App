@@ -30,6 +30,7 @@ public class Menus {
         MenuItem open = new MenuItem("_Open");
         MenuItem save = new MenuItem("_Save");
         save.disableProperty().bind(AppStateManager.getInstance().isSavedProperty());
+        MenuItem rename = new MenuItem("_Rename");
         MenuItem settings = new MenuItem("S_ettings");
         MenuItem exit = new MenuItem("Exit");
 
@@ -40,12 +41,13 @@ public class Menus {
         newFile.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         save.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
+        rename.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
         settings.setAccelerator(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN));
         exit.setAccelerator(new KeyCodeCombination(KeyCode.F4, KeyCombination.ALT_DOWN));
 
         // Creating Events
         newFile.setOnAction(e -> {
-            if (!PopUpHelper.confirmOverride()) return;
+            if (PopUpHelper.checkForOverride()) return;
             try {
                 FileHelper.create();
             } catch (IOException ex) {
@@ -53,16 +55,17 @@ public class Menus {
             }
         });
         open.setOnAction(e -> {
-            if (!PopUpHelper.confirmOverride()) return;
+            if (PopUpHelper.checkForOverride()) return;
             PopUpHelper.selectAutoToOpen();
         });
         save.setOnAction(e -> FileHelper.save());
+        rename.setOnAction(e -> FileHelper.rename());
         settings.setOnAction(e -> PopUpHelper.showSettings());
         exit.setOnAction(e -> Platform.exit());
 
         // Create menu and add items
         Menu menu = new Menu("_File");
-        menu.getItems().addAll(newFile, open, save, separator1, settings, separator2, exit);
+        menu.getItems().addAll(newFile, open, save, rename, separator1, settings, separator2, exit);
 
         return menu;
     }

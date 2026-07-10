@@ -30,6 +30,7 @@ public class Main extends Application {
 
         MenuBar menus = Menus.getMenuBar();
         FXMLLoader eventsFxml = new FXMLLoader(Main.class.getResource("events-view.fxml"));
+        FXMLLoader editorFxml = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
         Pane field = Field.getFieldPane();
 
         // Creating and defining the BorderPane
@@ -37,6 +38,7 @@ public class Main extends Application {
         borderPane.setTop(menus);
         borderPane.setCenter(field);
         borderPane.setLeft(eventsFxml.load());
+        borderPane.setRight(editorFxml.load());
 
         Rectangle overlay = new Rectangle();
         overlay.widthProperty().bind(borderPane.widthProperty());
@@ -73,12 +75,28 @@ public class Main extends Application {
                 if (change.wasRemoved()) for (Event event : change.getRemoved()) event.setOnChangeCallback(null);
             }
         });
-        AppStateManager.getInstance().eventsProperty().addListener(run(() -> borderPane.setCenter(Field.getFieldPane())));
+        AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> borderPane.setCenter(Field.getFieldPane()));
+        AppStateManager.getInstance().selectedEventProperty().addListener(run(() -> {
+            FXMLLoader editorFxml2 = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
+            try {
+                borderPane.setRight(editorFxml2.load());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }));
+
+        if (mustCreateAuto()) FileHelper.create();
     }
 
     @Override
     public void stop() {
         AppStateManager.getInstance().saveState();
+    }
+
+    public static boolean mustCreateAuto() {
+        // TODO
+        return false;
+//        return AppStateManager.getInstance().getOpenAutoName().isEmpty();
     }
 
     public static void setDarkMode(Window stage) {

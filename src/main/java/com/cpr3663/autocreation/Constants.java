@@ -18,13 +18,15 @@ public final class Constants {
         public static final String ALERT_ICON = "/icons/AlertIcon.png";
         public static final String DARK_THEME = "/themes/dark-theme.css";
 
-        public static final String ROBOT_REPO_DEPLOY = "/src/main/deploy";
+        private static final String ROBOT_REPO_DEPLOY = "/src/main/deploy/auto-creation";
+        public static final String ROBOT_REPO_AUTOS_FOLDER = ROBOT_REPO_DEPLOY + "/autos";
+        public static final String ROBOT_REPO_POINTS_FOLDER = ROBOT_REPO_DEPLOY + "/points";
     }
 
     public static final class Stage {
         public static final String TITLE = "Hello!";
 
-        public static final int WIDTH = 1200;
+        public static final int WIDTH = 1600;
         public static final int HEIGHT = 800;
     }
 }

@@ -1,11 +1,10 @@
 package com.cpr3663.autocreation.controllers;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class NewAutoController {
+public class autoNameController {
     @FXML private TextField inputField;
     private Stage stage;
     private String userInput = null;
@@ -19,13 +18,13 @@ public class NewAutoController {
     }
 
     @FXML
-    public void handleSubmit(ActionEvent actionEvent) {
+    public void handleSubmit() {
         userInput = inputField.getText();
         stage.close();
     }
 
     @FXML
-    public void handleCancel(ActionEvent actionEvent) {
+    public void handleCancel() {
         userInput = null;
         stage.close();
     }
