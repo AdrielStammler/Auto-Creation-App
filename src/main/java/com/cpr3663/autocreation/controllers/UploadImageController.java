@@ -36,7 +36,8 @@ public class UploadImageController {
 
     @FXML
     public void initialize() {
-        Background background = new Background(new BackgroundFill(Color.BLUE, new CornerRadii(5), Insets.EMPTY));
+        browseButton.getStyleClass().clear();
+        Background background = new Background(new BackgroundFill(new Color(0.258824, 0.517647, 0.94902, 1.0), new CornerRadii(100), new Insets(-3, -8, -3, -8)));
         browseButton.setBackground(background);
     }
 

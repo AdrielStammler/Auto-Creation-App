@@ -143,6 +143,7 @@ public class PopUpHelper {
             popupStage.initStyle(StageStyle.UTILITY);
             popupStage.initOwner(stage);
             popupStage.setTitle("Upload Image");
+            popupStage.setResizable(false);
 
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
