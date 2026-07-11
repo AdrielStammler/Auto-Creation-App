@@ -1,6 +1,5 @@
-package com.cpr3663.autocreation.util;
+package com.cpr3663.autocreation.objects;
 
-import com.cpr3663.autocreation.objects.Event;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.input.ClipboardContent;

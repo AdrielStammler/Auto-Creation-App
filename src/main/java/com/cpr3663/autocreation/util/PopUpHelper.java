@@ -2,7 +2,6 @@ package com.cpr3663.autocreation.util;
 
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
-import com.cpr3663.autocreation.Main;
 import com.cpr3663.autocreation.controllers.UploadImageController;
 import com.cpr3663.autocreation.controllers.AutoNameController;
 import com.cpr3663.autocreation.controllers.SettingsController;
@@ -77,7 +76,7 @@ public class PopUpHelper {
 
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
-            Main.setDarkMode(popupStage);
+            MiscHelper.setDarkMode(popupStage);
             SettingsController controller = loader.getController();
             controller.setStage(popupStage);
 
@@ -121,7 +120,7 @@ public class PopUpHelper {
 
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
-            Main.setDarkMode(popupStage);
+            MiscHelper.setDarkMode(popupStage);
             AutoNameController controller = loader.getController();
             controller.setStage(popupStage);
 
@@ -147,7 +146,7 @@ public class PopUpHelper {
 
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
-            Main.setDarkMode(popupStage);
+            MiscHelper.setDarkMode(popupStage);
             UploadImageController controller = loader.getController();
             controller.setStage(popupStage);
 

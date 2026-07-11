@@ -3,7 +3,7 @@ package com.cpr3663.autocreation.controllers;
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.objects.DriveEvent;
 import com.cpr3663.autocreation.objects.Event;
-import com.cpr3663.autocreation.util.DragDropCell;
+import com.cpr3663.autocreation.objects.DragDropCell;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

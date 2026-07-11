@@ -4,6 +4,7 @@ import com.cpr3663.autocreation.nodes.Field;
 import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.util.FileHelper;
 import com.cpr3663.autocreation.nodes.Menus;
+import com.cpr3663.autocreation.util.MiscHelper;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
@@ -16,7 +17,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 import java.io.IOException;
 
@@ -57,9 +57,9 @@ public class Main extends Application {
         stage.show();
         stage.toFront();
         stage.requestFocus();
+        MiscHelper.setDarkMode(stage);
 
-        setDarkMode(stage);
-        AppStateManager.getInstance().isDarkModeProperty().addListener(run(() -> setDarkMode(stage)));
+        AppStateManager.getInstance().isDarkModeProperty().addListener(run(() -> MiscHelper.setDarkMode(stage)));
         AppStateManager.getInstance().openAutoNameProperty().addListener(run(FileHelper::open));
         AppStateManager.getInstance().fieldImageProperty().addListener(run(refreshField(borderPane)));
         AppStateManager.getInstance().aprilTagFieldProperty().addListener(run(refreshField(borderPane)));
@@ -79,6 +79,7 @@ public class Main extends Application {
         });
         AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> refreshField(borderPane).run());
         AppStateManager.getInstance().selectedEventProperty().addListener(run(() -> {
+            refreshField(borderPane).run();
             FXMLLoader editorFxml2 = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
             try {
                 borderPane.setRight(editorFxml2.load());
@@ -99,17 +100,6 @@ public class Main extends Application {
         // TODO
         return false;
 //        return AppStateManager.getInstance().getOpenAutoName().isEmpty();
-    }
-
-    public static void setDarkMode(Window stage) {
-        Scene scene = stage.getScene();
-        scene.getStylesheets().clear();
-        if (AppStateManager.getInstance().isDarkMode()) {
-            scene.getStylesheets().add(Constants.Paths.DARK_THEME);
-        }
-//        else {
-//                scene.getStylesheets().add(Constants.Paths.LIGHT_THEME);
-//        }
     }
 
     private static Runnable refreshField(BorderPane borderPane) {

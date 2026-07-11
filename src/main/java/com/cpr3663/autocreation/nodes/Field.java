@@ -4,9 +4,11 @@ import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.objects.DriveEvent;
 import com.cpr3663.autocreation.objects.Event;
+import com.cpr3663.autocreation.util.MiscHelper;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import javafx.scene.control.Label;
@@ -54,9 +56,16 @@ public class Field {
     private static void drawAprilTags(Pane fieldPane, AprilTagFieldLayout fieldLayout) {
         double fieldWidthPixels = fieldLayout.getFieldWidth() * PIXELS_PER_METER;
 
+        Event event = AppStateManager.getInstance().getSelectedEvent();
+        AprilTag selected;
+        if (event != null && event.getName().equals(Constants.Events.DRIVE_NAME))
+            selected = ((DriveEvent) event).getRelativeFrom();
+        else selected = new AprilTag(-2, new Pose3d());
+
         for (AprilTag tag : fieldLayout.getTags()) {
             Pose2d pose = tag.pose.toPose2d();
             int id = tag.ID;
+            boolean isSelected = selected.equals(tag);
 
             Translation2d position = pose.getTranslation();
             position = position.times(PIXELS_PER_METER);
@@ -66,7 +75,7 @@ public class Field {
             rotation = rotation.plus(Rotation2d.fromDegrees(-90));
 
             // Build the visual node for individual tags
-            Pane tagGroup = createTagVisual(id, rotation.getDegrees());
+            Pane tagGroup = createTagVisual(id, rotation.getDegrees(), isSelected);
 
             // Relocate node so its absolute center sits on the coordinate point
             tagGroup.layoutXProperty().bind(tagGroup.widthProperty().divide(-2).add(position.getX()));
@@ -76,7 +85,7 @@ public class Field {
         }
     }
 
-    private static Pane createTagVisual(int id, double rotationDeg) {
+    private static Pane createTagVisual(int id, double rotationDeg, boolean isSelected) {
         Pane tagNode = new Pane();
 
         // Define dimension boundaries for standard rendering (~8-inch/0.2m scaled representation)
@@ -109,6 +118,11 @@ public class Field {
         rotate.pivotYProperty().bind(tagNode.heightProperty().divide(2));
         tagNode.getTransforms().add(rotate);
 
+        if (isSelected) {
+            // TODO once is using Icon apply highlight
+//            MiscHelper.highlightImage(icon);
+        }
+
         return tagNode;
     }
 
@@ -122,6 +136,8 @@ public class Field {
                 robotView.setX(driveEvent.getXPos() * PIXELS_PER_METER);
                 robotView.setY(driveEvent.getYPos() * PIXELS_PER_METER);
                 robotView.setRotate(driveEvent.getTheta());
+
+                MiscHelper.highlightImage(robotView);
 
                 fieldPane.getChildren().add(robotView);
             }
