@@ -4,7 +4,6 @@ import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.objects.DriveEvent;
 import com.cpr3663.autocreation.objects.Event;
-import com.cpr3663.autocreation.util.MiscHelper;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,8 +11,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import javafx.scene.control.Label;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -29,6 +31,7 @@ public class Field {
         Pane pane = getPane(fieldLayout);
         drawAprilTags(pane, fieldLayout);
         drawRobotPoses(pane);
+        pane.setOnMouseClicked((MouseEvent event) -> System.out.println("Pane clicked at coordinates: X=" + event.getX() + ", Y=" + event.getY()));
         return pane;
     }
 
@@ -88,7 +91,7 @@ public class Field {
     private static Pane createTagVisual(int id, double rotationDeg, boolean isSelected) {
         Pane tagNode = new Pane();
 
-        // Define dimension boundaries for standard rendering (~8-inch/0.2m scaled representation)
+        // TODO get image
         double size = 20.0;
         tagNode.setPrefSize(size, size);
 
@@ -98,11 +101,9 @@ public class Field {
         square.setStroke(Color.WHITE);
         square.setStrokeWidth(1.5);
 
-        // Add a directional indicator line pointing 'forward' from the face of the tag
         Rectangle pointer = new Rectangle(size / 2 - 1, 0, 2, size / 2);
         pointer.setFill(Color.RED);
 
-        // Overlay text displaying the Target Identification string
         Label idLabel = new Label(Integer.toString(id));
         idLabel.setTextFill(Color.WHITE);
         idLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 9px;");
@@ -111,7 +112,6 @@ public class Field {
 
         tagNode.getChildren().addAll(square, pointer, idLabel);
 
-        // Apply 2D transforms around the visual node center point
         Rotate rotate = new Rotate();
         rotate.setAngle(-rotationDeg);
         rotate.pivotXProperty().bind(tagNode.widthProperty().divide(2));
@@ -120,13 +120,15 @@ public class Field {
 
         if (isSelected) {
             // TODO once is using Icon apply highlight
-//            MiscHelper.highlightImage(icon);
+//            Helper.highlightImage(icon);
         }
 
         return tagNode;
     }
 
     private static void drawRobotPoses(Pane fieldPane) {
+        Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
+
         for (Event event : AppStateManager.getInstance().getEvents())
             if (event.getName().equals(Constants.Events.DRIVE_NAME)) {
                 DriveEvent driveEvent = (DriveEvent) event;
@@ -137,9 +139,37 @@ public class Field {
                 robotView.setY(driveEvent.getYPos() * PIXELS_PER_METER);
                 robotView.setRotate(driveEvent.getTheta());
 
-                MiscHelper.highlightImage(robotView);
+                robotView.setPreserveRatio(true);
+                robotView.setSmooth(true);
+                robotView.setFitWidth(AppStateManager.getInstance().getRobotSize() * PIXELS_PER_METER);
+
+                if (event.equals(selectedEvent)) Helper.highlightImage(robotView);
+                else Helper.colorRobot(robotView);
 
                 fieldPane.getChildren().add(robotView);
             }
+    }
+
+    private static class Helper {
+        private static final Color HIGHLIGHT_COLOR = Color.ORANGE;
+        private static final Color NORMAL_ROBOT_COLOR = Color.WHITESMOKE;
+
+        private static void highlightImage(ImageView image) {
+            changeColor(image, HIGHLIGHT_COLOR);
+        }
+
+        private static void colorRobot(ImageView image) {
+            changeColor(image, NORMAL_ROBOT_COLOR);
+        }
+
+        private static void changeColor(ImageView image, Color color) {
+            Light.Distant distantLight = new Light.Distant();
+            distantLight.setElevation(90);
+            distantLight.setColor(color);
+            Lighting lighting = new Lighting();
+            lighting.setLight(distantLight);
+            lighting.setSurfaceScale(0.0);
+            image.setEffect(lighting);
+        }
     }
 }

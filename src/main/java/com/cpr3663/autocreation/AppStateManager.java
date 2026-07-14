@@ -3,14 +3,16 @@ package com.cpr3663.autocreation;
 import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.objects.RefreshableListProperty;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.Units;
 import javafx.application.HostServices;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Window;
-import javafx.embed.swing.SwingFXUtils;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -26,6 +28,8 @@ public class AppStateManager {
         prefs.put("openAutoName", getOpenAutoName());
         prefs.put("robotRepoPath", getRobotRepoPath());
         prefs.put("aprilTagField", getAprilTagField().name());
+        prefs.putDouble("robotSize", getRobotSize());
+        prefs.put("displayUnits", getDisplayUnits().symbol());
         File file = new File(Constants.Paths.FIELD_IMAGE);
         file.getParentFile().mkdirs();
         try {
@@ -40,6 +44,14 @@ public class AppStateManager {
         setOpenAutoName(prefs.get("openAutoName", getOpenAutoName()));
         setRobotRepoPath(prefs.get("robotRepoPath", getRobotRepoPath()));
         setAprilTagField(AprilTagFields.valueOf(prefs.get("aprilTagField", getAprilTagField().name())));
+        setRobotSize(prefs.getDouble("robotSize", getRobotSize()));
+        setDisplayUnits(switch(prefs.get("displayUnits", getDisplayUnits().symbol())) {
+            case "cm" -> Units.Centimeters;
+            case "in" -> Units.Inches;
+            case "ft" -> Units.Feet;
+            case "mm" -> Units.Millimeters;
+            default -> Units.Meters;
+        });
         File file = new File(Constants.Paths.FIELD_IMAGE);
         if (file.exists()) setFieldImage(new Image(file.toURI().toString()));
     }
@@ -69,6 +81,8 @@ public class AppStateManager {
     private final StringProperty robotRepoPath = new SimpleStringProperty(System.getProperty("user.home"));
     private final ObjectProperty<Image> fieldImage = new SimpleObjectProperty<>(null);
     private final ObjectProperty<AprilTagFields> aprilTagField = new SimpleObjectProperty<>(AprilTagFields.kDefaultField);
+    private final DoubleProperty robotSize = new SimpleDoubleProperty(Units.Inches.toBaseUnits(27));
+    private final ObjectProperty<DistanceUnit> displayUnits = new SimpleObjectProperty<>(Units.Meters);
 
     // Getters and Setters
     public HostServices getHostServices() {
@@ -181,5 +195,29 @@ public class AppStateManager {
 
     public void setAprilTagField(AprilTagFields aprilTagField) {
         this.aprilTagField.set(aprilTagField);
+    }
+
+    public DoubleProperty robotSizeProperty() {
+        return robotSize;
+    }
+
+    public double getRobotSize() {
+        return robotSize.get();
+    }
+
+    public void setRobotSize(double robotSize) {
+        this.robotSize.set(robotSize);
+    }
+
+    public ObjectProperty<DistanceUnit> displayUnitsProperty() {
+        return displayUnits;
+    }
+
+    public DistanceUnit getDisplayUnits() {
+        return displayUnits.get();
+    }
+
+    public void setDisplayUnits(DistanceUnit displayUnits) {
+        this.displayUnits.set(displayUnits);
     }
 }
