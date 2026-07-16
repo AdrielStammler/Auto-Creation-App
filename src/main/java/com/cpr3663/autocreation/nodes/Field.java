@@ -24,10 +24,12 @@ import javafx.scene.transform.Rotate;
 import java.util.Objects;
 
 public class Field {
-    private static final double PIXELS_PER_METER = 50.0;
+    private static final double PIXELS_PER_METER = 75.0;
+    private static double FIELD_WIDTH;
 
     public static Pane getFieldPane() {
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
+        FIELD_WIDTH = fieldLayout.getFieldWidth();
         Pane pane = getPane(fieldLayout);
         drawAprilTags(pane, fieldLayout);
         drawRobotPoses(pane);
@@ -57,8 +59,6 @@ public class Field {
     }
 
     private static void drawAprilTags(Pane fieldPane, AprilTagFieldLayout fieldLayout) {
-        double fieldWidthPixels = fieldLayout.getFieldWidth() * PIXELS_PER_METER;
-
         Event event = AppStateManager.getInstance().getSelectedEvent();
         AprilTag selected;
         if (event != null && event.getName().equals(Constants.Events.DRIVE_NAME))
@@ -71,8 +71,7 @@ public class Field {
             boolean isSelected = selected.equals(tag);
 
             Translation2d position = pose.getTranslation();
-            position = position.times(PIXELS_PER_METER);
-            position = new Translation2d(position.getX(), fieldWidthPixels - position.getY());
+            position = Helper.toPixels(position);
 
             Rotation2d rotation = pose.getRotation();
             rotation = rotation.plus(Rotation2d.fromDegrees(-90));
@@ -128,6 +127,8 @@ public class Field {
 
     private static void drawRobotPoses(Pane fieldPane) {
         Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
+        double sizeX = AppStateManager.getInstance().getRobotSize();
+        double sizeY = AppStateManager.getInstance().getRobotSize();
 
         for (Event event : AppStateManager.getInstance().getEvents())
             if (event.getName().equals(Constants.Events.DRIVE_NAME)) {
@@ -135,13 +136,15 @@ public class Field {
                 Image robot = new Image(Objects.requireNonNull(Field.class.getResource(Constants.Paths.ROBOT_ICON)).toExternalForm());
                 ImageView robotView = new ImageView(robot);
 
-                robotView.setX(driveEvent.getXPos() * PIXELS_PER_METER);
-                robotView.setY(driveEvent.getYPos() * PIXELS_PER_METER);
+                Translation2d position = Helper.toPixels(driveEvent.getXPos() - (sizeX / 2), driveEvent.getYPos() + (sizeX / 2));
+
+                robotView.setX(position.getX());
+                robotView.setY(position.getY());
                 robotView.setRotate(driveEvent.getTheta());
 
                 robotView.setPreserveRatio(true);
                 robotView.setSmooth(true);
-                robotView.setFitWidth(AppStateManager.getInstance().getRobotSize() * PIXELS_PER_METER);
+                robotView.setFitWidth(sizeX * PIXELS_PER_METER);
 
                 if (event.equals(selectedEvent)) Helper.highlightImage(robotView);
                 else Helper.colorRobot(robotView);
@@ -170,6 +173,24 @@ public class Field {
             lighting.setLight(distantLight);
             lighting.setSurfaceScale(0.0);
             image.setEffect(lighting);
+        }
+
+        private static Translation2d toPixels(Translation2d position) {
+            return toPixels(position.getX(), position.getY());
+        }
+
+        private static Translation2d toPixels(double x, double y) {
+            Translation2d position = new Translation2d(x, FIELD_WIDTH - y);
+            return position.times(PIXELS_PER_METER);
+        }
+
+        private static Translation2d fromPixels(Translation2d position) {
+            return fromPixels(position.getX(), position.getY());
+        }
+
+        private static Translation2d fromPixels(double x, double y) {
+            Translation2d position = new Translation2d(x, (FIELD_WIDTH * PIXELS_PER_METER) - y);
+            return position.div(PIXELS_PER_METER);
         }
     }
 }

@@ -23,13 +23,22 @@ public class AppStateManager {
     // Create a preferences and methods to save and load certain variables/settings
     private static final Preferences prefs = Preferences.userNodeForPackage(AppStateManager.class);
 
+    private static final class Keys {
+        private static final String DARK_MODE = "isDarkMode";
+        private static final String OPEN_AUTO = "openAutoName";
+        private static final String ROBOT_REPO = "robotRepoPath";
+        private static final String TAG_FIELD = "aprilTagField";
+        private static final String ROBOT_SIZE = "robotSize";
+        private static final String DISPLAY_UNIT = "displayUnits";
+    }
+
     public void saveState() {
-        prefs.putBoolean("isDarkMode", isDarkMode());
-        prefs.put("openAutoName", getOpenAutoName());
-        prefs.put("robotRepoPath", getRobotRepoPath());
-        prefs.put("aprilTagField", getAprilTagField().name());
-        prefs.putDouble("robotSize", getRobotSize());
-        prefs.put("displayUnits", getDisplayUnits().symbol());
+        prefs.putBoolean(Keys.DARK_MODE, isDarkMode());
+        prefs.put(Keys.OPEN_AUTO, getOpenAutoName());
+        prefs.put(Keys.ROBOT_REPO, getRobotRepoPath());
+        prefs.put(Keys.TAG_FIELD, getAprilTagField().name());
+        prefs.putDouble(Keys.ROBOT_SIZE, getRobotSize());
+        prefs.put(Keys.DISPLAY_UNIT, getDisplayUnits().symbol());
         File file = new File(Constants.Paths.FIELD_IMAGE);
         file.getParentFile().mkdirs();
         try {
@@ -40,12 +49,12 @@ public class AppStateManager {
     }
 
     public void loadState() {
-        setIsDarkMode(prefs.getBoolean("isDarkMode", isDarkMode()));
-        setOpenAutoName(prefs.get("openAutoName", getOpenAutoName()));
-        setRobotRepoPath(prefs.get("robotRepoPath", getRobotRepoPath()));
-        setAprilTagField(AprilTagFields.valueOf(prefs.get("aprilTagField", getAprilTagField().name())));
-        setRobotSize(prefs.getDouble("robotSize", getRobotSize()));
-        setDisplayUnits(switch(prefs.get("displayUnits", getDisplayUnits().symbol())) {
+        setIsDarkMode(prefs.getBoolean(Keys.DARK_MODE, isDarkMode()));
+        setOpenAutoName(prefs.get(Keys.OPEN_AUTO, getOpenAutoName()));
+        setRobotRepoPath(prefs.get(Keys.ROBOT_REPO, getRobotRepoPath()));
+        setAprilTagField(AprilTagFields.valueOf(prefs.get(Keys.TAG_FIELD, getAprilTagField().name())));
+        setRobotSize(prefs.getDouble(Keys.ROBOT_SIZE, getRobotSize()));
+        setDisplayUnits(switch(prefs.get(Keys.DISPLAY_UNIT, getDisplayUnits().symbol())) {
             case "cm" -> Units.Centimeters;
             case "in" -> Units.Inches;
             case "ft" -> Units.Feet;
