@@ -4,7 +4,7 @@ import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.objects.DriveEvent;
 import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.objects.DragDropCell;
-import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -24,13 +24,13 @@ public class EventsController {
         listView.setCellFactory(lv -> new DragDropCell());
         customBindBidirectional();
 
-        // Wait for the button to be attached to a scene
+        listView.setOnMousePressed(event -> AppStateManager.getInstance().setEventsEditing());
+
         addButton.sceneProperty().addListener((observable, oldScene, newScene) -> {
             if (newScene != null) {
                 setupAccelerator(newScene);
             }
         });
-
         deleteButton.disableProperty().bind(listView.getSelectionModel().selectedItemProperty().isNull());
     }
 
@@ -42,39 +42,40 @@ public class EventsController {
     }
 
     private void customBindBidirectional() {
-        ObjectProperty<Event> eventProperty = AppStateManager.getInstance().selectedEventProperty();
-        listView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            AppStateManager.getInstance().setEventsEditing();
-            eventProperty.set(newSelection);
+        // TODO figure out why this fires 4 times upon selecting position on screen AND ASK JACOB
+        IntegerProperty eventProperty = AppStateManager.getInstance().selectedIndexProperty();
+        listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
+            System.out.println("Selection changed (ListView): " + oldSelection.intValue() + " -> " + newSelection.intValue());
+            if (newSelection.intValue() == -1 && !AppStateManager.getInstance().getEvents().isEmpty()) return;
+            eventProperty.set(newSelection.intValue());
         });
 
         eventProperty.addListener((obs, oldVal, newVal) -> {
-            if (newVal == null) {
+            System.out.println("Selection changed (AppStateManager): " + oldVal.intValue() + " -> " + newVal.intValue());
+            if (newVal.intValue() == -1)
                 listView.getSelectionModel().clearSelection();
-            } else {
-                listView.getSelectionModel().select(newVal);
-            }
+            else
+                listView.getSelectionModel().select(newVal.intValue());
         });
     }
 
     @FXML
-    protected void addEvent() {
+    private void addEvent() {
         AppStateManager.getInstance().setEventsEditing();
         Event event = new DriveEvent();
         // TODO ask for event type
         AppStateManager.getInstance().addEvent(event);
-        listView.getSelectionModel().select(event);
+        AppStateManager.getInstance().setSelectedIndex(AppStateManager.getInstance().getEvents().size() - 1);
     }
 
     @FXML
-    protected void deleteEvent() {
+    private void deleteEvent() {
         AppStateManager.getInstance().setEventsEditing();
         Event selectedEvent = listView.getSelectionModel().getSelectedItem();
         int index = listView.getSelectionModel().getSelectedIndex();
         AppStateManager.getInstance().getEvents().remove(selectedEvent);
-        if (index < listView.getItems().size())
-            listView.getSelectionModel().select(index);
-        else
-            listView.getSelectionModel().selectLast();
+        if (index == listView.getItems().size())
+            index--;
+        AppStateManager.getInstance().setSelectedIndex(index);
     }
 }

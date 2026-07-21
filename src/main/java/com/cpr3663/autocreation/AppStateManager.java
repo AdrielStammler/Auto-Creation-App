@@ -83,7 +83,7 @@ public class AppStateManager {
     private HostServices hostServices;
     private StackPane root;
     private final BooleanProperty isSaved = new SimpleBooleanProperty(true);
-    private final ObjectProperty<Event> selectedEvent = new SimpleObjectProperty<>();
+    private final IntegerProperty selectedIndex = new SimpleIntegerProperty(-1);
     private final ObjectProperty<Main.Sections> currentEditor = new SimpleObjectProperty<>(Main.Sections.EVENTS);
 
     private final RefreshableListProperty<Event> events = new RefreshableListProperty<>(FXCollections.observableArrayList());
@@ -118,16 +118,25 @@ public class AppStateManager {
         this.isSaved.set(isSaved);
     }
 
-    public ObjectProperty<Event> selectedEventProperty() {
-        return selectedEvent;
+    public IntegerProperty selectedIndexProperty() {
+        return selectedIndex;
     }
 
-    public void setSelectedEvent(Event selectedEvent) {
-        this.selectedEvent.set(selectedEvent);
+    public void setSelectedIndex(int selectedIndex) {
+        this.selectedIndex.set(selectedIndex);
+    }
+
+    public int getSelectedIndex() {
+        return selectedIndex.get();
+    }
+
+    public void setSelectedEvent(Event event) {
+        setSelectedIndex(events.indexOf(event));
     }
 
     public Event getSelectedEvent() {
-        return selectedEvent.get();
+        if (getSelectedIndex() == -1) return null;
+        return events.get(getSelectedIndex());
     }
 
     public ObjectProperty<Main.Sections> currentEditorProperty() {

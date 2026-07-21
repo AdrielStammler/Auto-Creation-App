@@ -81,7 +81,8 @@ public class Main extends Application {
             if (AppStateManager.getInstance().isNotFieldEditing())
                 refreshField(borderPane).run();
         });
-        AppStateManager.getInstance().selectedEventProperty().addListener(run(() -> {
+        AppStateManager.getInstance().selectedIndexProperty().addListener(run(() -> {
+            // TODO make this not redraw the whole field and instead just change the selected one
             if (AppStateManager.getInstance().isNotFieldEditing()) refreshField(borderPane).run();
             else if (AppStateManager.getInstance().isNotEditorEditing()) {
                 FXMLLoader editorFxml2 = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
@@ -92,6 +93,8 @@ public class Main extends Application {
                 }
             }
         }));
+
+        AppStateManager.getInstance().currentEditorProperty().addListener((observable, oldValue, newValue) -> System.out.println("Current Editor: " + newValue));
 
         if (mustCreateAuto()) FileHelper.create();
     }
@@ -108,7 +111,10 @@ public class Main extends Application {
     }
 
     private static Runnable refreshField(BorderPane borderPane) {
-        return () -> borderPane.setCenter(Field.getFieldPane());
+        return () -> {
+            System.out.println("Refreshing field | " + AppStateManager.getInstance().isNotFieldEditing() + " | "+ Math.round(Math.random() * 100));
+            borderPane.setCenter(Field.getFieldPane());
+        };
     }
 
     private static <T> ChangeListener<T> run(Runnable runnable) {
