@@ -4,6 +4,7 @@ import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.objects.DriveEvent;
 import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.objects.DragDropCell;
+import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -21,7 +22,7 @@ public class EventsController {
     public void initialize() {
         listView.itemsProperty().bind(AppStateManager.getInstance().eventsProperty());
         listView.setCellFactory(lv -> new DragDropCell());
-        AppStateManager.getInstance().selectedEventProperty().bind(listView.getSelectionModel().selectedItemProperty());
+        customBindBidirectional();
 
         // Wait for the button to be attached to a scene
         addButton.sceneProperty().addListener((observable, oldScene, newScene) -> {
@@ -40,8 +41,25 @@ public class EventsController {
         scene.getAccelerators().put(new KeyCodeCombination(KeyCode.DELETE), () -> deleteButton.fire());
     }
 
+    private void customBindBidirectional() {
+        ObjectProperty<Event> eventProperty = AppStateManager.getInstance().selectedEventProperty();
+        listView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            AppStateManager.getInstance().setEventsEditing();
+            eventProperty.set(newSelection);
+        });
+
+        eventProperty.addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) {
+                listView.getSelectionModel().clearSelection();
+            } else {
+                listView.getSelectionModel().select(newVal);
+            }
+        });
+    }
+
     @FXML
     protected void addEvent() {
+        AppStateManager.getInstance().setEventsEditing();
         Event event = new DriveEvent();
         // TODO ask for event type
         AppStateManager.getInstance().addEvent(event);
@@ -50,6 +68,7 @@ public class EventsController {
 
     @FXML
     protected void deleteEvent() {
+        AppStateManager.getInstance().setEventsEditing();
         Event selectedEvent = listView.getSelectionModel().getSelectedItem();
         int index = listView.getSelectionModel().getSelectedIndex();
         AppStateManager.getInstance().getEvents().remove(selectedEvent);

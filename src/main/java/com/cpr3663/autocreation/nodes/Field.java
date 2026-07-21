@@ -26,6 +26,10 @@ import java.util.Objects;
 public class Field {
     private static final double PIXELS_PER_METER = 75.0;
     private static double FIELD_WIDTH;
+    private static ImageView selectedImageView;
+    private static boolean isDrag = false;
+    private static final double[] initials = new double[2];
+    private static final boolean[] isRotating = new boolean[1];
 
     public static Pane getFieldPane() {
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
@@ -33,7 +37,22 @@ public class Field {
         Pane pane = getPane(fieldLayout);
         drawAprilTags(pane, fieldLayout);
         drawRobotPoses(pane);
-        pane.setOnMouseClicked((MouseEvent event) -> System.out.println("Pane clicked at coordinates: X=" + event.getX() + ", Y=" + event.getY()));
+        pane.setOnMousePressed(Helper::press);
+        pane.setOnMouseDragged(Helper::drag);
+        pane.setOnMouseReleased((MouseEvent event) -> {
+            if (isDrag) return;
+            AppStateManager.getInstance().setFieldEditing();
+            Event selected = AppStateManager.getInstance().getSelectedEvent();
+            if (selected != null && selected.isDriveEvent()) {
+                DriveEvent driveEvent = (DriveEvent) selected;
+                driveEvent.setPosition(Helper.fromPixels(event.getX(), event.getY()));
+
+                Translation2d visualPosition = Helper.centerRobotPixels(event.getX(), event.getY());
+
+                selectedImageView.setX(visualPosition.getX());
+                selectedImageView.setY(visualPosition.getY());
+            }
+        });
         return pane;
     }
 
@@ -61,7 +80,7 @@ public class Field {
     private static void drawAprilTags(Pane fieldPane, AprilTagFieldLayout fieldLayout) {
         Event event = AppStateManager.getInstance().getSelectedEvent();
         AprilTag selected;
-        if (event != null && event.getName().equals(Constants.Events.DRIVE_NAME))
+        if (event != null && event.isDriveEvent())
             selected = ((DriveEvent) event).getRelativeFrom();
         else selected = new AprilTag(-2, new Pose3d());
 
@@ -122,21 +141,22 @@ public class Field {
 //            Helper.highlightImage(icon);
         }
 
+        tagNode.setOnMouseClicked(e -> AppStateManager.getInstance().setFieldEditing());
+
         return tagNode;
     }
 
     private static void drawRobotPoses(Pane fieldPane) {
         Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
-        double sizeX = AppStateManager.getInstance().getRobotSize();
-        double sizeY = AppStateManager.getInstance().getRobotSize();
+        double sizeX = AppStateManager.getInstance().getRobotSize().getX();
 
         for (Event event : AppStateManager.getInstance().getEvents())
-            if (event.getName().equals(Constants.Events.DRIVE_NAME)) {
+            if (event.isDriveEvent()) {
                 DriveEvent driveEvent = (DriveEvent) event;
                 Image robot = new Image(Objects.requireNonNull(Field.class.getResource(Constants.Paths.ROBOT_ICON)).toExternalForm());
                 ImageView robotView = new ImageView(robot);
 
-                Translation2d position = Helper.toPixels(driveEvent.getXPos() - (sizeX / 2), driveEvent.getYPos() + (sizeX / 2));
+                Translation2d position = Helper.centerRobotPixels(Helper.toPixels(driveEvent.getXPos(), driveEvent.getYPos()));
 
                 robotView.setX(position.getX());
                 robotView.setY(position.getY());
@@ -146,11 +166,21 @@ public class Field {
                 robotView.setSmooth(true);
                 robotView.setFitWidth(sizeX * PIXELS_PER_METER);
 
-                if (event.equals(selectedEvent)) Helper.highlightImage(robotView);
+                if (event.equals(selectedEvent)) {
+                    Helper.highlightImage(robotView);
+                    selectedImageView = robotView;
+                }
                 else Helper.colorRobot(robotView);
+
+                addRobotListeners(driveEvent, robotView);
 
                 fieldPane.getChildren().add(robotView);
             }
+    }
+
+    private static void addRobotListeners(DriveEvent event, ImageView robot) {
+        robot.setOnMousePressed(e -> Helper.press(e, event, robot));
+        robot.setOnMouseDragged(e -> Helper.drag(e, event, robot));
     }
 
     private static class Helper {
@@ -175,6 +205,15 @@ public class Field {
             image.setEffect(lighting);
         }
 
+        public static Translation2d centerRobotPixels(Translation2d position) {
+            return centerRobotPixels(position.getX(), position.getY());
+        }
+
+        private static Translation2d centerRobotPixels(double x, double y) {
+            Translation2d robotSize = AppStateManager.getInstance().getRobotSize().times(PIXELS_PER_METER);
+            return new Translation2d(x - (robotSize.getX() / 2), y - (robotSize.getY() / 2) - Constants.ROBOT_IMAGE_Y_EXTRA_PIXELS);
+        }
+
         private static Translation2d toPixels(Translation2d position) {
             return toPixels(position.getX(), position.getY());
         }
@@ -184,13 +223,88 @@ public class Field {
             return position.times(PIXELS_PER_METER);
         }
 
-        private static Translation2d fromPixels(Translation2d position) {
-            return fromPixels(position.getX(), position.getY());
-        }
-
         private static Translation2d fromPixels(double x, double y) {
             Translation2d position = new Translation2d(x, (FIELD_WIDTH * PIXELS_PER_METER) - y);
             return position.div(PIXELS_PER_METER);
+        }
+
+        private static void press(MouseEvent e) {
+            press(e, null, selectedImageView);
+        }
+
+        private static void press(MouseEvent e, DriveEvent event, ImageView robot) {
+            isDrag = false;
+            if (selectedImageView == null) return;
+            AppStateManager.getInstance().setFieldEditing();
+            if (event != null && !selectedImageView.equals(robot)) {
+                AppStateManager.getInstance().setSelectedEvent(event);
+                Helper.colorRobot(selectedImageView);
+                selectedImageView = robot;
+                Helper.highlightImage(selectedImageView);
+            }
+            double width = robot.getBoundsInLocal().getWidth();
+            double height = robot.getBoundsInLocal().getHeight();
+
+            boolean isTopZone = e.getY() >= 0 && e.getY() <= (height / 6);
+            boolean isCenterWidthZone = e.getX() >= (width * 0.35) && e.getX() <= (width * 0.65);
+
+            if (isTopZone && isCenterWidthZone) {
+                isRotating[0] = true;
+            } else {
+                isRotating[0] = false;
+                initials[0] = e.getSceneX();
+                initials[1] = e.getSceneY();
+            }
+
+            e.consume();
+        }
+
+        private static void drag(MouseEvent e) {
+            drag(e, null, selectedImageView);
+        }
+
+        private static void drag(MouseEvent e, DriveEvent event, ImageView robot) {
+            isDrag = true;
+            // TODO fix
+            if (selectedImageView == null) return;
+            if (event != null && !AppStateManager.getInstance().getSelectedEvent().equals(event)) {
+                e.consume();
+                return;
+            }
+
+            if (event == null) {
+                Event tempEvent = AppStateManager.getInstance().getSelectedEvent();
+                if (tempEvent.isDriveEvent()) event = (DriveEvent) tempEvent;
+                else return;
+            }
+
+            if (isRotating[0]) {
+                double width = robot.getBoundsInLocal().getWidth();
+                double height = robot.getBoundsInLocal().getHeight();
+
+                double centerX = robot.getLayoutX() + (width / 2);
+                double centerY = robot.getLayoutY() + (height / 2);
+
+                double currentAngle = Math.toDegrees(Math.atan2(e.getSceneY() - centerY, e.getSceneX() - centerX));
+
+                event.setTheta(currentAngle);
+
+            } else {
+                double deltaX = e.getSceneX() - initials[0];
+                double deltaY = e.getSceneY() - initials[1];
+
+                Translation2d newPos = Helper.fromPixels(robot.getLayoutX() + deltaX, robot.getLayoutY() + deltaY);
+
+                event.setXPos(newPos.getX());
+                event.setYPos(newPos.getY());
+
+                robot.setX(newPos.getX());
+                robot.setY(newPos.getY());
+
+                initials[0] = e.getSceneX();
+                initials[1] = e.getSceneY();
+            }
+            e.consume();
         }
     }
 }

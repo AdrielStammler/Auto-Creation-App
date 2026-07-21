@@ -77,14 +77,19 @@ public class Main extends Application {
                 if (change.wasRemoved()) for (Event event : change.getRemoved()) event.setOnChangeCallback(null);
             }
         });
-        AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> refreshField(borderPane).run());
+        AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> {
+            if (AppStateManager.getInstance().isNotFieldEditing())
+                refreshField(borderPane).run();
+        });
         AppStateManager.getInstance().selectedEventProperty().addListener(run(() -> {
-            refreshField(borderPane).run();
-            FXMLLoader editorFxml2 = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
-            try {
-                borderPane.setRight(editorFxml2.load());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if (AppStateManager.getInstance().isNotFieldEditing()) refreshField(borderPane).run();
+            else if (AppStateManager.getInstance().isNotEditorEditing()) {
+                FXMLLoader editorFxml2 = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
+                try {
+                    borderPane.setRight(editorFxml2.load());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }));
 
@@ -108,5 +113,12 @@ public class Main extends Application {
 
     private static <T> ChangeListener<T> run(Runnable runnable) {
         return (observable, oldValue, newValue) -> runnable.run();
+    }
+
+    public enum Sections {
+        MENU,
+        EVENTS,
+        FIELD,
+        EDITOR
     }
 }

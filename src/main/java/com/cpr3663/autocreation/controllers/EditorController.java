@@ -1,11 +1,13 @@
 package com.cpr3663.autocreation.controllers;
 
+import com.cpr3663.autocreation.AppStateManager;
 import javafx.scene.control.Button;
 
 public class EditorController {
     public Button button;
 
     public void click() {
+        AppStateManager.getInstance().setEditorEditing();
         button.setText(Math.random()+"");
     }
 }

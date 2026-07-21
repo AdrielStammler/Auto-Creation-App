@@ -24,7 +24,8 @@ public class SettingsController {
     @FXML private TextField robotRepoLabel;
     @FXML private ComboBox<AprilTagFields> aprilTagDropdown;
     @FXML public ComboBox<DistanceUnit> unitsDropDown;
-    @FXML private TextField robotSizeText;
+    @FXML private TextField robotSizeXText;
+    @FXML private TextField robotSizeYText;
     private Stage stage;
     private Image fieldImage;
 
@@ -37,8 +38,14 @@ public class SettingsController {
         aprilTagDropdown.getSelectionModel().select(AppStateManager.getInstance().getAprilTagField());
         unitsDropDown.getItems().addAll(Units.Meters, Units.Feet, Units.Inches, Units.Millimeters, Units.Centimeters);
         unitsDropDown.getSelectionModel().select(AppStateManager.getInstance().getDisplayUnits());
-        robotSizeText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize())));
-        robotSizeText.setTextFormatter(new TextFormatter<>(change -> {
+        robotSizeXText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getX())));
+        robotSizeXText.setTextFormatter(new TextFormatter<>(change -> {
+            String text = change.getControlNewText();
+            if (text.matches("\\d*\\.?\\d*")) return change;
+            return null;
+        }));
+        robotSizeYText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getY())));
+        robotSizeYText.setTextFormatter(new TextFormatter<>(change -> {
             String text = change.getControlNewText();
             if (text.matches("\\d*\\.?\\d*")) return change;
             return null;
@@ -82,7 +89,8 @@ public class SettingsController {
         stateManager.setFieldImage(fieldImage);
         stateManager.setAprilTagField(aprilTagDropdown.getSelectionModel().getSelectedItem());
         stateManager.setDisplayUnits(unitsDropDown.getSelectionModel().getSelectedItem());
-        stateManager.setRobotSize(stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeText.getText())));
+        stateManager.setRobotSize(stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeXText.getText())),
+                stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeYText.getText())));
         stateManager.setIsSaved(false);
         stage.close();
     }

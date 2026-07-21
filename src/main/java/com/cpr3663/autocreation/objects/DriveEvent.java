@@ -3,11 +3,9 @@ package com.cpr3663.autocreation.objects;
 import com.cpr3663.autocreation.Constants;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 
 public class DriveEvent extends Event {
-    // TODO TEMP (Makes events distinguishable because they are identical currently)
-    private final int rand;
-
     // TODO make pose2d and so make cleaner implementation
     private double xPos;
     private double yPos;
@@ -30,9 +28,6 @@ public class DriveEvent extends Event {
         this.theta = theta;
         this.maxVelocity = maxVel;
         this.maxAcceleration = maxAccel;
-
-
-        this.rand = Math.toIntExact(Math.round(Math.random() * 1000));
     }
 
     public DriveEvent() {
@@ -59,11 +54,16 @@ public class DriveEvent extends Event {
         return theta - relativeFrom.pose.getRotation().toRotation2d().getDegrees();
     }
 
+    public void setPosition(Translation2d position) {
+        setXPos(position.getX());
+        setYPos(position.getY());
+    }
+
     public double getXPos() {
         return xPos;
     }
 
-    public void setXPos(int xPos) {
+    public void setXPos(double xPos) {
         this.xPos = xPos;
         updateParams();
     }
@@ -72,7 +72,7 @@ public class DriveEvent extends Event {
         return yPos;
     }
 
-    public void setYPos(int yPos) {
+    public void setYPos(double yPos) {
         this.yPos = yPos;
         updateParams();
     }
@@ -81,7 +81,7 @@ public class DriveEvent extends Event {
         return theta;
     }
 
-    public void setTheta(int theta) {
+    public void setTheta(double theta) {
         this.theta = theta;
         updateParams();
     }
@@ -110,7 +110,17 @@ public class DriveEvent extends Event {
     }
 
     @Override
+    public boolean isDriveEvent() {
+        return true;
+    }
+
+    @Override
     public String toString() {
-        return "Drive to (" + xPos + ", " + yPos + ")" + rand;
+        return "Drive to (" + round(xPos) + ", " + round(yPos) + ")";
+    }
+
+
+    private static double round(double value) {
+        return Math.round(value * 100.0) / 100.0;
     }
 }

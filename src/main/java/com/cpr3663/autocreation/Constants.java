@@ -1,6 +1,8 @@
 package com.cpr3663.autocreation;
 
 public final class Constants {
+    public static final int ROBOT_IMAGE_Y_EXTRA_PIXELS = 11;
+
     public static final class Events {
         public static final String DELIMITER = ":";
         public static final String PARAM_DELIMITER = ",";

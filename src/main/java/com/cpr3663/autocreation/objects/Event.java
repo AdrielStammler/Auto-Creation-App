@@ -85,6 +85,10 @@ public class Event {
         return String.join(Constants.Events.DELIMITER, name, params, Boolean.toString(afterPrev), delayType.name(), Integer.toString(delay));
     }
 
+    public boolean isDriveEvent() {
+        return false;
+    }
+
     public enum DelayTypes {
         NONE(true),
         TIME(true),

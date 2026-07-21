@@ -3,6 +3,7 @@ package com.cpr3663.autocreation;
 import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.objects.RefreshableListProperty;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Units;
 import javafx.application.HostServices;
@@ -28,7 +29,8 @@ public class AppStateManager {
         private static final String OPEN_AUTO = "openAutoName";
         private static final String ROBOT_REPO = "robotRepoPath";
         private static final String TAG_FIELD = "aprilTagField";
-        private static final String ROBOT_SIZE = "robotSize";
+        private static final String ROBOT_SIZE_X = "robotSizeX";
+        private static final String ROBOT_SIZE_Y = "robotSizeY";
         private static final String DISPLAY_UNIT = "displayUnits";
     }
 
@@ -37,7 +39,8 @@ public class AppStateManager {
         prefs.put(Keys.OPEN_AUTO, getOpenAutoName());
         prefs.put(Keys.ROBOT_REPO, getRobotRepoPath());
         prefs.put(Keys.TAG_FIELD, getAprilTagField().name());
-        prefs.putDouble(Keys.ROBOT_SIZE, getRobotSize());
+        prefs.putDouble(Keys.ROBOT_SIZE_X, getRobotSize().getX());
+        prefs.putDouble(Keys.ROBOT_SIZE_Y, getRobotSize().getY());
         prefs.put(Keys.DISPLAY_UNIT, getDisplayUnits().symbol());
         File file = new File(Constants.Paths.FIELD_IMAGE);
         file.getParentFile().mkdirs();
@@ -53,7 +56,7 @@ public class AppStateManager {
         setOpenAutoName(prefs.get(Keys.OPEN_AUTO, getOpenAutoName()));
         setRobotRepoPath(prefs.get(Keys.ROBOT_REPO, getRobotRepoPath()));
         setAprilTagField(AprilTagFields.valueOf(prefs.get(Keys.TAG_FIELD, getAprilTagField().name())));
-        setRobotSize(prefs.getDouble(Keys.ROBOT_SIZE, getRobotSize()));
+        setRobotSize(prefs.getDouble(Keys.ROBOT_SIZE_X, getRobotSize().getX()), prefs.getDouble(Keys.ROBOT_SIZE_Y, getRobotSize().getY()));
         setDisplayUnits(switch(prefs.get(Keys.DISPLAY_UNIT, getDisplayUnits().symbol())) {
             case "cm" -> Units.Centimeters;
             case "in" -> Units.Inches;
@@ -81,6 +84,7 @@ public class AppStateManager {
     private StackPane root;
     private final BooleanProperty isSaved = new SimpleBooleanProperty(true);
     private final ObjectProperty<Event> selectedEvent = new SimpleObjectProperty<>();
+    private final ObjectProperty<Main.Sections> currentEditor = new SimpleObjectProperty<>(Main.Sections.EVENTS);
 
     private final RefreshableListProperty<Event> events = new RefreshableListProperty<>(FXCollections.observableArrayList());
 
@@ -90,7 +94,7 @@ public class AppStateManager {
     private final StringProperty robotRepoPath = new SimpleStringProperty(System.getProperty("user.home"));
     private final ObjectProperty<Image> fieldImage = new SimpleObjectProperty<>(null);
     private final ObjectProperty<AprilTagFields> aprilTagField = new SimpleObjectProperty<>(AprilTagFields.kDefaultField);
-    private final DoubleProperty robotSize = new SimpleDoubleProperty(Units.Inches.toBaseUnits(27));
+    private final ObjectProperty<Translation2d> robotSize = new SimpleObjectProperty<>(new Translation2d(1, 1));
     private final ObjectProperty<DistanceUnit> displayUnits = new SimpleObjectProperty<>(Units.Meters);
 
     // Getters and Setters
@@ -118,8 +122,36 @@ public class AppStateManager {
         return selectedEvent;
     }
 
+    public void setSelectedEvent(Event selectedEvent) {
+        this.selectedEvent.set(selectedEvent);
+    }
+
     public Event getSelectedEvent() {
         return selectedEvent.get();
+    }
+
+    public ObjectProperty<Main.Sections> currentEditorProperty() {
+        return currentEditor;
+    }
+
+    public boolean isNotFieldEditing() {
+        return currentEditor.get() != Main.Sections.FIELD;
+    }
+
+    public boolean isNotEditorEditing() {
+        return currentEditor.get() != Main.Sections.EDITOR;
+    }
+
+    public void setFieldEditing() {
+        this.currentEditor.set(Main.Sections.FIELD);
+    }
+
+    public void setEditorEditing() {
+        this.currentEditor.set(Main.Sections.EDITOR);
+    }
+
+    public void setEventsEditing() {
+        this.currentEditor.set(Main.Sections.EVENTS);
     }
 
     public void setRoot(StackPane root) {
@@ -206,15 +238,19 @@ public class AppStateManager {
         this.aprilTagField.set(aprilTagField);
     }
 
-    public DoubleProperty robotSizeProperty() {
+    public ObjectProperty<Translation2d> robotSizeProperty() {
         return robotSize;
     }
 
-    public double getRobotSize() {
+    public Translation2d getRobotSize() {
         return robotSize.get();
     }
 
-    public void setRobotSize(double robotSize) {
+    public void setRobotSize(double x, double y) {
+        setRobotSize(new Translation2d(x, y));
+    }
+
+    public void setRobotSize(Translation2d robotSize) {
         this.robotSize.set(robotSize);
     }
 
