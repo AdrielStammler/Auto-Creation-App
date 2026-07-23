@@ -12,6 +12,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 
 public class EventsController {
     @FXML private ListView<Event> listView;
@@ -24,7 +25,7 @@ public class EventsController {
         listView.setCellFactory(lv -> new DragDropCell());
         customBindBidirectional();
 
-        listView.setOnMousePressed(event -> AppStateManager.getInstance().setEventsEditing());
+        listView.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> AppStateManager.getInstance().setEventsEditing());
 
         addButton.sceneProperty().addListener((observable, oldScene, newScene) -> {
             if (newScene != null) {

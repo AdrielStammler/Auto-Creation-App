@@ -51,14 +51,14 @@ public class FileHelper {
     public static void open() {
         String autoName = AppStateManager.getInstance().getOpenAutoName();
         Path auto = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, autoName);
-        // TODO
+        // TODO implement open method
     }
 
     public static void save() {
         AppStateManager.getInstance().saveState();
         String autoString = getAuto();
         System.out.println(autoString);
-        // TODO
+        // TODO implement save method
         AppStateManager.getInstance().setIsSaved(true);
     }
 

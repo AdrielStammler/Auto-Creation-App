@@ -26,11 +26,12 @@ import java.util.Objects;
 
 public class Field {
     private static final double PIXELS_PER_METER = 75.0;
-    private static double FIELD_WIDTH;
-    private static ImageView selectedImageView;
-    private static boolean isDrag = false;
     private static final double[] initials = new double[2];
     private static final boolean[] isRotating = new boolean[1];
+    private static double FIELD_WIDTH;
+    private static ImageView selectedImageView;
+    private static Pane fieldPane;
+    private static boolean isDrag = false;
 
     public static Pane getFieldPane() {
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
@@ -54,6 +55,7 @@ public class Field {
                 selectedImageView.setY(visualPosition.getY());
             }
         });
+        fieldPane = pane;
         return pane;
     }
 
@@ -170,8 +172,7 @@ public class Field {
                 if (event.equals(selectedEvent)) {
                     Helper.highlightImage(robotView);
                     selectedImageView = robotView;
-                }
-                else Helper.colorRobot(robotView);
+                } else Helper.colorRobot(robotView);
 
                 addRobotListeners(driveEvent, robotView);
 
@@ -185,7 +186,7 @@ public class Field {
         robot.setOnMouseDragged(e -> Helper.drag(e, event, robot));
     }
 
-    private static class Helper {
+    public static class Helper {
         private static final Color HIGHLIGHT_COLOR = Color.ORANGE;
         private static final Color NORMAL_ROBOT_COLOR = Color.WHITESMOKE;
 
@@ -205,6 +206,17 @@ public class Field {
             lighting.setLight(distantLight);
             lighting.setSurfaceScale(0.0);
             image.setEffect(lighting);
+        }
+
+        public static void updateHighlight() {
+            if (selectedImageView != null) Helper.colorRobot(selectedImageView);
+            AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
+            if (fieldLayout.getTags().size() == fieldPane.getChildren().size()) {
+                selectedImageView = null;
+                return;
+            }
+            selectedImageView = (ImageView) fieldPane.getChildren().get(AppStateManager.getInstance().getSelectedIndex() + fieldLayout.getTags().size());
+            Helper.highlightImage(selectedImageView);
         }
 
         public static Translation2d centerRobotPixels(Translation2d position) {
@@ -245,9 +257,7 @@ public class Field {
             if (selectedImageView == null) return;
             if (event != null && !selectedImageView.equals(robot)) {
                 AppStateManager.getInstance().setSelectedEvent(event);
-                Helper.colorRobot(selectedImageView);
-                selectedImageView = robot;
-                Helper.highlightImage(selectedImageView);
+                Helper.updateHighlight();
             }
             if (isRobot) {
                 double width = robot.getBoundsInLocal().getWidth();
@@ -275,7 +285,6 @@ public class Field {
         private static void drag(MouseEvent e, DriveEvent event, ImageView robot) {
             AppStateManager.getInstance().setFieldEditing();
             isDrag = true;
-            // TODO fix
             e.consume();
             if (robot == null) return;
             if (event != null && !AppStateManager.getInstance().getSelectedEvent().equals(event)) return;
@@ -296,15 +305,11 @@ public class Field {
                 robot.setRotate(currentAngle + 90.0);
             } else {
                 Translation2d delta = new Translation2d(e.getSceneX() - initials[0], e.getSceneY() - initials[1]);
-                robot.setTranslateX(robot.getTranslateX() + delta.getX());
-                robot.setTranslateY(robot.getTranslateY() + delta.getY());
+                robot.setX(robot.getX() + delta.getX());
+                robot.setY(robot.getY() + delta.getY());
 
                 Translation2d currPos = new Translation2d(robot.getX() + robot.getTranslateX(), robot.getY() + robot.getTranslateY());
                 Translation2d currPosM = fromPixels(centerRobotPixels(currPos));
-
-                System.out.println("delta = " + delta);
-                System.out.println("currPos = " + currPos);
-                System.out.println("currPosM = " + currPosM);
 
                 event.setXPos(currPosM.getX());
                 event.setYPos(currPosM.getY());

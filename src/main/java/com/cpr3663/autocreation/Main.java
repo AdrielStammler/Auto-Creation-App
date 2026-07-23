@@ -82,8 +82,7 @@ public class Main extends Application {
                 refreshField(borderPane).run();
         });
         AppStateManager.getInstance().selectedIndexProperty().addListener(run(() -> {
-            // TODO make this not redraw the whole field and instead just change the selected one
-            if (AppStateManager.getInstance().isNotFieldEditing()) refreshField(borderPane).run();
+            if (AppStateManager.getInstance().isNotFieldEditing()) Field.Helper.updateHighlight();
             else if (AppStateManager.getInstance().isNotEditorEditing()) {
                 FXMLLoader editorFxml2 = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
                 try {
@@ -105,7 +104,7 @@ public class Main extends Application {
     }
 
     public static boolean mustCreateAuto() {
-        // TODO
+        // TODO remove the return false and uncomment
         return false;
 //        return AppStateManager.getInstance().getOpenAutoName().isEmpty();
     }
