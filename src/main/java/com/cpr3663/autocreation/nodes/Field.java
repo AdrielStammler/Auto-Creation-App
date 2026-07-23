@@ -25,6 +25,7 @@ import javafx.scene.transform.Rotate;
 import java.util.Objects;
 
 public class Field {
+    // TODO ID's ALSO USE fieldPane.lookup("ID")
     private static final double PIXELS_PER_METER = 75.0;
     private static final double[] initials = new double[2];
     private static final boolean[] isRotating = new boolean[1];
@@ -112,6 +113,7 @@ public class Field {
     private static Pane createTagVisual(int id, double rotationDeg, boolean isSelected) {
         Pane tagNode = new Pane();
 
+        // TODO also use ID's
         // TODO get image
         double size = 20.0;
         tagNode.setPrefSize(size, size);
@@ -153,6 +155,7 @@ public class Field {
         Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
         double sizeX = AppStateManager.getInstance().getRobotSize().getX();
 
+        // TODO add ID's
         for (Event event : AppStateManager.getInstance().getEvents())
             if (event.isDriveEvent()) {
                 DriveEvent driveEvent = (DriveEvent) event;
@@ -208,7 +211,8 @@ public class Field {
             image.setEffect(lighting);
         }
 
-        public static void updateHighlight() {
+        public static void updateSelection() {
+            // TODO make april tags highlight and add circle (when it will stop trying to go there)
             if (selectedImageView != null) Helper.colorRobot(selectedImageView);
             AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
             if (fieldLayout.getTags().size() == fieldPane.getChildren().size()) {
@@ -257,7 +261,7 @@ public class Field {
             if (selectedImageView == null) return;
             if (event != null && !selectedImageView.equals(robot)) {
                 AppStateManager.getInstance().setSelectedEvent(event);
-                Helper.updateHighlight();
+                Helper.updateSelection();
             }
             boolean shouldRotate = e.isSecondaryButtonDown();
             if (isRobot && !shouldRotate) {

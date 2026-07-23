@@ -5,6 +5,7 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.*;
 
 public class DriveEvent extends Event {
+    // TODO add a radius for threshold
     private Pose2d pose;
     private double maxVelocity;
     private double maxAcceleration;

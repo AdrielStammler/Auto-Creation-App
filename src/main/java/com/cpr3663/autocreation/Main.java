@@ -82,7 +82,7 @@ public class Main extends Application {
                 refreshField(borderPane).run();
         });
         AppStateManager.getInstance().selectedIndexProperty().addListener(run(() -> {
-            if (AppStateManager.getInstance().isNotFieldEditing()) Field.Helper.updateHighlight();
+            if (AppStateManager.getInstance().isNotFieldEditing()) Field.Helper.updateSelection();
             else if (AppStateManager.getInstance().isNotEditorEditing()) {
                 FXMLLoader editorFxml2 = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
                 try {
