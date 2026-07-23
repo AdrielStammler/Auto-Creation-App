@@ -259,7 +259,8 @@ public class Field {
                 AppStateManager.getInstance().setSelectedEvent(event);
                 Helper.updateHighlight();
             }
-            if (isRobot) {
+            boolean shouldRotate = e.isSecondaryButtonDown();
+            if (isRobot && !shouldRotate) {
                 double width = robot.getBoundsInLocal().getWidth();
                 double height = robot.getBoundsInLocal().getHeight();
                 Translation2d scenePos = new Translation2d(e.getSceneX(), e.getSceneY());
@@ -268,11 +269,13 @@ public class Field {
                 Translation2d target = new Translation2d(0, -(height / 2) * 9 / 10);
                 target = target.rotateBy(Rotation2d.fromDegrees(robot.getRotate()));
 
-                if (pos.getDistance(target) <= width / 4) {
-                    isRotating[0] = true;
-                    return;
-                }
+                shouldRotate = pos.getDistance(target) <= width / 4;
             }
+            if (shouldRotate) {
+                isRotating[0] = true;
+                return;
+            }
+
             isRotating[0] = false;
             initials[0] = e.getSceneX();
             initials[1] = e.getSceneY();
