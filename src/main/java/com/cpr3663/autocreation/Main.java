@@ -5,12 +5,14 @@ import com.cpr3663.autocreation.nodes.Menus;
 import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.util.FileHelper;
 import com.cpr3663.autocreation.util.MiscHelper;
+import com.cpr3663.autocreation.util.PopUpHelper;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -19,6 +21,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class Main extends Application {
 
@@ -55,6 +58,8 @@ public class Main extends Application {
         stage.show();
         stage.toFront();
         stage.requestFocus();
+        Image icon = new Image(Objects.requireNonNull(PopUpHelper.class.getResource(Constants.Paths.APP_ICON)).toExternalForm());
+        stage.getIcons().add(icon);
         MiscHelper.setDarkMode(stage);
 
         stage.setOnCloseRequest(e -> {
