@@ -1,9 +1,9 @@
 package com.cpr3663.autocreation;
 
 import com.cpr3663.autocreation.nodes.Field;
+import com.cpr3663.autocreation.nodes.Menus;
 import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.util.FileHelper;
-import com.cpr3663.autocreation.nodes.Menus;
 import com.cpr3663.autocreation.util.MiscHelper;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -24,8 +24,6 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> AppStateManager.getInstance().saveState()));
-
         AppStateManager.getInstance().setHostServices(getHostServices());
 
         MenuBar menus = Menus.getMenuBar();
@@ -59,10 +57,13 @@ public class Main extends Application {
         stage.requestFocus();
         MiscHelper.setDarkMode(stage);
 
+        stage.setOnCloseRequest(e -> {
+            e.consume();
+            MiscHelper.closeRequest();
+        });
+
         AppStateManager.getInstance().isDarkModeProperty().addListener(run(() -> MiscHelper.setDarkMode(stage)));
         AppStateManager.getInstance().openAutoNameProperty().addListener(run(FileHelper::open));
-        AppStateManager.getInstance().fieldImageProperty().addListener(run(refreshField(borderPane)));
-        AppStateManager.getInstance().aprilTagFieldProperty().addListener(run(refreshField(borderPane)));
         AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved() || change.wasPermutated())
@@ -94,24 +95,12 @@ public class Main extends Application {
         }));
 
         AppStateManager.getInstance().currentEditorProperty().addListener((observable, oldValue, newValue) -> System.out.println("Current Editor: " + newValue));
-
-        if (mustCreateAuto()) FileHelper.create();
-    }
-
-    @Override
-    public void stop() {
-        AppStateManager.getInstance().saveState();
-    }
-
-    public static boolean mustCreateAuto() {
-        // TODO remove the return false and uncomment
-        return false;
-//        return AppStateManager.getInstance().getOpenAutoName().isEmpty();
+        FileHelper.open();
     }
 
     private static Runnable refreshField(BorderPane borderPane) {
         return () -> {
-            System.out.println("Refreshing field | " + AppStateManager.getInstance().isNotFieldEditing() + " | "+ Math.round(Math.random() * 100));
+            System.out.println("Refreshing field | " + AppStateManager.getInstance().isNotFieldEditing() + " | " + Math.round(Math.random() * 100));
             borderPane.setCenter(Field.getFieldPane());
         };
     }

@@ -3,9 +3,12 @@ package com.cpr3663.autocreation.nodes;
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.util.FileHelper;
+import com.cpr3663.autocreation.util.MiscHelper;
 import com.cpr3663.autocreation.util.PopUpHelper;
-import javafx.application.Platform;
-import javafx.scene.control.*;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -39,11 +42,10 @@ public class Menus {
         open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         save.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         rename.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
-        exit.setAccelerator(new KeyCodeCombination(KeyCode.F4, KeyCombination.ALT_DOWN));
 
         // Creating Events
         newFile.setOnAction(e -> {
-            if (PopUpHelper.checkForOverride()) return;
+            if (PopUpHelper.checkForSaving()) return;
             try {
                 FileHelper.create();
             } catch (IOException ex) {
@@ -51,12 +53,12 @@ public class Menus {
             }
         });
         open.setOnAction(e -> {
-            if (PopUpHelper.checkForOverride()) return;
+            if (PopUpHelper.checkForSaving()) return;
             PopUpHelper.selectAutoToOpen();
         });
         save.setOnAction(e -> FileHelper.save());
         rename.setOnAction(e -> FileHelper.rename());
-        exit.setOnAction(e -> Platform.exit());
+        exit.setOnAction(e -> MiscHelper.closeRequest());
 
         // Create menu and add items
         Menu menu = new Menu("_File");

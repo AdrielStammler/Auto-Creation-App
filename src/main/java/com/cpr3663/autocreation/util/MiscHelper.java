@@ -2,8 +2,8 @@ package com.cpr3663.autocreation.util;
 
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
+import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.effect.*;
 import javafx.stage.Window;
 
 public class MiscHelper {
@@ -17,5 +17,10 @@ public class MiscHelper {
 //        else {
 //                scene.getStylesheets().add(Constants.Paths.LIGHT_THEME);
 //        }
+    }
+
+    public static void closeRequest() {
+        boolean cancel = PopUpHelper.checkForSaving();
+        if (!cancel) Platform.exit();
     }
 }

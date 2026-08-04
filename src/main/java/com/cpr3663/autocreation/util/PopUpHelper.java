@@ -2,10 +2,10 @@ package com.cpr3663.autocreation.util;
 
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
-import com.cpr3663.autocreation.controllers.UploadImageController;
 import com.cpr3663.autocreation.controllers.AutoNameController;
 import com.cpr3663.autocreation.controllers.SettingsController;
-import javafx.animation.*;
+import com.cpr3663.autocreation.controllers.UploadImageController;
+import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -13,7 +13,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
-import javafx.stage.*;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -28,9 +31,9 @@ import java.util.logging.Logger;
 public class PopUpHelper {
     /**
      * @return a {@link Boolean} representing if the caller may continue with overriding (if overriding would occur).
-     *  {@link Boolean true}: Do not override. {@link Boolean false}: Override or continue
+     *  {@link Boolean true}: Do not override/cancel. {@link Boolean false}: Override or continue
      */
-    public static boolean checkForOverride() {
+    public static boolean checkForSaving() {
         if (AppStateManager.getInstance().isSaved())
             return false;
 
@@ -109,20 +112,28 @@ public class PopUpHelper {
         AppStateManager.getInstance().setOpenAutoName(auto.getName());
     }
 
+    public static Optional<String> chooseNewAutoName() {
+        return chooseAutoName(true);
+    }
+
     public static Optional<String> chooseAutoName() {
+        return chooseAutoName(false);
+    }
+
+    private static Optional<String> chooseAutoName(boolean newAuto) {
         try {
             FXMLLoader loader = new FXMLLoader(PopUpHelper.class.getResource("/com/cpr3663/autocreation/autoName-view.fxml"));
             Stage popupStage = new Stage();
             popupStage.initModality(Modality.APPLICATION_MODAL);
             popupStage.initStyle(StageStyle.UNDECORATED);
             popupStage.initOwner(AppStateManager.getInstance().getWindow());
-            popupStage.setTitle("New Auto Name");
 
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
             MiscHelper.setDarkMode(popupStage);
             AutoNameController controller = loader.getController();
             controller.setStage(popupStage);
+            controller.setNew(newAuto);
 
             showPopUp(popupStage);
 

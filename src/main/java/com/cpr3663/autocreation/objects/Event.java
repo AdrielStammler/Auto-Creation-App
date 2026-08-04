@@ -43,7 +43,7 @@ public class Event {
 
     public void setParameters(String[] parameters) {
         this.parameters = parameters;
-        onChangeCallback.run();
+        if (onChangeCallback != null) onChangeCallback.run();
     }
 
     public boolean isAfterPrev() {

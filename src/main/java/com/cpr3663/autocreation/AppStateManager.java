@@ -183,6 +183,10 @@ public class AppStateManager {
         return events.get();
     }
 
+    public void setEvents(ObservableList<Event> events) {
+        this.events.set(events);
+    }
+
     public void addEvent(Event event) {
         this.events.add(event);
     }

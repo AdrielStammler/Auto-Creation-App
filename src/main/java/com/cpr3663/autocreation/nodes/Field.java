@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Label;
 import javafx.scene.effect.Light;
@@ -25,12 +26,13 @@ import javafx.scene.transform.Rotate;
 import java.util.Objects;
 
 public class Field {
-    // TODO ID's ALSO USE fieldPane.lookup("ID")
+    // TODO stored position is not reflecting on the field when clicking/dragging objects around when fully refreshed is correct (clicking add/delete fixes it)
     private static final double PIXELS_PER_METER = 75.0;
     private static final double[] initials = new double[2];
     private static final boolean[] isRotating = new boolean[1];
     private static double FIELD_WIDTH;
     private static ImageView selectedImageView;
+    private static ImageView selectedAprilTag;
     private static Pane fieldPane;
     private static boolean isDrag = false;
 
@@ -113,7 +115,6 @@ public class Field {
     private static Pane createTagVisual(int id, double rotationDeg, boolean isSelected) {
         Pane tagNode = new Pane();
 
-        // TODO also use ID's
         // TODO get image
         double size = 20.0;
         tagNode.setPrefSize(size, size);
@@ -146,6 +147,8 @@ public class Field {
 //            Helper.highlightImage(icon);
         }
 
+        tagNode.setId("Tag-" + id);
+
         tagNode.setOnMouseClicked(e -> AppStateManager.getInstance().setFieldEditing());
 
         return tagNode;
@@ -155,8 +158,9 @@ public class Field {
         Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
         double sizeX = AppStateManager.getInstance().getRobotSize().getX();
 
-        // TODO add ID's
-        for (Event event : AppStateManager.getInstance().getEvents())
+        ObservableList<Event> events = AppStateManager.getInstance().getEvents();
+        for (int i = 0; i < events.size(); i++) {
+            Event event = events.get(i);
             if (event.isDriveEvent()) {
                 DriveEvent driveEvent = (DriveEvent) event;
                 Image robot = new Image(Objects.requireNonNull(Field.class.getResource(Constants.Paths.ROBOT_ICON)).toExternalForm());
@@ -177,10 +181,13 @@ public class Field {
                     selectedImageView = robotView;
                 } else Helper.colorRobot(robotView);
 
+                robotView.setId("Event-" + i);
+
                 addRobotListeners(driveEvent, robotView);
 
                 fieldPane.getChildren().add(robotView);
             }
+        }
     }
 
     private static void addRobotListeners(DriveEvent event, ImageView robot) {
@@ -211,16 +218,27 @@ public class Field {
             image.setEffect(lighting);
         }
 
+        private static void clearColor(ImageView image) {
+            image.setEffect(null);
+        }
+
         public static void updateSelection() {
-            // TODO make april tags highlight and add circle (when it will stop trying to go there)
+            // TODO add circle (when it will stop trying to go there)
+            Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
             if (selectedImageView != null) Helper.colorRobot(selectedImageView);
-            AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
-            if (fieldLayout.getTags().size() == fieldPane.getChildren().size()) {
+            if (selectedAprilTag != null) Helper.clearColor(selectedAprilTag);
+            if (selectedEvent == null || !selectedEvent.isDriveEvent()) {
                 selectedImageView = null;
+                selectedAprilTag = null;
                 return;
             }
-            selectedImageView = (ImageView) fieldPane.getChildren().get(AppStateManager.getInstance().getSelectedIndex() + fieldLayout.getTags().size());
+            selectedImageView = (ImageView) fieldPane.lookup("#Event-" + AppStateManager.getInstance().getSelectedIndex());
             Helper.highlightImage(selectedImageView);
+
+            AprilTag aprilTag = ((DriveEvent) selectedEvent).getRelativeFrom();
+            if (aprilTag == null || aprilTag.ID == -1) return;
+            selectedAprilTag = (ImageView) fieldPane.lookup("#Tag-" + aprilTag.ID);
+            Helper.highlightImage(selectedAprilTag);
         }
 
         public static Translation2d centerRobotPixels(Translation2d position) {
@@ -318,8 +336,7 @@ public class Field {
                 Translation2d currPos = new Translation2d(robot.getX() + robot.getTranslateX(), robot.getY() + robot.getTranslateY());
                 Translation2d currPosM = fromPixels(centerRobotPixels(currPos));
 
-                event.setXPos(currPosM.getX());
-                event.setYPos(currPosM.getY());
+                event.setPosition(currPosM.getX(), currPosM.getY());
 
                 initials[0] = e.getSceneX();
                 initials[1] = e.getSceneY();

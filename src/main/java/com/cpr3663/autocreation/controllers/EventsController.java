@@ -1,9 +1,9 @@
 package com.cpr3663.autocreation.controllers;
 
 import com.cpr3663.autocreation.AppStateManager;
+import com.cpr3663.autocreation.objects.DragDropCell;
 import com.cpr3663.autocreation.objects.DriveEvent;
 import com.cpr3663.autocreation.objects.Event;
-import com.cpr3663.autocreation.objects.DragDropCell;
 import javafx.beans.property.IntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -43,7 +43,6 @@ public class EventsController {
     }
 
     private void customBindBidirectional() {
-        // TODO figure out why this fires 4 times upon selecting position on screen AND ASK JACOB
         IntegerProperty eventProperty = AppStateManager.getInstance().selectedIndexProperty();
         listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
             System.out.println("Selection changed (ListView): " + oldSelection.intValue() + " -> " + newSelection.intValue());

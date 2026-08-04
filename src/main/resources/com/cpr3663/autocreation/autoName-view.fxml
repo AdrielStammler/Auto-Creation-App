@@ -8,7 +8,7 @@
       fx:controller="com.cpr3663.autocreation.controllers.AutoNameController"
       alignment="CENTER" spacing="15.0" style="-fx-padding: 20;">
 
-    <Label text="Enter the name for the auto:" />
+    <Label fx:id="label" text="Enter a name for the new auto:" />
     <TextField fx:id="inputField" promptText="Type here..." />
 
     <HBox spacing="10" alignment="CENTER">

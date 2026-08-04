@@ -92,6 +92,7 @@ public class SettingsController {
         stateManager.setRobotSize(stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeXText.getText())),
                 stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeYText.getText())));
         stateManager.setIsSaved(false);
+        stateManager.eventsProperty().forceRefresh();
         stage.close();
     }
 }
