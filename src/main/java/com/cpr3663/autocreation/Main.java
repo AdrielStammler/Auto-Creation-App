@@ -68,7 +68,10 @@ public class Main extends Application {
         });
 
         AppStateManager.getInstance().isDarkModeProperty().addListener(run(() -> MiscHelper.setDarkMode(stage)));
-        AppStateManager.getInstance().openAutoNameProperty().addListener(run(FileHelper::open));
+        AppStateManager.getInstance().openAutoNameProperty().addListener(run(() -> {
+            FileHelper.open();
+            AppStateManager.getInstance().saveState();
+        }));
         AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved() || change.wasPermutated())

@@ -21,7 +21,7 @@ public class Menus {
         MenuBar menuBar = new MenuBar();
 
         // Add Menus to MenuBar
-        menuBar.getMenus().addAll(getFileMenu(), getAppMenu(), getHelpMenu());
+        menuBar.getMenus().addAll(getFileMenu(), getAppMenu(), getAutoMenu(), getHelpMenu());
 
         return menuBar;
     }
@@ -30,9 +30,7 @@ public class Menus {
         // Create Menu Items
         MenuItem newFile = new MenuItem("_New");
         MenuItem open = new MenuItem("_Open");
-        MenuItem save = new MenuItem("_Save");
-        save.disableProperty().bind(AppStateManager.getInstance().isSavedProperty());
-        MenuItem rename = new MenuItem("_Rename");
+        MenuItem delete = new MenuItem("_Delete");
         MenuItem exit = new MenuItem("Exit");
 
         SeparatorMenuItem separator = new SeparatorMenuItem();
@@ -40,8 +38,7 @@ public class Menus {
         // Setting Accelerators
         newFile.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
-        save.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
-        rename.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
+        delete.setAccelerator(new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
         // Creating Events
         newFile.setOnAction(e -> {
@@ -56,13 +53,12 @@ public class Menus {
             if (PopUpHelper.checkForSaving()) return;
             PopUpHelper.selectAutoToOpen();
         });
-        save.setOnAction(e -> FileHelper.save());
-        rename.setOnAction(e -> FileHelper.rename());
+        delete.setOnAction(e -> FileHelper.delete());
         exit.setOnAction(e -> MiscHelper.closeRequest());
 
         // Create menu and add items
         Menu menu = new Menu("_File");
-        menu.getItems().addAll(newFile, open, save, rename, separator, exit);
+        menu.getItems().addAll(newFile, open, delete, separator, exit);
 
         return menu;
     }
@@ -83,6 +79,30 @@ public class Menus {
 
         return menu;
 
+    }
+
+    private static Menu getAutoMenu() {
+        // Create Menu Items
+        MenuItem save = new MenuItem("_Save");
+        save.disableProperty().bind(AppStateManager.getInstance().isSavedProperty());
+        MenuItem rename = new MenuItem("_Rename");
+        MenuItem duplicate = new MenuItem("_Duplicate");
+
+        // Setting Accelerators
+        save.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
+        rename.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
+        duplicate.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
+
+        // Creating Events
+        save.setOnAction(e -> FileHelper.save());
+        rename.setOnAction(e -> FileHelper.rename());
+        duplicate.setOnAction(e -> FileHelper.duplicate());
+
+        // Create menu and add items
+        Menu menu = new Menu("_Auto");
+        menu.getItems().addAll(save, rename, duplicate);
+
+        return menu;
     }
 
     private static Menu getHelpMenu() {

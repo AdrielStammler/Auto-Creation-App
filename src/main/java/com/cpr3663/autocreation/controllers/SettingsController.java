@@ -91,8 +91,8 @@ public class SettingsController {
         stateManager.setDisplayUnits(unitsDropDown.getSelectionModel().getSelectedItem());
         stateManager.setRobotSize(stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeXText.getText())),
                 stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeYText.getText())));
-        stateManager.setIsSaved(false);
         stateManager.eventsProperty().forceRefresh();
+        stateManager.saveState();
         stage.close();
     }
 }

@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class FileHelper {
+    static boolean openingIsViaUser = true;
+
     public static void create() throws IOException {
         Optional<String> optName = PopUpHelper.chooseNewAutoName();
         if (optName.isEmpty()) return;
@@ -29,6 +31,7 @@ public class FileHelper {
 
         if (!Files.exists(newAuto.toPath())) {
             Files.createFile(newAuto.toPath());
+            openingIsViaUser = true;
             AppStateManager.getInstance().setOpenAutoName(name);
             return;
         }
@@ -44,14 +47,21 @@ public class FileHelper {
                 Files.delete(newAuto.toPath());
                 Files.createFile(newAuto.toPath());
             }
+            openingIsViaUser = true;
             AppStateManager.getInstance().setOpenAutoName(name);
         }
     }
 
     public static void open() {
         String autoName = AppStateManager.getInstance().getOpenAutoName();
+        if (autoName.isBlank()) return;
         Path autoPath = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, autoName);
         String content;
+        if (!Files.exists(autoPath)) {
+            Toast.show("Error: Open Auto Name is not valid.");
+            AppStateManager.getInstance().setOpenAutoName("");
+            return;
+        }
         try {
             content = Files.readString(autoPath);
         } catch (IOException e) {
@@ -73,14 +83,34 @@ public class FileHelper {
 
         AppStateManager.getInstance().setEvents(events);
         AppStateManager.getInstance().setSelectedIndex(events.size() - 1);
-        Toast.show("Opened " + autoName);
+        if (openingIsViaUser) Toast.show("Opened " + autoName);
+    }
+
+    public static void delete() {
+        String name = AppStateManager.getInstance().getOpenAutoName();
+        if (name == null || name.isBlank()) {
+            Toast.show("Error: No Auto is opened");
+            return;
+        }
+
+        Path path = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, name);
+
+        boolean existed;
+        try {
+            existed = Files.deleteIfExists(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Toast.show("\"" + path.getFileName() + "\" " + (existed ? "is deleted" : "did not exist"));
+        AppStateManager.getInstance().setOpenAutoName("");
     }
 
     public static void save() {
         AppStateManager.getInstance().saveState();
         String autoString = getAuto();
         String name = AppStateManager.getInstance().getOpenAutoName();
-        if (name == null || name.isEmpty()) {
+        if (name == null || name.isBlank()) {
             Optional<String> optName = PopUpHelper.chooseAutoName();
             if (optName.isEmpty())
                 return;
@@ -100,8 +130,9 @@ public class FileHelper {
         }
 
         AppStateManager.getInstance().setIsSaved(true);
+        Toast.show("Saved");
+        openingIsViaUser = true;
         AppStateManager.getInstance().setOpenAutoName(name);
-        Toast.show("Successfully Saved");
     }
 
     public static void rename() {
@@ -124,7 +155,34 @@ public class FileHelper {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        openingIsViaUser = false;
         AppStateManager.getInstance().setOpenAutoName(newName);
+        Toast.show("Renamed from \"" + oldAuto.getFileName() + "\" to \"" + newName + "\"");
+    }
+
+    public static void duplicate() {
+        Optional<String> optName = PopUpHelper.chooseAutoName();
+        if (optName.isEmpty()) {
+            return;
+        }
+        String newName = optName.get() + ".dsv";
+
+        Path oldAuto = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, AppStateManager.getInstance().getOpenAutoName());
+        Path newAuto = oldAuto.resolveSibling(newName);
+
+        if (Files.exists(newAuto)) {
+            PopUpHelper.showAlert(Alert.AlertType.ERROR, "Name in Use!", "There is already a auto named \"" + newName + "\"!", ButtonType.OK);
+            return;
+        }
+
+        try {
+            Files.copy(oldAuto, newAuto);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        openingIsViaUser = false;
+        AppStateManager.getInstance().setOpenAutoName(newName);
+        Toast.show("Duplicated \"" + oldAuto.getFileName() + "\" to \"" + newName + "\"");
     }
 
     private static String getAuto() {

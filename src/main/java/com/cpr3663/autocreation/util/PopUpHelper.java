@@ -109,6 +109,7 @@ public class PopUpHelper {
         if (!path.toLowerCase().endsWith(".dsv")) {
             auto = new File(path + ".dsv");
         }
+        FileHelper.openingIsViaUser = true;
         AppStateManager.getInstance().setOpenAutoName(auto.getName());
     }
 
