@@ -4,6 +4,7 @@ import com.cpr3663.autocreation.AppStateManager;
 import javafx.scene.control.Button;
 
 public class EditorController {
+    // TODO make an actual editor
     public Button button;
 
     public void click() {

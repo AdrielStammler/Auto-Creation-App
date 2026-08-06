@@ -16,6 +16,7 @@ import javafx.scene.input.KeyCombination;
 import java.io.IOException;
 
 public class Menus {
+    // TODO Make an entire custom top bar rather than just a menu bar
     public static MenuBar getMenuBar() {
         // Create MenuBar
         MenuBar menuBar = new MenuBar();
@@ -66,6 +67,7 @@ public class Menus {
     private static Menu getAppMenu() {
         // Create Menu Items
         MenuItem settings = new MenuItem("S_ettings");
+        // TODO add a shortcuts page/popup
 
         // Setting Accelerators
         settings.setAccelerator(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN));
