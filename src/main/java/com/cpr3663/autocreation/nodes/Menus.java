@@ -37,8 +37,8 @@ public class Menus {
         SeparatorMenuItem separator = new SeparatorMenuItem();
 
         // Setting Accelerators
-        newFile.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
-        open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
+        newFile.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN));
+        open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
         delete.setAccelerator(new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
         // Creating Events
@@ -66,18 +66,20 @@ public class Menus {
 
     private static Menu getAppMenu() {
         // Create Menu Items
-        MenuItem settings = new MenuItem("S_ettings");
-        // TODO add a shortcuts page/popup
+        MenuItem settings = new MenuItem("_Settings");
+        MenuItem shortcuts = new MenuItem("Short_cuts");
 
         // Setting Accelerators
         settings.setAccelerator(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN));
+        shortcuts.setAccelerator(new KeyCodeCombination(KeyCode.SLASH, KeyCombination.SHORTCUT_DOWN));
 
         // Creating Events
         settings.setOnAction(e -> PopUpHelper.showSettings());
+        shortcuts.setOnAction(e -> PopUpHelper.showShortcuts());
 
         // Create menu and add items
         Menu menu = new Menu("_App");
-        menu.getItems().addAll(settings);
+        menu.getItems().addAll(settings, shortcuts);
 
         return menu;
 
@@ -91,9 +93,9 @@ public class Menus {
         MenuItem duplicate = new MenuItem("_Duplicate");
 
         // Setting Accelerators
-        save.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
-        rename.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
-        duplicate.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
+        save.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
+        rename.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN));
+        duplicate.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.SHORTCUT_DOWN));
 
         // Creating Events
         save.setOnAction(e -> FileHelper.save());

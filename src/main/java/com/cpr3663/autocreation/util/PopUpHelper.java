@@ -5,6 +5,7 @@ import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.controllers.AutoNameController;
 import com.cpr3663.autocreation.controllers.SettingsController;
 import com.cpr3663.autocreation.controllers.UploadImageController;
+import com.cpr3663.autocreation.nodes.Shortcuts;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -88,6 +89,20 @@ public class PopUpHelper {
         } catch (IOException e) {
             Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, null, e);
         }
+    }
+
+    public static void showShortcuts() {
+        Stage popupStage = new Stage();
+        popupStage.initModality(Modality.APPLICATION_MODAL);
+        popupStage.initStyle(StageStyle.UNDECORATED);
+        popupStage.initOwner(AppStateManager.getInstance().getWindow());
+        popupStage.setTitle("Shortcuts");
+
+        Scene scene = new Scene(Shortcuts.getShortcutsPage(popupStage));
+        popupStage.setScene(scene);
+        MiscHelper.setDarkMode(popupStage);
+
+        showPopUp(popupStage);
     }
 
     public static void selectAutoToOpen() {
