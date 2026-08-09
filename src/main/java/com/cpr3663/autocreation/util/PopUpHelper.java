@@ -117,12 +117,12 @@ public class PopUpHelper {
         FileChooser chooser = new FileChooser();
         chooser.setInitialDirectory(autosFolder.toFile());
         chooser.setTitle("Select an Auto");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Auto Files", "*.dsv"));
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Auto Files", "*" + Constants.FILE_SUFFIX));
         File auto = chooser.showOpenDialog(AppStateManager.getInstance().getWindow());
         if (auto == null) return;
         String path = auto.getAbsolutePath();
-        if (!path.toLowerCase().endsWith(".dsv")) {
-            auto = new File(path + ".dsv");
+        if (path.toLowerCase().endsWith(Constants.FILE_SUFFIX)) {
+            auto = new File(path.substring(0, path.length() - 4));
         }
         FileHelper.openingIsViaUser = true;
         AppStateManager.getInstance().setOpenAutoName(auto.getName());

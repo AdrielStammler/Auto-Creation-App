@@ -1,7 +1,7 @@
 package com.cpr3663.autocreation;
 
 import com.cpr3663.autocreation.nodes.Field;
-import com.cpr3663.autocreation.nodes.Menus;
+import com.cpr3663.autocreation.nodes.TopBar;
 import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.util.FileHelper;
 import com.cpr3663.autocreation.util.MiscHelper;
@@ -10,8 +10,8 @@ import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.MenuBar;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -19,6 +19,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -29,14 +30,14 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         AppStateManager.getInstance().setHostServices(getHostServices());
 
-        MenuBar menus = Menus.getMenuBar();
+        Node topBar = TopBar.getTopBar(stage);
         FXMLLoader eventsFxml = new FXMLLoader(Main.class.getResource("events-view.fxml"));
         FXMLLoader editorFxml = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
         Pane field = Field.getFieldPane();
 
         // Creating and defining the BorderPane
         BorderPane borderPane = new BorderPane();
-        borderPane.setTop(menus);
+        borderPane.setTop(topBar);
         borderPane.setCenter(field);
         borderPane.setLeft(eventsFxml.load());
         borderPane.setRight(editorFxml.load());
@@ -53,6 +54,7 @@ public class Main extends Application {
 
         // Creating scene and setting stage properties
         Scene scene = new Scene(root, Constants.Stage.WIDTH, Constants.Stage.HEIGHT);
+        stage.initStyle(StageStyle.UNIFIED);
         stage.setTitle(Constants.Stage.TITLE);
         stage.setScene(scene);
         stage.show();

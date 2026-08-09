@@ -24,10 +24,11 @@ public class FileHelper {
     public static void create() throws IOException {
         Optional<String> optName = PopUpHelper.chooseNewAutoName();
         if (optName.isEmpty()) return;
-        String name = optName.get() + ".dsv";
+        String name = optName.get();
+        String fileName = name + Constants.FILE_SUFFIX;
 
         File autoFolder = new File(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER);
-        File newAuto = new File(autoFolder, name).getAbsoluteFile();
+        File newAuto = new File(autoFolder, fileName).getAbsoluteFile();
 
         if (!Files.exists(newAuto.toPath())) {
             Files.createFile(newAuto.toPath());
@@ -55,7 +56,7 @@ public class FileHelper {
     public static void open() {
         String autoName = AppStateManager.getInstance().getOpenAutoName();
         if (autoName.isBlank()) return;
-        Path autoPath = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, autoName);
+        Path autoPath = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, autoName + Constants.FILE_SUFFIX);
         String content;
         if (!Files.exists(autoPath)) {
             Toast.show("Error: Open Auto Name is not valid.");
@@ -93,7 +94,7 @@ public class FileHelper {
             return;
         }
 
-        Path path = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, name);
+        Path path = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, name + Constants.FILE_SUFFIX);
 
         boolean existed;
         try {
@@ -114,10 +115,11 @@ public class FileHelper {
             Optional<String> optName = PopUpHelper.chooseAutoName();
             if (optName.isEmpty())
                 return;
-            name = optName.get() + ".dsv";
+            name = optName.get();
         }
+        String fileName = name + Constants.FILE_SUFFIX;
 
-        Path path = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, name);
+        Path path = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, fileName);
 
         try {
             Files.createDirectories(path.getParent());
@@ -140,10 +142,11 @@ public class FileHelper {
         if (optName.isEmpty()) {
             return;
         }
-        String newName = optName.get() + ".dsv";
+        String newName = optName.get();
+        String fileName = newName + Constants.FILE_SUFFIX;
 
-        Path oldAuto = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, AppStateManager.getInstance().getOpenAutoName());
-        Path newAuto = oldAuto.resolveSibling(newName);
+        Path oldAuto = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, AppStateManager.getInstance().getOpenAutoName() + Constants.FILE_SUFFIX);
+        Path newAuto = oldAuto.resolveSibling(fileName);
 
         if (Files.exists(newAuto)) {
             PopUpHelper.showAlert(Alert.AlertType.ERROR, "Name in Use!", "There is already a auto named \"" + newName + "\"!", ButtonType.OK);
@@ -165,10 +168,11 @@ public class FileHelper {
         if (optName.isEmpty()) {
             return;
         }
-        String newName = optName.get() + ".dsv";
+        String newName = optName.get();
+        String fileName = newName + Constants.FILE_SUFFIX;
 
         Path oldAuto = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, AppStateManager.getInstance().getOpenAutoName());
-        Path newAuto = oldAuto.resolveSibling(newName);
+        Path newAuto = oldAuto.resolveSibling(fileName);
 
         if (Files.exists(newAuto)) {
             PopUpHelper.showAlert(Alert.AlertType.ERROR, "Name in Use!", "There is already a auto named \"" + newName + "\"!", ButtonType.OK);

@@ -5,21 +5,95 @@ import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.util.FileHelper;
 import com.cpr3663.autocreation.util.MiscHelper;
 import com.cpr3663.autocreation.util.PopUpHelper;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
-public class Menus {
-    // TODO Make an entire custom top bar rather than just a menu bar
-    public static MenuBar getMenuBar() {
+public class TopBar {
+    private final static String normalCss = "-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 11px; -fx-min-width: 35px; -fx-min-height: 28px; -fx-pref-width: 35px; -fx-pref-height: 28px;";
+    private final static String selectedCss = "-fx-background-color: #353535; -fx-cursor: hand; -fx-font-size: 11px; -fx-min-width: 35px; -fx-min-height: 28px; -fx-pref-width: 35px; -fx-pref-height: 28px;";
+
+    private static double xOffset = 0;
+    private static double yOffset = 0;
+
+    public static Node getTopBar(Stage mainStage) {
+        HBox topBar = new HBox();
+        topBar.setAlignment(Pos.CENTER);
+        topBar.setPadding(new Insets(4, 8, 4, 12));
+
+        Image icon = new Image(Objects.requireNonNull(PopUpHelper.class.getResource(Constants.Paths.APP_ICON)).toExternalForm());
+        ImageView iconView = new ImageView(icon);
+        iconView.setFitHeight(25);
+        iconView.setPreserveRatio(true);
+        iconView.setStyle("-fx-background-color: transparent;");
+
+        Label openAuto = new Label(Constants.Stage.TITLE);
+        openAuto.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
+        openAuto.textProperty().bind(AppStateManager.getInstance().openAutoNameProperty());
+
+        Button min = createWindowButton("—", e -> mainStage.setIconified(true));
+        Button max = createWindowButton("🗖", e -> mainStage.setMaximized(!mainStage.isMaximized()));
+        Button close = createWindowButton("✕", e -> mainStage.close());
+        close.setOnMouseEntered(e -> close.setStyle(selectedCss + "-fx-background-color: #e81123;"));
+        close.setOnMouseExited(e -> close.setStyle(normalCss));
+
+        topBar.getChildren().addAll(iconView, getMenuBar(), getSpacer(), openAuto, getSpacer(), min, max, close);
+
+        topBar.setOnMousePressed((MouseEvent event) -> {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        });
+
+        topBar.setOnMouseDragged((MouseEvent event) -> {
+            mainStage.setX(event.getScreenX() - xOffset);
+            mainStage.setY(event.getScreenY() - yOffset);
+        });
+
+        Separator separator = new Separator();
+        separator.setHalignment(HPos.CENTER);
+        separator.setValignment(VPos.CENTER);
+        VBox.setVgrow(separator, Priority.NEVER);
+
+        return new VBox(topBar, separator);
+    }
+
+    private static Button createWindowButton(String text, javafx.event.EventHandler<javafx.event.ActionEvent> action) {
+
+        Button btn = new Button(text);
+        btn.setOnAction(action);
+        btn.setStyle(normalCss);
+        btn.setOnMouseEntered(e -> btn.setStyle(selectedCss));
+        btn.setOnMouseExited(e -> btn.setStyle(normalCss));
+        return btn;
+    }
+
+    private static Region getSpacer() {
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        return spacer;
+    }
+
+    private static MenuBar getMenuBar() {
         // Create MenuBar
         MenuBar menuBar = new MenuBar();
+        menuBar.setStyle("-fx-background-color: transparent;");
 
         // Add Menus to MenuBar
         menuBar.getMenus().addAll(getFileMenu(), getAppMenu(), getAutoMenu(), getHelpMenu());
@@ -78,7 +152,7 @@ public class Menus {
         shortcuts.setOnAction(e -> PopUpHelper.showShortcuts());
 
         // Create menu and add items
-        Menu menu = new Menu("_App");
+        Menu menu = new Menu("A_pp");
         menu.getItems().addAll(settings, shortcuts);
 
         return menu;

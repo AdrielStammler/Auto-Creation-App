@@ -2,6 +2,7 @@ package com.cpr3663.autocreation;
 
 public final class Constants {
     public static final int ROBOT_IMAGE_Y_EXTRA_PIXELS = 11;
+    public static final String FILE_SUFFIX = ".dsv";
 
     public static final class Events {
         public static final String DELIMITER = ":";
@@ -28,7 +29,7 @@ public final class Constants {
     }
 
     public static final class Stage {
-        public static final String TITLE = "Auto Creator";
+        public static final String TITLE = "Auto Creation";
 
         public static final int WIDTH = 1600;
         public static final int HEIGHT = 800;
