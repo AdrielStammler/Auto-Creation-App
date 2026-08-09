@@ -54,7 +54,7 @@ public class Main extends Application {
 
         // Creating scene and setting stage properties
         Scene scene = new Scene(root, Constants.Stage.WIDTH, Constants.Stage.HEIGHT);
-        stage.initStyle(StageStyle.UNIFIED);
+        stage.initStyle(StageStyle.UNDECORATED);
         stage.setTitle(Constants.Stage.TITLE);
         stage.setScene(scene);
         stage.show();
