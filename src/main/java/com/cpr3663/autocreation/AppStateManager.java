@@ -16,8 +16,10 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Window;
 
 import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 public class AppStateManager {
@@ -32,6 +34,7 @@ public class AppStateManager {
         private static final String ROBOT_SIZE_X = "robotSizeX";
         private static final String ROBOT_SIZE_Y = "robotSizeY";
         private static final String DISPLAY_UNIT = "displayUnits";
+        private static final String EXTRA_TYPES = "extraEventTypes";
     }
 
     public void saveState() {
@@ -46,6 +49,19 @@ public class AppStateManager {
         file.getParentFile().mkdirs();
         try {
             ImageIO.write(SwingFXUtils.fromFXImage(getFieldImage(), null), "png", file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+
+            // Convert ObservableList into a standard Serializable ArrayList
+            ArrayList<Event.Type> serializableList = new ArrayList<>(extraTypes.get());
+            oos.writeObject(serializableList);
+
+            // Encode the binary bytes to a safe Preferences String
+            String base64String = Base64.getEncoder().encodeToString(baos.toByteArray());
+            prefs.put(Keys.EXTRA_TYPES, base64String);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -66,6 +82,19 @@ public class AppStateManager {
         });
         File file = new File(Constants.Paths.FIELD_IMAGE);
         if (file.exists()) setFieldImage(new Image(file.toURI().toString()));
+
+        String base64String = prefs.get(Keys.EXTRA_TYPES, null);
+        if (base64String == null || base64String.isEmpty()) return;
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(Base64.getDecoder().decode(base64String));
+             ObjectInputStream ois = new ObjectInputStream(bais)) {
+
+            @SuppressWarnings("unchecked")
+            List<Event.Type> loadedList = (List<Event.Type>) ois.readObject();
+            extraTypes.setAll(loadedList);
+        } catch (Exception e) {
+            extraTypes.clear();
+            throw new RuntimeException(e);
+        }
     }
 
     // Single instance of the state manager
@@ -96,6 +125,7 @@ public class AppStateManager {
     private final ObjectProperty<AprilTagFields> aprilTagField = new SimpleObjectProperty<>(AprilTagFields.kDefaultField);
     private final ObjectProperty<Translation2d> robotSize = new SimpleObjectProperty<>(new Translation2d(1, 1));
     private final ObjectProperty<DistanceUnit> displayUnits = new SimpleObjectProperty<>(Units.Meters);
+    private final ListProperty<Event.Type> extraTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     // Getters and Setters
     public HostServices getHostServices() {
@@ -277,5 +307,21 @@ public class AppStateManager {
 
     public void setDisplayUnits(DistanceUnit displayUnits) {
         this.displayUnits.set(displayUnits);
+    }
+
+    public ListProperty<Event.Type> eventTypesProperty() {
+        return extraTypes;
+    }
+
+    public ObservableList<Event.Type> getExtraTypes() {
+        return extraTypes.get();
+    }
+
+    public void setExtraTypes(ObservableList<Event.Type> extraTypes) {
+        this.extraTypes.set(extraTypes);
+    }
+
+    public void setExtraTypes(Event.Type... extraTypes) {
+        this.extraTypes.set(FXCollections.observableArrayList(extraTypes));
     }
 }

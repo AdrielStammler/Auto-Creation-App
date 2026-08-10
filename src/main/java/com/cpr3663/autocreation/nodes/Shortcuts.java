@@ -64,7 +64,7 @@ public class Shortcuts {
             pane.getColumnConstraints().add(col);
         }
 
-        Label title = new Label("Application Shortcuts");
+        Label title = new Label("Keyboard Shortcuts");
         title.setAlignment(Pos.CENTER);
         title.setFont(Font.font("System", FontWeight.BOLD, 20.0));
         title.setMinWidth(Region.USE_PREF_SIZE);
@@ -75,8 +75,6 @@ public class Shortcuts {
             for (int r = 1; r <= rows; r++) {
                 final int i = rowI + r - 1;
                 if (i >= shortcuts.length) break;
-
-                System.out.println("i = " + i);
 
                 Label label1 = new Label(shortcuts[i].name());
                 Label label2 = new Label(shortcuts[i].shortcut().getDisplayText());

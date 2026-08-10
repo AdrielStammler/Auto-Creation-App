@@ -109,10 +109,7 @@ public class Main extends Application {
     }
 
     private static Runnable refreshField(BorderPane borderPane) {
-        return () -> {
-            System.out.println("Refreshing field | " + AppStateManager.getInstance().isNotFieldEditing() + " | " + Math.round(Math.random() * 100));
-            borderPane.setCenter(Field.getFieldPane());
-        };
+        return () -> borderPane.setCenter(Field.getFieldPane());
     }
 
     private static <T> ChangeListener<T> run(Runnable runnable) {

@@ -1,23 +1,26 @@
 package com.cpr3663.autocreation.controllers;
 
 import com.cpr3663.autocreation.AppStateManager;
+import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.util.PopUpHelper;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Units;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.image.Image;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class SettingsController {
     @FXML private CheckBox darkModeBox;
@@ -26,11 +29,16 @@ public class SettingsController {
     @FXML public ComboBox<DistanceUnit> unitsDropDown;
     @FXML private TextField robotSizeXText;
     @FXML private TextField robotSizeYText;
+    @FXML private ListView<String> extraTypesNameList;
+    @FXML private ListView<String> extraTypesParamList;
     private Stage stage;
     private Image fieldImage;
+    private List<Event.Type> extraTypes;
+    private int selectedIndex = -1;
 
     @FXML
     private void initialize() {
+        extraTypes = new ArrayList<>(AppStateManager.getInstance().getExtraTypes());
         darkModeBox.setSelected(AppStateManager.getInstance().isDarkMode());
         robotRepoLabel.setText(AppStateManager.getInstance().getRobotRepoPath());
         fieldImage = AppStateManager.getInstance().getFieldImage();
@@ -50,10 +58,56 @@ public class SettingsController {
             if (text.matches("\\d*\\.?\\d*")) return change;
             return null;
         }));
+        makeEditable(extraTypesNameList);
+        makeEditable(extraTypesParamList);
+
+        extraTypesNameList.getItems().addAll(extraTypes.stream().map(Event.Type::name).toList());
+        extraTypesNameList.getItems().addListener((ListChangeListener<String>) change -> {
+            List<Event.Type> oldTypes = List.copyOf(extraTypes);
+            extraTypes.clear();
+            extraTypes.addAll(extraTypesNameList.getItems().stream()
+                    .map(name -> oldTypes.stream()
+                            .filter(t -> t.name().equals(name))
+                            .findFirst()
+                            .map(existing -> new Event.Type(name, existing.parameters()))
+                            .orElse(new Event.Type(name)))
+                    .toList());
+        });
+
+        extraTypesNameList.getSelectionModel().selectedIndexProperty().addListener((obs, oldIndex, newIndex) -> {
+            selectedIndex = newIndex.intValue();
+            if (oldIndex.intValue() == -1) return;
+
+            saveParams(oldIndex.intValue());
+            
+            extraTypesParamList.getItems().clear();
+            if (newIndex.intValue() >= 0)
+                extraTypesParamList.getItems().addAll(extraTypes.get(newIndex.intValue()).parameters());
+        });
+    }
+
+    private void saveParams() {
+        saveParams(selectedIndex);
+    }
+
+    private void saveParams(int i) {
+        Event.Type type = extraTypes.get(i);
+        extraTypes.set(i, new Event.Type(type.name(), extraTypesParamList.getItems()));
     }
 
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    private void makeEditable(ListView<String> listView) {
+        listView.setEditable(true);
+        listView.setCellFactory(TextFieldListCell.forListView());
+        listView.setOnEditCommit(event -> {
+            int index = event.getIndex();
+            String newValue = event.getNewValue();
+            listView.getItems().set(index, newValue);
+            listView.getSelectionModel().select(index);
+        });
     }
 
     @FXML
@@ -77,6 +131,30 @@ public class SettingsController {
     }
 
     @FXML
+    public void addName(ActionEvent actionEvent) {
+        extraTypesNameList.getItems().add("New Type");
+        extraTypesNameList.getSelectionModel().selectLast();
+    }
+
+    @FXML
+    public void deleteName(ActionEvent actionEvent) {
+        extraTypesNameList.getItems().remove(extraTypesNameList.getSelectionModel().getSelectedItem());
+        extraTypesNameList.getSelectionModel().selectFirst();
+    }
+
+    @FXML
+    public void addParam(ActionEvent actionEvent) {
+        extraTypesParamList.getItems().add("New Param");
+        extraTypesParamList.getSelectionModel().selectLast();
+    }
+
+    @FXML
+    public void deleteParam(ActionEvent actionEvent) {
+        extraTypesParamList.getItems().remove(extraTypesParamList.getSelectionModel().getSelectedItem());
+        extraTypesParamList.getSelectionModel().selectFirst();
+    }
+
+    @FXML
     private void cancel() {
         stage.close();
     }
@@ -91,6 +169,10 @@ public class SettingsController {
         stateManager.setDisplayUnits(unitsDropDown.getSelectionModel().getSelectedItem());
         stateManager.setRobotSize(stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeXText.getText())),
                 stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeYText.getText())));
+        saveParams();
+        extraTypes.sort(Comparator.comparing(Event.Type::name));
+        stateManager.setExtraTypes(extraTypes.stream().map(type -> new Event.Type(type.name(), type.parameters())).toArray(Event.Type[]::new));
+
         stateManager.eventsProperty().forceRefresh();
         stateManager.saveState();
         stage.close();

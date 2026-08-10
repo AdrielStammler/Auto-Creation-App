@@ -2,6 +2,8 @@ package com.cpr3663.autocreation.objects;
 
 import com.cpr3663.autocreation.Constants;
 
+import java.util.List;
+
 public class Event {
     protected Runnable onChangeCallback;
 
@@ -103,6 +105,21 @@ public class Event {
 
         public boolean worksAfterPrev() {
             return worksAfterPrev;
+        }
+    }
+
+    public record Type(String name, String... parameters) {
+        public Type(String name, List<String> parameters) {
+            this(name, sortedArray(parameters));
+        }
+
+        private static String[] sortedArray(List<String> parameters) {
+            if (parameters == null) {
+                return new String[0];
+            }
+            return parameters.stream()
+                    .sorted()
+                    .toArray(String[]::new);
         }
     }
 }

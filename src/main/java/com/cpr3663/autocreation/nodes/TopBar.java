@@ -50,6 +50,7 @@ public class TopBar {
 
         Button min = createWindowButton("—", e -> mainStage.setIconified(true));
         Button max = createWindowButton("🗖", e -> mainStage.setMaximized(!mainStage.isMaximized()));
+        mainStage.maximizedProperty().addListener((observable, oldValue, newValue) -> max.setText(newValue ? " \uD83D\uDDD7" : "🗖"));
         Button close = createWindowButton("✕", e -> mainStage.close());
         close.setOnMouseEntered(e -> close.setStyle(selectedCss + "-fx-background-color: #e81123;"));
         close.setOnMouseExited(e -> close.setStyle(normalCss));
@@ -75,7 +76,6 @@ public class TopBar {
     }
 
     private static Button createWindowButton(String text, javafx.event.EventHandler<javafx.event.ActionEvent> action) {
-
         Button btn = new Button(text);
         btn.setOnAction(action);
         btn.setStyle(normalCss);

@@ -45,13 +45,11 @@ public class EventsController {
     private void customBindBidirectional() {
         IntegerProperty eventProperty = AppStateManager.getInstance().selectedIndexProperty();
         listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
-            System.out.println("Selection changed (ListView): " + oldSelection.intValue() + " -> " + newSelection.intValue());
             if (newSelection.intValue() == -1 && !AppStateManager.getInstance().getEvents().isEmpty()) return;
             eventProperty.set(newSelection.intValue());
         });
 
         eventProperty.addListener((obs, oldVal, newVal) -> {
-            System.out.println("Selection changed (AppStateManager): " + oldVal.intValue() + " -> " + newVal.intValue());
             if (newVal.intValue() == -1)
                 listView.getSelectionModel().clearSelection();
             else
