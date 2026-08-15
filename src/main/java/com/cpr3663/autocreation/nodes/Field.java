@@ -26,7 +26,6 @@ import javafx.scene.transform.Rotate;
 import java.util.Objects;
 
 public class Field {
-    // TODO stored position is not reflecting on the field when clicking/dragging objects around when fully refreshed is correct (clicking add/delete fixes it)
     private static final double PIXELS_PER_METER = 75.0;
     private static final double[] initials = new double[2];
     private static final boolean[] isRotating = new boolean[1];
@@ -47,16 +46,7 @@ public class Field {
         pane.setOnMouseReleased((MouseEvent event) -> {
             if (isDrag) return;
             AppStateManager.getInstance().setFieldEditing();
-            Event selected = AppStateManager.getInstance().getSelectedEvent();
-            if (selected != null && selected.isDriveEvent()) {
-                DriveEvent driveEvent = (DriveEvent) selected;
-                driveEvent.setPosition(Helper.fromPixels(event.getX(), event.getY()));
-
-                Translation2d visualPosition = Helper.centerRobotPixels(event.getX(), event.getY());
-
-                selectedImageView.setX(visualPosition.getX());
-                selectedImageView.setY(visualPosition.getY());
-            }
+            Helper.updateAllPositions(event.getX(), event.getY());
         });
         fieldPane = pane;
         return pane;
@@ -241,6 +231,16 @@ public class Field {
             Helper.highlightImage(selectedAprilTag);
         }
 
+        public static Translation2d unCenterRobotPixels(Translation2d position) {
+            return unCenterRobotPixels(position.getX(), position.getY());
+        }
+
+        private static Translation2d unCenterRobotPixels(double x, double y) {
+            Translation2d robotSize = AppStateManager.getInstance().getRobotSize().times(PIXELS_PER_METER);
+            return new Translation2d(x + (robotSize.getX() / 2), y + (robotSize.getY() / 2) + Constants.ROBOT_IMAGE_Y_EXTRA_PIXELS);
+        }
+
+
         public static Translation2d centerRobotPixels(Translation2d position) {
             return centerRobotPixels(position.getX(), position.getY());
         }
@@ -330,16 +330,29 @@ public class Field {
                 robot.setRotate(currentAngle + 90.0);
             } else {
                 Translation2d delta = new Translation2d(e.getSceneX() - initials[0], e.getSceneY() - initials[1]);
-                robot.setX(robot.getX() + delta.getX());
-                robot.setY(robot.getY() + delta.getY());
+                Translation2d currPos = new Translation2d(robot.getX(), robot.getY());
+                Translation2d newPos = currPos.plus(delta);
 
-                Translation2d currPos = new Translation2d(robot.getX() + robot.getTranslateX(), robot.getY() + robot.getTranslateY());
-                Translation2d currPosM = fromPixels(centerRobotPixels(currPos));
+                robot.setX(newPos.getX());
+                robot.setY(newPos.getY());
 
-                event.setPosition(currPosM.getX(), currPosM.getY());
+                event.setPosition(fromPixels(unCenterRobotPixels(newPos)));
 
                 initials[0] = e.getSceneX();
                 initials[1] = e.getSceneY();
+            }
+        }
+
+        private static void updateAllPositions(double pixelsX, double pixelsY) {
+            Event selected = AppStateManager.getInstance().getSelectedEvent();
+            if (selected != null && selected.isDriveEvent()) {
+                DriveEvent driveEvent = (DriveEvent) selected;
+                driveEvent.setPosition(fromPixels(pixelsX, pixelsY));
+
+                Translation2d visualPosition = centerRobotPixels(pixelsX, pixelsY);
+
+                selectedImageView.setX(visualPosition.getX());
+                selectedImageView.setY(visualPosition.getY());
             }
         }
     }
