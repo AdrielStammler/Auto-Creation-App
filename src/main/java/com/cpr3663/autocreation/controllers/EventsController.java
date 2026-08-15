@@ -4,6 +4,7 @@ import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.objects.DragDropCell;
 import com.cpr3663.autocreation.objects.DriveEvent;
 import com.cpr3663.autocreation.objects.Event;
+import com.cpr3663.autocreation.util.PopUpHelper;
 import javafx.beans.property.IntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -13,6 +14,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
+
+import java.util.OptionalInt;
 
 public class EventsController {
     @FXML private ListView<Event> listView;
@@ -60,10 +63,21 @@ public class EventsController {
     @FXML
     private void addEvent() {
         AppStateManager.getInstance().setEventsEditing();
-        Event event = new DriveEvent();
-        // TODO ask for event type
-        AppStateManager.getInstance().addEvent(event);
-        AppStateManager.getInstance().setSelectedIndex(AppStateManager.getInstance().getEvents().size() - 1);
+
+        OptionalInt index = PopUpHelper.chooseEventType();
+
+        if (index.isPresent()) {
+            int i = index.getAsInt();
+            Event event;
+            if (i == -1) {
+                event = new DriveEvent();
+            } else {
+                Event.Type type = AppStateManager.getInstance().getExtraTypes().get(i);
+                event = new Event(type.name(), new String[type.parameters().length]);
+            }
+            AppStateManager.getInstance().addEvent(event);
+            AppStateManager.getInstance().setSelectedIndex(AppStateManager.getInstance().getEvents().size() - 1);
+        }
     }
 
     @FXML

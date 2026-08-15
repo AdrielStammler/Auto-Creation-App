@@ -3,9 +3,12 @@ package com.cpr3663.autocreation.util;
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.controllers.AutoNameController;
+import com.cpr3663.autocreation.controllers.EventTypeController;
 import com.cpr3663.autocreation.controllers.SettingsController;
 import com.cpr3663.autocreation.controllers.UploadImageController;
 import com.cpr3663.autocreation.nodes.Shortcuts;
+import com.cpr3663.autocreation.objects.DriveEvent;
+import com.cpr3663.autocreation.objects.Event;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -26,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -158,6 +162,36 @@ public class PopUpHelper {
         } catch (IOException e) {
             Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, null, e);
             return Optional.empty();
+        }
+    }
+
+    /**
+     * @return An {@link OptionalInt} that is empty if no selection was made, {@linkplain Integer -1} if it is a {@link DriveEvent},
+     * or an {@linkplain Integer int 0+} if it is a custom {@link Event.Type} referring to the index it sits in {@link AppStateManager extraTypes}
+     */
+    public static OptionalInt chooseEventType() {
+        if (AppStateManager.getInstance().getExtraTypes().isEmpty()) return OptionalInt.of(-1);
+
+        try {
+            FXMLLoader loader = new FXMLLoader(PopUpHelper.class.getResource("/com/cpr3663/autocreation/eventType-view.fxml"));
+            Stage popupStage = new Stage();
+            popupStage.initModality(Modality.APPLICATION_MODAL);
+            popupStage.initStyle(StageStyle.UNDECORATED);
+            popupStage.initOwner(AppStateManager.getInstance().getWindow());
+
+            Scene scene = new Scene(loader.load());
+            popupStage.setScene(scene);
+            MiscHelper.setDarkMode(popupStage);
+            EventTypeController controller = loader.getController();
+            controller.setStage(popupStage);
+
+            showPopUp(popupStage);
+
+            return controller.getUserInput();
+
+        } catch (IOException e) {
+            Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, null, e);
+            return OptionalInt.empty();
         }
     }
 

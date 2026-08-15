@@ -2,6 +2,7 @@ package com.cpr3663.autocreation.objects;
 
 import com.cpr3663.autocreation.Constants;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Event {
@@ -120,6 +121,11 @@ public class Event {
             return parameters.stream()
                     .sorted()
                     .toArray(String[]::new);
+        }
+
+        @Override
+        public String toString() {
+            return name + (parameters.length == 0 ? "" : ": " + Arrays.toString(parameters));
         }
     }
 }
