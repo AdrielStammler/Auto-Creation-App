@@ -17,9 +17,11 @@ import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
 
@@ -46,7 +48,22 @@ public class Field {
         pane.setOnMouseReleased((MouseEvent event) -> {
             if (isDrag) return;
             AppStateManager.getInstance().setFieldEditing();
-            Helper.updateAllPositions(event.getX(), event.getY());
+
+            Event selected = AppStateManager.getInstance().getSelectedEvent();
+            if (selected != null && selected.isDriveEvent()) {
+                DriveEvent driveEvent = (DriveEvent) selected;
+
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    Helper.rotate(event, driveEvent);
+                    return;
+                }
+
+                driveEvent.setPosition(Helper.fromPixels(event.getX(), event.getY()));
+
+                Translation2d visualPosition = Helper.centerRobotPixels(event.getX(), event.getY());
+
+                Helper.updateRobotPos(visualPosition.getX(), visualPosition.getY());
+            }
         });
         fieldPane = pane;
         return pane;
@@ -169,6 +186,8 @@ public class Field {
                 if (event.equals(selectedEvent)) {
                     Helper.highlightImage(robotView);
                     selectedImageView = robotView;
+
+                    Helper.createThreshold(robotView.getX(), robotView.getY(), driveEvent.getThreshold());
                 } else Helper.colorRobot(robotView);
 
                 robotView.setId("Event-" + i);
@@ -183,7 +202,7 @@ public class Field {
     private static void addRobotListeners(DriveEvent event, ImageView robot) {
         robot.setPickOnBounds(true);
         robot.setOnMousePressed(e -> Helper.press(e, event, robot, true));
-        robot.setOnMouseDragged(e -> Helper.drag(e, event, robot));
+        robot.setOnMouseDragged(e -> Helper.drag(e, event));
     }
 
     public static class Helper {
@@ -213,22 +232,25 @@ public class Field {
         }
 
         public static void updateSelection() {
-            // TODO add circle (when it will stop trying to go there)
             Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
-            if (selectedImageView != null) Helper.colorRobot(selectedImageView);
-            if (selectedAprilTag != null) Helper.clearColor(selectedAprilTag);
+            Circle threshold = (Circle) fieldPane.lookup("#Threshold");
+            if (threshold != null) fieldPane.getChildren().remove(threshold);
+            if (selectedImageView != null) colorRobot(selectedImageView);
+            if (selectedAprilTag != null) clearColor(selectedAprilTag);
             if (selectedEvent == null || !selectedEvent.isDriveEvent()) {
                 selectedImageView = null;
                 selectedAprilTag = null;
                 return;
             }
             selectedImageView = (ImageView) fieldPane.lookup("#Event-" + AppStateManager.getInstance().getSelectedIndex());
-            Helper.highlightImage(selectedImageView);
+            highlightImage(selectedImageView);
+
+            createThreshold(selectedImageView.getX(), selectedImageView.getY(), ((DriveEvent) selectedEvent).getThreshold());
 
             AprilTag aprilTag = ((DriveEvent) selectedEvent).getRelativeFrom();
             if (aprilTag == null || aprilTag.ID == -1) return;
             selectedAprilTag = (ImageView) fieldPane.lookup("#Tag-" + aprilTag.ID);
-            Helper.highlightImage(selectedAprilTag);
+            highlightImage(selectedAprilTag);
         }
 
         public static Translation2d unCenterRobotPixels(Translation2d position) {
@@ -304,14 +326,14 @@ public class Field {
         }
 
         private static void drag(MouseEvent e) {
-            drag(e, null, selectedImageView);
+            drag(e, null);
         }
 
-        private static void drag(MouseEvent e, DriveEvent event, ImageView robot) {
+        private static void drag(MouseEvent e, DriveEvent event) {
             AppStateManager.getInstance().setFieldEditing();
             isDrag = true;
             e.consume();
-            if (robot == null) return;
+            if (selectedImageView == null) return;
             if (event != null && !AppStateManager.getInstance().getSelectedEvent().equals(event)) return;
 
             if (event == null) {
@@ -321,20 +343,13 @@ public class Field {
             }
 
             if (isRotating[0]) {
-                Bounds bounds = robot.localToScene(robot.getBoundsInLocal());
-                Translation2d center = new Translation2d(bounds.getCenterX(), bounds.getCenterY());
-
-                double currentAngle = Math.toDegrees(Math.atan2(e.getSceneY() - center.getY(), e.getSceneX() - center.getX()));
-
-                event.setTheta(currentAngle);
-                robot.setRotate(currentAngle + 90.0);
+                rotate(e, event);
             } else {
                 Translation2d delta = new Translation2d(e.getSceneX() - initials[0], e.getSceneY() - initials[1]);
-                Translation2d currPos = new Translation2d(robot.getX(), robot.getY());
+                Translation2d currPos = new Translation2d(selectedImageView.getX(), selectedImageView.getY());
                 Translation2d newPos = currPos.plus(delta);
 
-                robot.setX(newPos.getX());
-                robot.setY(newPos.getY());
+                updateRobotPos(newPos.getX(), newPos.getY());
 
                 event.setPosition(fromPixels(unCenterRobotPixels(newPos)));
 
@@ -343,17 +358,45 @@ public class Field {
             }
         }
 
-        private static void updateAllPositions(double pixelsX, double pixelsY) {
-            Event selected = AppStateManager.getInstance().getSelectedEvent();
-            if (selected != null && selected.isDriveEvent()) {
-                DriveEvent driveEvent = (DriveEvent) selected;
-                driveEvent.setPosition(fromPixels(pixelsX, pixelsY));
+        private static void rotate(MouseEvent e, DriveEvent event) {
+            Bounds bounds = selectedImageView.localToScene(selectedImageView.getBoundsInLocal());
+            Translation2d center = new Translation2d(bounds.getCenterX(), bounds.getCenterY());
 
-                Translation2d visualPosition = centerRobotPixels(pixelsX, pixelsY);
+            double currentAngle = Math.toDegrees(Math.atan2(e.getSceneY() - center.getY(), e.getSceneX() - center.getX()));
 
-                selectedImageView.setX(visualPosition.getX());
-                selectedImageView.setY(visualPosition.getY());
-            }
+            event.setTheta(currentAngle);
+            selectedImageView.setRotate(currentAngle + 90.0);
+        }
+
+        private static void createThreshold(double x, double y, double thresholdM) {
+            Translation2d pos = unCenterRobotPixels(x, y);
+            Circle threshold = new Circle(pos.getX(), pos.getY(), thresholdM * PIXELS_PER_METER);
+            threshold.setMouseTransparent(true);
+            threshold.setFill(Color.TRANSPARENT);
+            threshold.setStroke(HIGHLIGHT_COLOR);
+            threshold.setStrokeWidth(3.0);
+            final int totalDashes = 20;
+            threshold.radiusProperty().addListener((observable, oldValue, newRadius) -> {
+                double circumference = 2 * Math.PI * newRadius.doubleValue();
+                double dashLength = circumference / (totalDashes * 2);
+
+                threshold.getStrokeDashArray().setAll(dashLength, dashLength);
+            });
+
+            double initialLength = (2 * Math.PI * threshold.getRadius()) / (totalDashes * 2);
+            threshold.getStrokeDashArray().setAll(initialLength, initialLength);
+            threshold.setId("Threshold");
+            fieldPane.getChildren().add(threshold);
+        }
+
+        private static void updateRobotPos(double pixelsX, double pixelsY) {
+            selectedImageView.setX(pixelsX);
+            selectedImageView.setY(pixelsY);
+
+            Circle threshold = (Circle) fieldPane.lookup("#Threshold");
+            Translation2d pos = unCenterRobotPixels(pixelsX, pixelsY);
+            threshold.setCenterX(pos.getX());
+            threshold.setCenterY(pos.getY());
         }
     }
 }

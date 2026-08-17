@@ -104,7 +104,6 @@ public class Main extends Application {
             }
         }));
 
-        AppStateManager.getInstance().currentEditorProperty().addListener((observable, oldValue, newValue) -> System.out.println("Current Editor: " + newValue));
         FileHelper.open();
     }
 
