@@ -57,6 +57,7 @@ public class Main extends Application {
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setTitle(Constants.Stage.TITLE);
         stage.setScene(scene);
+        MiscHelper.addResizeListener(stage);
         stage.show();
         stage.toFront();
         stage.requestFocus();
@@ -69,7 +70,10 @@ public class Main extends Application {
             MiscHelper.closeRequest();
         });
 
+        // Add Listeners
         AppStateManager.getInstance().isDarkModeProperty().addListener(run(() -> MiscHelper.setDarkMode(stage)));
+        AppStateManager.getInstance().fieldScaleProperty().addListener(run(refreshField(borderPane)));
+        AppStateManager.getInstance().fieldImageProperty().addListener(run(refreshField(borderPane)));
         AppStateManager.getInstance().openAutoNameProperty().addListener(run(() -> {
             FileHelper.open();
             AppStateManager.getInstance().saveState();

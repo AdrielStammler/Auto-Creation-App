@@ -1,9 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<!--TODO: make an actual editor-->
-<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.EditorController">
-      <Button fx:id="button" onAction="#click" text="Button" />
-</AnchorPane>
+<HBox alignment="CENTER_RIGHT" prefWidth="250" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.EditorController">
+      <Separator orientation="VERTICAL"/>
+      <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
+            <Label alignment="CENTER" text="General:" VBox.vgrow="NEVER">
+                  <font>
+                        <Font name="System Bold" size="20.0" />
+                  </font>
+            </Label>
+
+            <GridPane VBox.vgrow="NEVER">
+                  <padding>
+                        <Insets bottom="30" left="30" right="30" top="30" />
+                  </padding>
+                  <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" />
+                        <ColumnConstraints halignment="LEFT" />
+                  </columnConstraints>
+
+                  <Label text="After Prev Event:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                  <CheckBox fx:id="afterPrevCheck" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                  <Label text="Has a delay" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                  <CheckBox fx:id="delayCheck" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                  <Label text="Delay Type:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                  <ChoiceBox fx:id="delayTypeChoice" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                  <Label text="Delay Amount:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                  <TextField fx:id="delayAmountText" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            </GridPane>
+
+            <Label alignment="CENTER" text="Params:" VBox.vgrow="NEVER">
+                  <font>
+                        <Font name="System Bold" size="20.0" />
+                  </font>
+            </Label>
+
+            <GridPane fx:id="paramGridPane" VBox.vgrow="ALWAYS" />
+      </VBox>
+</HBox>

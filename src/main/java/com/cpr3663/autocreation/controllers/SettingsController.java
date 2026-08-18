@@ -2,6 +2,7 @@ package com.cpr3663.autocreation.controllers;
 
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.objects.Event;
+import com.cpr3663.autocreation.util.MiscHelper;
 import com.cpr3663.autocreation.util.PopUpHelper;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.units.DistanceUnit;
@@ -29,6 +30,7 @@ public class SettingsController {
     @FXML public ComboBox<DistanceUnit> unitsDropDown;
     @FXML private TextField robotSizeXText;
     @FXML private TextField robotSizeYText;
+    @FXML private TextField fieldScaleText;
     @FXML private ListView<String> extraTypesNameList;
     @FXML private ListView<String> extraTypesParamList;
     private Stage stage;
@@ -47,17 +49,11 @@ public class SettingsController {
         unitsDropDown.getItems().addAll(Units.Meters, Units.Feet, Units.Inches, Units.Millimeters, Units.Centimeters);
         unitsDropDown.getSelectionModel().select(AppStateManager.getInstance().getDisplayUnits());
         robotSizeXText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getX())));
-        robotSizeXText.setTextFormatter(new TextFormatter<>(change -> {
-            String text = change.getControlNewText();
-            if (text.matches("\\d*\\.?\\d*")) return change;
-            return null;
-        }));
+        robotSizeXText.setTextFormatter(MiscHelper.doubleFormater());
         robotSizeYText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getY())));
-        robotSizeYText.setTextFormatter(new TextFormatter<>(change -> {
-            String text = change.getControlNewText();
-            if (text.matches("\\d*\\.?\\d*")) return change;
-            return null;
-        }));
+        robotSizeYText.setTextFormatter(MiscHelper.doubleFormater());
+        fieldScaleText.setText(Double.toString(AppStateManager.getInstance().getFieldScale()));
+        fieldScaleText.setTextFormatter(MiscHelper.doubleFormater());
         makeEditable(extraTypesNameList);
         makeEditable(extraTypesParamList);
 
@@ -87,6 +83,7 @@ public class SettingsController {
     }
 
     private void saveParams() {
+        if (selectedIndex == -1) return;
         saveParams(selectedIndex);
     }
 
@@ -169,6 +166,7 @@ public class SettingsController {
         stateManager.setDisplayUnits(unitsDropDown.getSelectionModel().getSelectedItem());
         stateManager.setRobotSize(stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeXText.getText())),
                 stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeYText.getText())));
+        stateManager.setFieldScale(Double.parseDouble(fieldScaleText.getText()));
         saveParams();
         extraTypes.sort(Comparator.comparing(Event.Type::name));
         stateManager.setExtraTypes(extraTypes.stream().map(type -> new Event.Type(type.name(), type.parameters())).toArray(Event.Type[]::new));

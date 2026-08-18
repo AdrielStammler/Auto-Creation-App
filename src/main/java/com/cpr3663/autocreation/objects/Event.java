@@ -1,6 +1,7 @@
 package com.cpr3663.autocreation.objects;
 
 import com.cpr3663.autocreation.Constants;
+import javafx.beans.property.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,21 +11,21 @@ public class Event {
 
     private String name;
     private String[] parameters;
-    private boolean afterPrev;
-    private DelayTypes delayType;
-    private int delay;
+    private final BooleanProperty afterPrev;
+    private final ObjectProperty<DelayTypes> delayType;
+    private final DoubleProperty delay;
 
-    public Event(String name, String[] parameters, boolean afterPrev, DelayTypes delayType, int delay) {
+    public Event(String name, String[] parameters, boolean afterPrev, DelayTypes delayType, double delay) {
         this.name = name;
         this.parameters = parameters;
-        this.afterPrev = afterPrev;
-        this.delayType = DelayTypes.NONE;
+        this.afterPrev = new SimpleBooleanProperty(afterPrev);
+        this.delayType = new SimpleObjectProperty<>(DelayTypes.NONE);
         setDelayType(delayType);
-        this.delay = delay;
+        this.delay = new SimpleDoubleProperty(delay);
     }
 
     public Event(String name, String[] parameters) {
-        this(name, parameters, true, DelayTypes.NONE, 0);
+        this(name, parameters, true, DelayTypes.NONE, 0.0);
     }
 
     public void setOnChangeCallback(Runnable onChangeCallback) {
@@ -49,32 +50,44 @@ public class Event {
         if (onChangeCallback != null) onChangeCallback.run();
     }
 
-    public boolean isAfterPrev() {
+    public BooleanProperty afterPrevProperty() {
         return afterPrev;
     }
 
+    public boolean isAfterPrev() {
+        return afterPrev.get();
+    }
+
     public void setAfterPrev(boolean afterPrev) {
-        this.afterPrev = afterPrev;
+        this.afterPrev.set(afterPrev);
         if (onChangeCallback != null) onChangeCallback.run();
     }
 
-    public DelayTypes getDelayType() {
+    public ObjectProperty<DelayTypes> delayTypeProperty() {
         return delayType;
     }
 
+    public DelayTypes getDelayType() {
+        return delayType.get();
+    }
+
     public void setDelayType(DelayTypes delayType) {
-        if (!afterPrev || delayType.worksAfterPrev()) {
-            this.delayType = delayType;
+        if (!afterPrev.get() || delayType.worksAfterPrev()) {
+            this.delayType.set(delayType);
             if (onChangeCallback != null) onChangeCallback.run();
         }
     }
 
-    public int getDelay() {
+    public DoubleProperty delayProperty() {
         return delay;
     }
 
-    public void setDelay(int delay) {
-        this.delay = delay;
+    public double getDelay() {
+        return delay.get();
+    }
+
+    public void setDelay(double delay) {
+        this.delay.set(delay);
         if (onChangeCallback != null) onChangeCallback.run();
     }
 
@@ -85,7 +98,7 @@ public class Event {
 
     public String toFileRow() {
         String params = String.join(Constants.Events.PARAM_DELIMITER, parameters);
-        return String.join(Constants.Events.DELIMITER, name, params, Boolean.toString(afterPrev), delayType.name(), Integer.toString(delay));
+        return String.join(Constants.Events.DELIMITER, name, params, Boolean.toString(isAfterPrev()), getDelayType().name(), Double.toString(getDelay()));
     }
 
     public boolean isDriveEvent() {

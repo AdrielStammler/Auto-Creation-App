@@ -86,8 +86,12 @@ public class EventsController {
         Event selectedEvent = listView.getSelectionModel().getSelectedItem();
         int index = listView.getSelectionModel().getSelectedIndex();
         AppStateManager.getInstance().getEvents().remove(selectedEvent);
-        if (index == listView.getItems().size())
-            index--;
-        AppStateManager.getInstance().setSelectedIndex(index);
+        int size = listView.getItems().size();
+        if (size == 0)
+            listView.getSelectionModel().clearSelection();
+        else if (index == size)
+            listView.getSelectionModel().selectLast();
+        else
+            listView.getSelectionModel().select(index);
     }
 }

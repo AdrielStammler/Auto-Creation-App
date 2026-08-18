@@ -28,9 +28,9 @@ import javafx.scene.transform.Rotate;
 import java.util.Objects;
 
 public class Field {
-    private static final double PIXELS_PER_METER = 75.0;
     private static final double[] initials = new double[2];
     private static final boolean[] isRotating = new boolean[1];
+    private static double PIXELS_PER_METER;
     private static double FIELD_WIDTH;
     private static ImageView selectedImageView;
     private static ImageView selectedAprilTag;
@@ -39,6 +39,8 @@ public class Field {
 
     public static Pane getFieldPane() {
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
+        // TODO: weird behavior when Field Scale Changes
+        PIXELS_PER_METER = 75.0 * AppStateManager.getInstance().getFieldScale();
         FIELD_WIDTH = fieldLayout.getFieldWidth();
         Pane pane = getPane(fieldLayout);
         drawAprilTags(pane, fieldLayout);

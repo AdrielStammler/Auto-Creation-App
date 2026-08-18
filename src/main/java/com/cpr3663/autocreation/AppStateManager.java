@@ -33,6 +33,7 @@ public class AppStateManager {
         private static final String TAG_FIELD = "aprilTagField";
         private static final String ROBOT_SIZE_X = "robotSizeX";
         private static final String ROBOT_SIZE_Y = "robotSizeY";
+        private static final String FIELD_SCALE = "fieldScale";
         private static final String DISPLAY_UNIT = "displayUnits";
         private static final String EXTRA_TYPES = "extraEventTypes";
     }
@@ -44,6 +45,7 @@ public class AppStateManager {
         prefs.put(Keys.TAG_FIELD, getAprilTagField().name());
         prefs.putDouble(Keys.ROBOT_SIZE_X, getRobotSize().getX());
         prefs.putDouble(Keys.ROBOT_SIZE_Y, getRobotSize().getY());
+        prefs.putDouble(Keys.FIELD_SCALE, getFieldScale());
         prefs.put(Keys.DISPLAY_UNIT, getDisplayUnits().symbol());
         File file = new File(Constants.Paths.FIELD_IMAGE);
         file.getParentFile().mkdirs();
@@ -73,6 +75,7 @@ public class AppStateManager {
         setRobotRepoPath(prefs.get(Keys.ROBOT_REPO, getRobotRepoPath()));
         setAprilTagField(AprilTagFields.valueOf(prefs.get(Keys.TAG_FIELD, getAprilTagField().name())));
         setRobotSize(prefs.getDouble(Keys.ROBOT_SIZE_X, getRobotSize().getX()), prefs.getDouble(Keys.ROBOT_SIZE_Y, getRobotSize().getY()));
+        setFieldScale(prefs.getDouble(Keys.FIELD_SCALE, getFieldScale()));
         setDisplayUnits(switch(prefs.get(Keys.DISPLAY_UNIT, getDisplayUnits().symbol())) {
             case "cm" -> Units.Centimeters;
             case "in" -> Units.Inches;
@@ -124,6 +127,7 @@ public class AppStateManager {
     private final ObjectProperty<Image> fieldImage = new SimpleObjectProperty<>(null);
     private final ObjectProperty<AprilTagFields> aprilTagField = new SimpleObjectProperty<>(AprilTagFields.kDefaultField);
     private final ObjectProperty<Translation2d> robotSize = new SimpleObjectProperty<>(new Translation2d(1, 1));
+    private final DoubleProperty fieldScale = new SimpleDoubleProperty(1.0);
     private final ObjectProperty<DistanceUnit> displayUnits = new SimpleObjectProperty<>(Units.Meters);
     private final ListProperty<Event.Type> extraTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
 
@@ -165,8 +169,9 @@ public class AppStateManager {
     }
 
     public Event getSelectedEvent() {
-        if (getSelectedIndex() == -1) return null;
-        return events.get(getSelectedIndex());
+        int index = getSelectedIndex();
+        if (index == -1 || index >= events.getSize()) return null;
+        return events.get(index);
     }
 
     public ObjectProperty<Main.Sections> currentEditorProperty() {
@@ -295,6 +300,18 @@ public class AppStateManager {
 
     public void setRobotSize(Translation2d robotSize) {
         this.robotSize.set(robotSize);
+    }
+
+    public DoubleProperty fieldScaleProperty() {
+        return fieldScale;
+    }
+
+    public double getFieldScale() {
+        return fieldScale.get();
+    }
+
+    public void setFieldScale(double fieldScale) {
+        this.fieldScale.set(fieldScale);
     }
 
     public ObjectProperty<DistanceUnit> displayUnitsProperty() {

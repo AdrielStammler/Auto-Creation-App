@@ -1,14 +1,80 @@
 package com.cpr3663.autocreation.controllers;
 
 import com.cpr3663.autocreation.AppStateManager;
-import javafx.scene.control.Button;
+import com.cpr3663.autocreation.objects.DriveEvent;
+import com.cpr3663.autocreation.objects.Event;
+import com.cpr3663.autocreation.util.MiscHelper;
+import javafx.beans.binding.Bindings;
+import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.util.converter.NumberStringConverter;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 public class EditorController {
-    // TODO make an actual editor
-    public Button button;
+    @FXML private CheckBox afterPrevCheck;
+    @FXML private CheckBox delayCheck;
+    @FXML private ChoiceBox<Event.DelayTypes> delayTypeChoice;
+    @FXML private TextField delayAmountText;
 
-    public void click() {
-        AppStateManager.getInstance().setEditorEditing();
-        button.setText(Math.random()+"");
+    @FXML private GridPane paramGridPane;
+
+    private Event event;
+
+    private Event.DelayTypes prevDelayType;
+
+    @FXML
+    private void initialize() {
+        event = AppStateManager.getInstance().getSelectedEvent();
+        if (event == null) {
+            afterPrevCheck.setDisable(true);
+            delayCheck.setDisable(true);
+            delayTypeChoice.setDisable(true);
+            delayAmountText.setDisable(true);
+            return;
+        }
+
+        afterPrevCheck.selectedProperty().bindBidirectional(event.afterPrevProperty());
+        delayCheck.setSelected(event.getDelayType().equals(Event.DelayTypes.NONE));
+        delayCheck.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                delayTypeChoice.setValue(Objects.requireNonNullElse(prevDelayType, Event.DelayTypes.TIME));
+            } else {
+                prevDelayType = delayTypeChoice.getValue();
+                delayTypeChoice.setValue(Event.DelayTypes.NONE);
+            }
+        });
+
+        delayTypeChoice.getItems().addAll(Arrays.copyOfRange(Event.DelayTypes.values(), 1, Event.DelayTypes.values().length));
+        delayTypeChoice.valueProperty().bindBidirectional(event.delayTypeProperty());
+        delayTypeChoice.selectionModelProperty().addListener((obs, old, newV) -> {
+            Event.DelayTypes type = newV.getSelectedItem();
+            if (type.equals(Event.DelayTypes.TIME))
+                delayAmountText.setTextFormatter(MiscHelper.intFormater());
+            else
+                delayAmountText.setTextFormatter(MiscHelper.doubleFormater());
+        });
+        Bindings.bindBidirectional(delayAmountText.textProperty(), event.delayProperty(), new NumberStringConverter());
+
+        delayTypeChoice.disableProperty().bind(delayCheck.selectedProperty().not());
+        delayAmountText.disableProperty().bind(delayCheck.selectedProperty().not());
+
+        if (event.isDriveEvent())
+            setupDriveParams();
+        else
+            setupCustomParams();
+    }
+
+    private void setupDriveParams() {
+        DriveEvent driveEvent = (DriveEvent) event;
+        // TODO implement
+    }
+
+    private void setupCustomParams() {
+        // TODO implement
     }
 }
