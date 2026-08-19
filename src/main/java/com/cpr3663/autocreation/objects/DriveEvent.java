@@ -3,26 +3,30 @@ package com.cpr3663.autocreation.objects;
 import com.cpr3663.autocreation.Constants;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 public class DriveEvent extends Event {
-    private Pose2d pose;
-    private double threshold;
-    private double maxVelocity;
-    private double maxAcceleration;
+    private final Property<Pose2d> pose;
+    private final DoubleProperty threshold;
+    private final DoubleProperty maxVelocity;
+    private final DoubleProperty maxAcceleration;
 
     // IF ID = -1 then it's not a tag it's other (e.g. origin)
-    private AprilTag relativeFrom = new AprilTag(-1, new Pose3d());
+    private final Property<AprilTag> relativeFrom = new SimpleObjectProperty<>(new AprilTag(-1, new Pose3d()));
 
-    public DriveEvent(double xPos, double yPos, double theta, double threshold, boolean afterPrev, DelayTypes delayType, int delay) {
+    public DriveEvent(double xPos, double yPos, double theta, double threshold, boolean afterPrev, DelayTypes delayType, double delay) {
         this(xPos, yPos, theta, threshold, -1, -1, afterPrev, delayType, delay);
     }
 
-    public DriveEvent(double xPos, double yPos, double theta, double threshold, double maxVel, double maxAccel, boolean afterPrev, DelayTypes delayType, int delay) {
-        super(Constants.Events.DRIVE_NAME, new String[]{}, afterPrev, delayType, delay);
-        this.pose = new Pose2d(xPos, yPos, Rotation2d.fromDegrees(theta));
-        this.threshold = threshold;
-        this.maxVelocity = maxVel;
-        this.maxAcceleration = maxAccel;
+    public DriveEvent(double xPos, double yPos, double theta, double threshold, double maxVel, double maxAccel, boolean afterPrev, DelayTypes delayType, double delay) {
+        super(Constants.Events.DRIVE_NAME, new String[]{}, null, afterPrev, delayType, delay);
+        this.pose = new SimpleObjectProperty<>(new Pose2d(xPos, yPos, Rotation2d.fromDegrees(theta)));
+        this.threshold = new SimpleDoubleProperty(threshold);
+        this.maxVelocity = new SimpleDoubleProperty(maxVel);
+        this.maxAcceleration = new SimpleDoubleProperty(maxAccel);
         updateParams();
     }
 
@@ -34,28 +38,36 @@ public class DriveEvent extends Event {
         return Math.round(value * 100.0) / 100.0;
     }
 
-    public AprilTag getRelativeFrom() {
+    public Property<AprilTag> relativeFromProperty() {
         return relativeFrom;
     }
 
-    public void setRelativeFrom(AprilTag relativeFrom) {
-        this.relativeFrom = relativeFrom;
+    public AprilTag getRelativeFrom() {
+        return relativeFrom.getValue();
     }
 
-    public Pose2d getPose() {
+    public void setRelativeFrom(AprilTag relativeFrom) {
+        this.relativeFrom.setValue(relativeFrom);
+    }
+
+    public Property<Pose2d> poseProperty() {
         return pose;
     }
 
+    public Pose2d getPose() {
+        return pose.getValue();
+    }
+
     public Transform2d getRelativePose() {
-        return pose.minus(relativeFrom.pose.toPose2d());
+        return getPose().minus(getRelativeFrom().pose.toPose2d());
     }
 
     public Translation2d getRelativePosition() {
-        return relativeFrom.pose.toPose2d().getTranslation().minus(pose.getTranslation());
+        return getRelativeFrom().pose.toPose2d().getTranslation().minus(getPose().getTranslation());
     }
 
     public double getRelativeTheta() {
-        return pose.getRotation().minus(relativeFrom.pose.getRotation().toRotation2d()).getDegrees();
+        return getPose().getRotation().minus(getRelativeFrom().pose.getRotation().toRotation2d()).getDegrees();
     }
 
     public void setPosition(double x, double y) {
@@ -63,70 +75,77 @@ public class DriveEvent extends Event {
     }
 
     public void setPosition(Translation2d position) {
-        pose = new Pose2d(position, pose.getRotation());
+        pose.setValue(new Pose2d(position, getPose().getRotation()));
         updateParams();
     }
 
     public double getXPos() {
-        return pose.getX();
+        return getPose().getX();
     }
 
     public void setXPos(double xPos) {
-        pose = new Pose2d(xPos, pose.getY(), pose.getRotation());
+        pose.setValue(new Pose2d(xPos, getPose().getY(), getPose().getRotation()));
         updateParams();
     }
 
     public double getYPos() {
-        return pose.getY();
+        return getPose().getY();
     }
 
     public void setYPos(double yPos) {
-        pose = new Pose2d(pose.getX(), yPos, pose.getRotation());
+        pose.setValue(new Pose2d(getPose().getX(), yPos, getPose().getRotation()));
         updateParams();
     }
 
     public double getTheta() {
-        return pose.getRotation().getDegrees();
+        return getPose().getRotation().getDegrees();
     }
 
     public void setTheta(double theta) {
-        pose = new Pose2d(pose.getTranslation(), Rotation2d.fromDegrees(theta));
+        pose.setValue(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(theta)));
         updateParams();
     }
 
-    public double getThreshold() {
+    public DoubleProperty thresholdProperty() {
         return threshold;
     }
 
-    public void setThreshold(double threshold) {
-        this.threshold = threshold;
+    public double getThreshold() {
+        return threshold.getValue();
     }
 
-    public double getMaxVelocity() {
+    public void setThreshold(double threshold) {
+        this.threshold.set(threshold);
+    }
+
+    public DoubleProperty maxVelocityProperty() {
         return maxVelocity;
     }
 
-    public void setMaxVelocity(int maxVelocity) {
-        this.maxVelocity = maxVelocity;
+    public double getMaxVelocity() {
+        return maxVelocity.getValue();
+    }
+
+    public void setMaxVelocity(double maxVelocity) {
+        this.maxVelocity.set(maxVelocity);
         updateParams();
     }
 
-    public double getMaxAcceleration() {
+    public DoubleProperty maxAccelerationProperty() {
         return maxAcceleration;
     }
 
-    public void setMaxAcceleration(int maxAcceleration) {
-        this.maxAcceleration = maxAcceleration;
+    public double getMaxAcceleration() {
+        return maxAcceleration.get();
+    }
+
+    public void setMaxAcceleration(double maxAcceleration) {
+        this.maxAcceleration.set(maxAcceleration);
         updateParams();
     }
 
     private void updateParams() {
-        super.setParameters(new String[]{Double.toString(pose.getX()), Double.toString(pose.getY()), Double.toString(getTheta()), Double.toString(threshold), Double.toString(maxVelocity), Double.toString(maxAcceleration)});
-    }
-
-    @Override
-    public boolean isDriveEvent() {
-        return true;
+        super.setParameters(new String[]{Double.toString(pose.getValue().getX()), Double.toString(pose.getValue().getY()), Double.toString(getTheta()), Double.toString(getThreshold()), Double.toString(getMaxVelocity()), Double.toString(getMaxAcceleration())});
     }
 
     @Override
