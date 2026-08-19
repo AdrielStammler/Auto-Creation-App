@@ -8,6 +8,7 @@ import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.util.converter.NumberStringConverter;
@@ -63,7 +64,7 @@ public class EditorController {
         delayTypeChoice.disableProperty().bind(delayCheck.selectedProperty().not());
         delayAmountText.disableProperty().bind(delayCheck.selectedProperty().not());
 
-        if (event.isDriveEvent())
+        if (event instanceof DriveEvent)
             setupDriveParams();
         else
             setupCustomParams();
@@ -71,10 +72,23 @@ public class EditorController {
 
     private void setupDriveParams() {
         DriveEvent driveEvent = (DriveEvent) event;
-        // TODO implement
+        // TODO implement maybe with fxml
     }
 
     private void setupCustomParams() {
-        // TODO implement
+        Event.Type type = event.getType();
+        if (type == null) throw new RuntimeException("ERROR: Event type is null for a non-DriveEvent");
+
+        String[] params = type.parameters();
+
+        for (int i = 0; i < params.length; i++) {
+            String param = params[i];
+            Label label = new Label(param);
+            TextField textField = new TextField();
+            textField.textProperty().bindBidirectional(event.parameterProperty(i));
+
+            paramGridPane.add(label, 0, i);
+            paramGridPane.add(textField, 1, i);
+        }
     }
 }

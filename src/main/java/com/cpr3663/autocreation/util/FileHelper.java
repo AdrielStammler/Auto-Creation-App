@@ -77,7 +77,8 @@ public class FileHelper {
                         double[] params = Arrays.stream(paramsStr).mapToDouble(Double::parseDouble).toArray();
                         return new DriveEvent(params[0], params[1], params[2], params[3], params[4], params[5], Boolean.parseBoolean(fields[2]), Event.DelayTypes.valueOf(fields[3]), Integer.parseInt(fields[4]));
                     } else
-                        return new Event(fields[0], fields[1].split(Constants.Events.PARAM_DELIMITER), Boolean.parseBoolean(fields[2]), Event.DelayTypes.valueOf(fields[3]), Integer.parseInt(fields[4]));
+                        // TODO: fix type here
+                        return new Event(fields[0], fields[1].split(Constants.Events.PARAM_DELIMITER), null, Boolean.parseBoolean(fields[2]), Event.DelayTypes.valueOf(fields[3]), Integer.parseInt(fields[4]));
                 });
 
         ObservableList<Event> events = FXCollections.observableArrayList(lines.toList());

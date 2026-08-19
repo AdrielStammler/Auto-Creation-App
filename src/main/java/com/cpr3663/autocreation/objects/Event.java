@@ -9,44 +9,67 @@ import java.util.List;
 public class Event {
     protected Runnable onChangeCallback;
 
-    private String name;
-    private String[] parameters;
+    private final Type type;
+
+    private final String name;
+    private StringProperty[] parameters;
     private final BooleanProperty afterPrev;
     private final ObjectProperty<DelayTypes> delayType;
     private final DoubleProperty delay;
 
-    public Event(String name, String[] parameters, boolean afterPrev, DelayTypes delayType, double delay) {
+    public Event(String name, String[] parameters, Type type, boolean afterPrev, DelayTypes delayType, double delay) {
+        this.type = type;
         this.name = name;
-        this.parameters = parameters;
+        this.parameters = Arrays.stream(parameters).map(SimpleStringProperty::new).toArray(StringProperty[]::new);
         this.afterPrev = new SimpleBooleanProperty(afterPrev);
         this.delayType = new SimpleObjectProperty<>(DelayTypes.NONE);
         setDelayType(delayType);
         this.delay = new SimpleDoubleProperty(delay);
     }
 
-    public Event(String name, String[] parameters) {
-        this(name, parameters, true, DelayTypes.NONE, 0.0);
+    public Event(String name, String[] parameters, Type type) {
+        this(name, parameters, type, true, DelayTypes.NONE, 0.0);
+    }
+
+    public Event(Type type) {
+        this(type.name(), new String[type.parameters().length], type);
     }
 
     public void setOnChangeCallback(Runnable onChangeCallback) {
         this.onChangeCallback = onChangeCallback;
     }
 
+    public Type getType() {
+        return type;
+    }
+
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-        if (onChangeCallback != null) onChangeCallback.run();
-    }
-
-    public String[] getParameters() {
+    public StringProperty[] parameters() {
         return parameters;
     }
 
+    public String[] getParameters() {
+        return Arrays.stream(parameters).map(StringProperty::getValueSafe).toArray(String[]::new);
+    }
+
+    public StringProperty parameterProperty(int i) {
+        return parameters[i];
+    }
+
+    public String getParameter(int i) {
+        return parameters[i].getValueSafe();
+    }
+
     public void setParameters(String[] parameters) {
-        this.parameters = parameters;
+        this.parameters = Arrays.stream(parameters).map(SimpleStringProperty::new).toArray(StringProperty[]::new);
+        if (onChangeCallback != null) onChangeCallback.run();
+    }
+
+    public void setParameter(String value, int index) {
+        this.parameters[index].set(value);
         if (onChangeCallback != null) onChangeCallback.run();
     }
 
@@ -97,12 +120,8 @@ public class Event {
     }
 
     public String toFileRow() {
-        String params = String.join(Constants.Events.PARAM_DELIMITER, parameters);
+        String params = String.join(Constants.Events.PARAM_DELIMITER, getParameters());
         return String.join(Constants.Events.DELIMITER, name, params, Boolean.toString(isAfterPrev()), getDelayType().name(), Double.toString(getDelay()));
-    }
-
-    public boolean isDriveEvent() {
-        return false;
     }
 
     public enum DelayTypes {

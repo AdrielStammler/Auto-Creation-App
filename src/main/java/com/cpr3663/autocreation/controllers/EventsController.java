@@ -73,7 +73,7 @@ public class EventsController {
                 event = new DriveEvent();
             } else {
                 Event.Type type = AppStateManager.getInstance().getExtraTypes().get(i);
-                event = new Event(type.name(), new String[type.parameters().length]);
+                event = new Event(type);
             }
             AppStateManager.getInstance().addEvent(event);
             AppStateManager.getInstance().setSelectedIndex(AppStateManager.getInstance().getEvents().size() - 1);

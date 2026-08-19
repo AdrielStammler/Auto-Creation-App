@@ -52,9 +52,7 @@ public class Field {
             AppStateManager.getInstance().setFieldEditing();
 
             Event selected = AppStateManager.getInstance().getSelectedEvent();
-            if (selected != null && selected.isDriveEvent()) {
-                DriveEvent driveEvent = (DriveEvent) selected;
-
+            if (selected instanceof DriveEvent driveEvent) {
                 if (event.getButton() == MouseButton.SECONDARY) {
                     Helper.rotate(event, driveEvent);
                     return;
@@ -95,8 +93,8 @@ public class Field {
     private static void drawAprilTags(Pane fieldPane, AprilTagFieldLayout fieldLayout) {
         Event event = AppStateManager.getInstance().getSelectedEvent();
         AprilTag selected;
-        if (event != null && event.isDriveEvent())
-            selected = ((DriveEvent) event).getRelativeFrom();
+        if (event instanceof DriveEvent driveEvent)
+            selected = driveEvent.getRelativeFrom();
         else selected = new AprilTag(-2, new Pose3d());
 
         for (AprilTag tag : fieldLayout.getTags()) {
@@ -170,8 +168,7 @@ public class Field {
         ObservableList<Event> events = AppStateManager.getInstance().getEvents();
         for (int i = 0; i < events.size(); i++) {
             Event event = events.get(i);
-            if (event.isDriveEvent()) {
-                DriveEvent driveEvent = (DriveEvent) event;
+            if (event instanceof DriveEvent driveEvent) {
                 Image robot = new Image(Objects.requireNonNull(Field.class.getResource(Constants.Paths.ROBOT_ICON)).toExternalForm());
                 ImageView robotView = new ImageView(robot);
 
@@ -239,7 +236,7 @@ public class Field {
             if (threshold != null) fieldPane.getChildren().remove(threshold);
             if (selectedImageView != null) colorRobot(selectedImageView);
             if (selectedAprilTag != null) clearColor(selectedAprilTag);
-            if (selectedEvent == null || !selectedEvent.isDriveEvent()) {
+            if (!(selectedEvent instanceof DriveEvent)) {
                 selectedImageView = null;
                 selectedAprilTag = null;
                 return;
@@ -340,7 +337,7 @@ public class Field {
 
             if (event == null) {
                 Event tempEvent = AppStateManager.getInstance().getSelectedEvent();
-                if (tempEvent.isDriveEvent()) event = (DriveEvent) tempEvent;
+                if (tempEvent instanceof DriveEvent) event = (DriveEvent) tempEvent;
                 else return;
             }
 
