@@ -75,6 +75,11 @@ public class EditorController {
         // TODO implement maybe with fxml
     }
 
+    private void addLabel(String text, int row) {
+        Label label = new Label(text);
+        paramGridPane.add(label, 0, row);
+    }
+
     private void setupCustomParams() {
         Event.Type type = event.getType();
         if (type == null) throw new RuntimeException("ERROR: Event type is null for a non-DriveEvent");

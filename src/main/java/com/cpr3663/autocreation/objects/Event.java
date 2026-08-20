@@ -121,7 +121,10 @@ public class Event {
 
     public String toFileRow() {
         String params = String.join(Constants.Events.PARAM_DELIMITER, getParameters());
-        return String.join(Constants.Events.DELIMITER, name, params, Boolean.toString(isAfterPrev()), getDelayType().name(), Double.toString(getDelay()));
+        String paramNames;
+        if (getType() == null) paramNames = Constants.Events.DRIVE_PARAMS;
+        else paramNames = String.join(Constants.Events.PARAM_DELIMITER, getType().parameters());
+        return String.join(Constants.Events.DELIMITER, name, paramNames, params, Boolean.toString(isAfterPrev()), getDelayType().name(), Double.toString(getDelay()));
     }
 
     public enum DelayTypes {

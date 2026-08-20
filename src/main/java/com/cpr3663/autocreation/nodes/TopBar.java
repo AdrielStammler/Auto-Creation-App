@@ -5,6 +5,7 @@ import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.util.FileHelper;
 import com.cpr3663.autocreation.util.MiscHelper;
 import com.cpr3663.autocreation.util.PopUpHelper;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -44,9 +45,13 @@ public class TopBar {
         iconView.setPreserveRatio(true);
         iconView.setStyle("-fx-background-color: transparent;");
 
-        Label openAuto = new Label(Constants.Stage.TITLE);
+        Label openAuto = new Label();
         openAuto.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
-        openAuto.textProperty().bind(AppStateManager.getInstance().openAutoNameProperty());
+        openAuto.textProperty().bind(Bindings.createStringBinding(() -> {
+                    String val = AppStateManager.getInstance().getOpenAutoName();
+                    return (val == null || val.isBlank()) ? "No Open Auto" : val;
+                }, AppStateManager.getInstance().openAutoNameProperty())
+        );
 
         Button min = createWindowButton("—", e -> mainStage.setIconified(true));
         Button max = createWindowButton("🗖", e -> mainStage.setMaximized(!mainStage.isMaximized()));

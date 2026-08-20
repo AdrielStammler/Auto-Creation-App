@@ -70,15 +70,14 @@ public class FileHelper {
         }
         Stream<Event> lines = Arrays.stream(content.split(Constants.Events.NEW_LINE))
                 .map(row -> row.split(Constants.Events.DELIMITER))
-                .filter(fields -> fields.length == 5)
+                .filter(fields -> fields.length == 6)
                 .map(fields -> {
                     if (fields[0].equals(Constants.Events.DRIVE_NAME)) {
-                        String[] paramsStr = fields[1].split(Constants.Events.PARAM_DELIMITER);
+                        String[] paramsStr = fields[2].split(Constants.Events.PARAM_DELIMITER);
                         double[] params = Arrays.stream(paramsStr).mapToDouble(Double::parseDouble).toArray();
-                        return new DriveEvent(params[0], params[1], params[2], params[3], params[4], params[5], Boolean.parseBoolean(fields[2]), Event.DelayTypes.valueOf(fields[3]), Integer.parseInt(fields[4]));
+                        return new DriveEvent(params[0], params[1], params[2], params[3], params[4], params[5], Boolean.parseBoolean(fields[3]), Event.DelayTypes.valueOf(fields[4]), Double.parseDouble(fields[5]));
                     } else
-                        // TODO: fix type here
-                        return new Event(fields[0], fields[1].split(Constants.Events.PARAM_DELIMITER), null, Boolean.parseBoolean(fields[2]), Event.DelayTypes.valueOf(fields[3]), Integer.parseInt(fields[4]));
+                        return new Event(fields[0], fields[2].split(Constants.Events.PARAM_DELIMITER), new Event.Type(fields[0], fields[1].split(Constants.Events.PARAM_DELIMITER)), Boolean.parseBoolean(fields[3]), Event.DelayTypes.valueOf(fields[4]), Double.parseDouble(fields[5]));
                 });
 
         ObservableList<Event> events = FXCollections.observableArrayList(lines.toList());

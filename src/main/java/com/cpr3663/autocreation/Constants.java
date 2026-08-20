@@ -9,6 +9,7 @@ public final class Constants {
         public static final String PARAM_DELIMITER = ",";
         public static final String NEW_LINE = "\n";
         public static final String DRIVE_NAME = "drive";
+        public static final String DRIVE_PARAMS = "driveParams";
     }
 
     public static final class Links {
