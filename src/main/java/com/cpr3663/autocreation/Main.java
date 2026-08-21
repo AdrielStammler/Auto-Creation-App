@@ -93,12 +93,18 @@ public class Main extends Application {
             }
         });
         AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> {
-            if (AppStateManager.getInstance().isNotFieldEditing())
+            // TODO Not reloading or something the internal variables are updated in the events when set in the editor. But it still reads as the old value when SOUTed on line 120?
+            //  also this SOUT is not printing when it is changed in the editor
+            System.out.println("Events changed");
+            if (AppStateManager.getInstance().isNotFieldEditing()) {
+                System.out.println("Reloaded the field");
                 refreshField(borderPane).run();
+            }
+
         });
         AppStateManager.getInstance().selectedIndexProperty().addListener(run(() -> {
             if (AppStateManager.getInstance().isNotFieldEditing()) Field.Helper.updateSelection();
-            else if (AppStateManager.getInstance().isNotEditorEditing()) {
+            if (AppStateManager.getInstance().isNotEditorEditing()) {
                 FXMLLoader editorFxml2 = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
                 try {
                     borderPane.setRight(editorFxml2.load());
@@ -107,6 +113,12 @@ public class Main extends Application {
                 }
             }
         }));
+
+        // TODO temp:
+        AppStateManager.getInstance().currentEditorProperty().addListener((obs, old, newEditor) -> {
+            System.out.println(old + " -> " + newEditor);
+            System.out.println(AppStateManager.getInstance().getSelectedEvent().getParameter(0));
+        });
 
         FileHelper.open();
     }

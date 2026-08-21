@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<HBox alignment="CENTER_RIGHT" prefWidth="250" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.EditorController">
+<HBox fx:id="root" alignment="CENTER_RIGHT" prefWidth="250" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.EditorController">
       <Separator orientation="VERTICAL"/>
       <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
             <Label alignment="CENTER" text="General:" VBox.vgrow="NEVER">
@@ -42,6 +42,14 @@
                   </font>
             </Label>
 
-            <GridPane fx:id="paramGridPane" VBox.vgrow="ALWAYS" />
+            <GridPane fx:id="paramGridPane" VBox.vgrow="ALWAYS">
+                  <padding>
+                        <Insets bottom="30" left="30" right="30" top="30" />
+                  </padding>
+                  <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" />
+                        <ColumnConstraints halignment="LEFT" />
+                  </columnConstraints>
+            </GridPane>
       </VBox>
 </HBox>

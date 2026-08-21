@@ -178,6 +178,10 @@ public class AppStateManager {
         return currentEditor;
     }
 
+    public Main.Sections getCurrentEditor() {
+        return currentEditor.get();
+    }
+
     public boolean isNotFieldEditing() {
         return currentEditor.get() != Main.Sections.FIELD;
     }

@@ -49,11 +49,11 @@ public class SettingsController {
         unitsDropDown.getItems().addAll(Units.Meters, Units.Feet, Units.Inches, Units.Millimeters, Units.Centimeters);
         unitsDropDown.getSelectionModel().select(AppStateManager.getInstance().getDisplayUnits());
         robotSizeXText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getX())));
-        robotSizeXText.setTextFormatter(MiscHelper.doubleFormater());
+        robotSizeXText.setTextFormatter(MiscHelper.posDoubleFormater());
         robotSizeYText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getY())));
-        robotSizeYText.setTextFormatter(MiscHelper.doubleFormater());
+        robotSizeYText.setTextFormatter(MiscHelper.posDoubleFormater());
         fieldScaleText.setText(Double.toString(AppStateManager.getInstance().getFieldScale()));
-        fieldScaleText.setTextFormatter(MiscHelper.doubleFormater());
+        fieldScaleText.setTextFormatter(MiscHelper.posDoubleFormater());
         makeEditable(extraTypesNameList);
         makeEditable(extraTypesParamList);
 

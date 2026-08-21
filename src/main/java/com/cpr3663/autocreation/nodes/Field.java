@@ -94,7 +94,7 @@ public class Field {
         Event event = AppStateManager.getInstance().getSelectedEvent();
         AprilTag selected;
         if (event instanceof DriveEvent driveEvent)
-            selected = driveEvent.getRelativeFrom();
+            selected = driveEvent.getAprilTag();
         else selected = new AprilTag(-2, new Pose3d());
 
         for (AprilTag tag : fieldLayout.getTags()) {
@@ -172,7 +172,7 @@ public class Field {
                 Image robot = new Image(Objects.requireNonNull(Field.class.getResource(Constants.Paths.ROBOT_ICON)).toExternalForm());
                 ImageView robotView = new ImageView(robot);
 
-                Translation2d position = Helper.centerRobotPixels(Helper.toPixels(driveEvent.getXPos(), driveEvent.getYPos()));
+                Translation2d position = Helper.centerRobotPixels(Helper.toPixels(driveEvent.getX(), driveEvent.getY()));
 
                 robotView.setX(position.getX());
                 robotView.setY(position.getY());
@@ -246,7 +246,7 @@ public class Field {
 
             createThreshold(selectedImageView.getX(), selectedImageView.getY(), ((DriveEvent) selectedEvent).getThreshold());
 
-            AprilTag aprilTag = ((DriveEvent) selectedEvent).getRelativeFrom();
+            AprilTag aprilTag = ((DriveEvent) selectedEvent).getAprilTag();
             if (aprilTag == null || aprilTag.ID == -1) return;
             selectedAprilTag = (ImageView) fieldPane.lookup("#Tag-" + aprilTag.ID);
             highlightImage(selectedAprilTag);

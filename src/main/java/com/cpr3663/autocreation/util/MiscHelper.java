@@ -33,7 +33,7 @@ public class MiscHelper {
         if (!cancel) Platform.exit();
     }
 
-    public static TextFormatter<String> intFormater() {
+    public static TextFormatter<String> countFormater() {
         return new TextFormatter<>(change -> {
             String newText = change.getControlNewText();
 
@@ -44,8 +44,19 @@ public class MiscHelper {
         });
     }
 
-    public static TextFormatter<String> doubleFormater() {
-        String doubleRegex = "((\\d*)|(\\d+\\.\\d*))";
+    public static TextFormatter<String> intFormater() {
+        return new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+
+            if (newText.matches("-?\\d*")) {
+                return change;
+            }
+            return null;
+        });
+    }
+
+    public static TextFormatter<String> posDoubleFormater() {
+        String doubleRegex = "(\\d*)|(\\d+\\.\\d*)";
 
         return new TextFormatter<>(change -> {
             String newText = change.getControlNewText();

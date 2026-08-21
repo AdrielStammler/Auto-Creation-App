@@ -9,13 +9,15 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 public class DriveEvent extends Event {
-    private final Property<Pose2d> pose;
+    private final DoubleProperty x;
+    private final DoubleProperty y;
+    private final DoubleProperty theta;
     private final DoubleProperty threshold;
     private final DoubleProperty maxVelocity;
     private final DoubleProperty maxAcceleration;
 
     // IF ID = -1 then it's not a tag it's other (e.g. origin)
-    private final Property<AprilTag> relativeFrom = new SimpleObjectProperty<>(new AprilTag(-1, new Pose3d()));
+    private final Property<AprilTag> aprilTag = new SimpleObjectProperty<>(new AprilTag(-1, new Pose3d()));
 
     public DriveEvent(double xPos, double yPos, double theta, double threshold, boolean afterPrev, DelayTypes delayType, double delay) {
         this(xPos, yPos, theta, threshold, -1, -1, afterPrev, delayType, delay);
@@ -23,7 +25,9 @@ public class DriveEvent extends Event {
 
     public DriveEvent(double xPos, double yPos, double theta, double threshold, double maxVel, double maxAccel, boolean afterPrev, DelayTypes delayType, double delay) {
         super(Constants.Events.DRIVE_NAME, new String[]{}, null, afterPrev, delayType, delay);
-        this.pose = new SimpleObjectProperty<>(new Pose2d(xPos, yPos, Rotation2d.fromDegrees(theta)));
+        this.x = new SimpleDoubleProperty(xPos);
+        this.y = new SimpleDoubleProperty(yPos);
+        this.theta = new SimpleDoubleProperty(theta);
         this.threshold = new SimpleDoubleProperty(threshold);
         this.maxVelocity = new SimpleDoubleProperty(maxVel);
         this.maxAcceleration = new SimpleDoubleProperty(maxAccel);
@@ -38,71 +42,80 @@ public class DriveEvent extends Event {
         return Math.round(value * 100.0) / 100.0;
     }
 
-    public Property<AprilTag> relativeFromProperty() {
-        return relativeFrom;
+    public Property<AprilTag> aprilTagProperty() {
+        return aprilTag;
     }
 
-    public AprilTag getRelativeFrom() {
-        return relativeFrom.getValue();
+    public AprilTag getAprilTag() {
+        return aprilTag.getValue();
     }
 
-    public void setRelativeFrom(AprilTag relativeFrom) {
-        this.relativeFrom.setValue(relativeFrom);
-    }
-
-    public Property<Pose2d> poseProperty() {
-        return pose;
+    public void setAprilTag(AprilTag relativeFrom) {
+        this.aprilTag.setValue(relativeFrom);
     }
 
     public Pose2d getPose() {
-        return pose.getValue();
+        return new Pose2d(getX(), getY(), Rotation2d.fromDegrees(getTheta()));
     }
 
     public Transform2d getRelativePose() {
-        return getPose().minus(getRelativeFrom().pose.toPose2d());
+        return getPose().minus(getAprilTag().pose.toPose2d());
     }
 
     public Translation2d getRelativePosition() {
-        return getRelativeFrom().pose.toPose2d().getTranslation().minus(getPose().getTranslation());
+        return getRelativePose().getTranslation();
     }
 
     public double getRelativeTheta() {
-        return getPose().getRotation().minus(getRelativeFrom().pose.getRotation().toRotation2d()).getDegrees();
+        return getRelativePose().getRotation().getDegrees();
     }
 
     public void setPosition(double x, double y) {
-        setPosition(new Translation2d(x, y));
+        this.x.set(x);
+        this.y.set(y);
+        updateParams();
     }
 
     public void setPosition(Translation2d position) {
-        pose.setValue(new Pose2d(position, getPose().getRotation()));
+        setPosition(position.getX(), position.getY());
+    }
+
+    public DoubleProperty xProperty() {
+        return x;
+    }
+
+    public double getX() {
+        return x.get();
+    }
+
+    public void setX(double x) {
+        this.x.set(x);
         updateParams();
     }
 
-    public double getXPos() {
-        return getPose().getX();
+    public DoubleProperty yProperty() {
+        return y;
     }
 
-    public void setXPos(double xPos) {
-        pose.setValue(new Pose2d(xPos, getPose().getY(), getPose().getRotation()));
+    public double getY() {
+        return y.get();
+    }
+
+    public void setY(double y) {
+        this.y.set(y);
         updateParams();
     }
 
-    public double getYPos() {
-        return getPose().getY();
-    }
-
-    public void setYPos(double yPos) {
-        pose.setValue(new Pose2d(getPose().getX(), yPos, getPose().getRotation()));
-        updateParams();
+    public DoubleProperty thetaProperty() {
+        return theta;
     }
 
     public double getTheta() {
-        return getPose().getRotation().getDegrees();
+        return theta.get();
     }
 
     public void setTheta(double theta) {
-        pose.setValue(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(theta)));
+        this.theta.set(theta);
         updateParams();
     }
 
@@ -145,11 +158,11 @@ public class DriveEvent extends Event {
     }
 
     private void updateParams() {
-        super.setParameters(new String[]{Double.toString(pose.getValue().getX()), Double.toString(pose.getValue().getY()), Double.toString(getTheta()), Double.toString(getThreshold()), Double.toString(getMaxVelocity()), Double.toString(getMaxAcceleration())});
+        super.setParameters(new String[]{Double.toString(getX()), Double.toString(getY()), Double.toString(getTheta()), Double.toString(getThreshold()), Double.toString(getMaxVelocity()), Double.toString(getMaxAcceleration())});
     }
 
     @Override
     public String toString() {
-        return "Drive to (" + round(getXPos()) + ", " + round(getYPos()) + ")";
+        return "Drive to (" + round(getX()) + ", " + round(getY()) + ")";
     }
 }
