@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Event {
-    protected Runnable onChangeCallback;
+    private Runnable onChangeCallback;
 
     private final Type type;
 
@@ -25,6 +25,11 @@ public class Event {
         this.delayType = new SimpleObjectProperty<>(DelayTypes.NONE);
         setDelayType(delayType);
         this.delay = new SimpleDoubleProperty(delay);
+
+        Arrays.stream(this.parameters).forEach(this::addChangeListener);
+        addChangeListener(this.afterPrev);
+        addChangeListener(this.delayType);
+        addChangeListener(this.delay);
     }
 
     public Event(String name, String[] parameters, Type type) {
@@ -37,6 +42,14 @@ public class Event {
 
     public void setOnChangeCallback(Runnable onChangeCallback) {
         this.onChangeCallback = onChangeCallback;
+    }
+
+    protected void changed() {
+        if (onChangeCallback != null) onChangeCallback.run();
+    }
+
+    protected <T> void addChangeListener(Property<T> property) {
+        property.addListener((obs, old, newV) -> changed());
     }
 
     public Type getType() {
@@ -65,12 +78,11 @@ public class Event {
 
     public void setParameters(String[] parameters) {
         this.parameters = Arrays.stream(parameters).map(SimpleStringProperty::new).toArray(StringProperty[]::new);
-        if (onChangeCallback != null) onChangeCallback.run();
+        changed();
     }
 
     public void setParameter(String value, int index) {
         this.parameters[index].set(value);
-        if (onChangeCallback != null) onChangeCallback.run();
     }
 
     public BooleanProperty afterPrevProperty() {
@@ -83,7 +95,6 @@ public class Event {
 
     public void setAfterPrev(boolean afterPrev) {
         this.afterPrev.set(afterPrev);
-        if (onChangeCallback != null) onChangeCallback.run();
     }
 
     public ObjectProperty<DelayTypes> delayTypeProperty() {
@@ -97,7 +108,6 @@ public class Event {
     public void setDelayType(DelayTypes delayType) {
         if (!afterPrev.get() || delayType.worksAfterPrev()) {
             this.delayType.set(delayType);
-            if (onChangeCallback != null) onChangeCallback.run();
         }
     }
 
@@ -111,7 +121,6 @@ public class Event {
 
     public void setDelay(double delay) {
         this.delay.set(delay);
-        if (onChangeCallback != null) onChangeCallback.run();
     }
 
     @Override

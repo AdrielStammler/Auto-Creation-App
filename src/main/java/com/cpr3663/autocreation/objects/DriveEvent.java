@@ -32,6 +32,13 @@ public class DriveEvent extends Event {
         this.maxVelocity = new SimpleDoubleProperty(maxVel);
         this.maxAcceleration = new SimpleDoubleProperty(maxAccel);
         updateParams();
+
+        addParamChangeListener(this.x);
+        addParamChangeListener(this.y);
+        addParamChangeListener(this.theta);
+        addParamChangeListener(this.threshold);
+        addParamChangeListener(this.maxVelocity);
+        addParamChangeListener(this.maxAcceleration);
     }
 
     public DriveEvent() {
@@ -40,6 +47,10 @@ public class DriveEvent extends Event {
 
     private static double round(double value) {
         return Math.round(value * 100.0) / 100.0;
+    }
+
+    private <T> void addParamChangeListener(Property<T> property) {
+        property.addListener((obs, old, newV) -> updateParams());
     }
 
     public Property<AprilTag> aprilTagProperty() {
@@ -73,7 +84,6 @@ public class DriveEvent extends Event {
     public void setPosition(double x, double y) {
         this.x.set(x);
         this.y.set(y);
-        updateParams();
     }
 
     public void setPosition(Translation2d position) {
@@ -90,7 +100,6 @@ public class DriveEvent extends Event {
 
     public void setX(double x) {
         this.x.set(x);
-        updateParams();
     }
 
     public DoubleProperty yProperty() {
@@ -103,7 +112,6 @@ public class DriveEvent extends Event {
 
     public void setY(double y) {
         this.y.set(y);
-        updateParams();
     }
 
     public DoubleProperty thetaProperty() {
@@ -116,7 +124,6 @@ public class DriveEvent extends Event {
 
     public void setTheta(double theta) {
         this.theta.set(theta);
-        updateParams();
     }
 
     public DoubleProperty thresholdProperty() {
@@ -141,7 +148,6 @@ public class DriveEvent extends Event {
 
     public void setMaxVelocity(double maxVelocity) {
         this.maxVelocity.set(maxVelocity);
-        updateParams();
     }
 
     public DoubleProperty maxAccelerationProperty() {
@@ -154,7 +160,6 @@ public class DriveEvent extends Event {
 
     public void setMaxAcceleration(double maxAcceleration) {
         this.maxAcceleration.set(maxAcceleration);
-        updateParams();
     }
 
     private void updateParams() {

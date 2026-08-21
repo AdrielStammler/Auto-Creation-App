@@ -71,6 +71,7 @@ public class EditorController {
                 delayAmountText.setTextFormatter(MiscHelper.posDoubleFormater());
         });
         delayAmountText.textProperty().bindBidirectional(event.delayProperty(), new NumberStringConverter());
+        delayAmountText.setOnAction(e -> delayAmountText.getParent().requestFocus());
 
         delayTypeChoice.disableProperty().bind(delayCheck.selectedProperty().not());
         delayAmountText.disableProperty().bind(delayCheck.selectedProperty().not());
@@ -92,6 +93,7 @@ public class EditorController {
             Label label = new Label(param);
             TextField textField = new TextField();
             textField.textProperty().bindBidirectional(event.parameterProperty(i));
+            textField.setOnAction(e -> textField.getParent().requestFocus());
 
             paramGridPane.add(label, 0, i);
             paramGridPane.add(textField, 1, i);
