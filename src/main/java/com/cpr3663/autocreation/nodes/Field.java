@@ -35,7 +35,7 @@ public class Field {
     private static ImageView selectedImageView;
     private static ImageView selectedAprilTag;
     private static Pane fieldPane;
-    private static boolean isDrag = false;
+    private static boolean isDrag;
 
     public static Pane getFieldPane() {
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
@@ -186,7 +186,7 @@ public class Field {
                     Helper.highlightImage(robotView);
                     selectedImageView = robotView;
 
-                    Helper.createThreshold(robotView.getX(), robotView.getY(), driveEvent.getThreshold());
+                    fieldPane.getChildren().add(Helper.createThreshold(robotView.getX(), robotView.getY(), driveEvent.getThreshold()));
                 } else Helper.colorRobot(robotView);
 
                 robotView.setId("Event-" + i);
@@ -242,9 +242,10 @@ public class Field {
                 return;
             }
             selectedImageView = (ImageView) fieldPane.lookup("#Event-" + AppStateManager.getInstance().getSelectedIndex());
+            if (selectedImageView == null) throw new IllegalStateException("Selected Event does not exist on the fieldPane");
             highlightImage(selectedImageView);
 
-            createThreshold(selectedImageView.getX(), selectedImageView.getY(), ((DriveEvent) selectedEvent).getThreshold());
+            fieldPane.getChildren().add(createThreshold(selectedImageView.getX(), selectedImageView.getY(), ((DriveEvent) selectedEvent).getThreshold()));
 
             AprilTag aprilTag = ((DriveEvent) selectedEvent).getAprilTag();
             if (aprilTag == null || aprilTag.ID == -1) return;
@@ -300,7 +301,7 @@ public class Field {
             if (selectedImageView == null) return;
             if (event != null && !selectedImageView.equals(robot)) {
                 AppStateManager.getInstance().setSelectedEvent(event);
-                Helper.updateSelection();
+                updateSelection();
             }
             boolean shouldRotate = e.isSecondaryButtonDown();
             if (isRobot && !shouldRotate) {
@@ -367,7 +368,7 @@ public class Field {
             selectedImageView.setRotate(currentAngle + 90.0);
         }
 
-        private static void createThreshold(double x, double y, double thresholdM) {
+        private static Circle createThreshold(double x, double y, double thresholdM) {
             Translation2d pos = unCenterRobotPixels(x, y);
             Circle threshold = new Circle(pos.getX(), pos.getY(), thresholdM * PIXELS_PER_METER);
             threshold.setMouseTransparent(true);
@@ -385,7 +386,7 @@ public class Field {
             double initialLength = (2 * Math.PI * threshold.getRadius()) / (totalDashes * 2);
             threshold.getStrokeDashArray().setAll(initialLength, initialLength);
             threshold.setId("Threshold");
-            fieldPane.getChildren().add(threshold);
+            return threshold;
         }
 
         private static void updateRobotPos(double pixelsX, double pixelsY) {
@@ -393,6 +394,7 @@ public class Field {
             selectedImageView.setY(pixelsY);
 
             Circle threshold = (Circle) fieldPane.lookup("#Threshold");
+            if (threshold == null) throw new IllegalStateException("Threshold could not be found");
             Translation2d pos = unCenterRobotPixels(pixelsX, pixelsY);
             threshold.setCenterX(pos.getX());
             threshold.setCenterY(pos.getY());

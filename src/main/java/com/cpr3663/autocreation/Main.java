@@ -93,7 +93,6 @@ public class Main extends Application {
             }
         });
         AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> {
-            // TODO The threshold circle disappeared when position was changed with the editor
             if (AppStateManager.getInstance().isNotFieldEditing()) {
                 refreshField(borderPane).run();
             }

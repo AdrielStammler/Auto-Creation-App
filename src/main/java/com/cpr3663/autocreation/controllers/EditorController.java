@@ -84,7 +84,7 @@ public class EditorController {
 
     private void setupCustomParams() {
         Event.Type type = event.getType();
-        if (type == null) throw new RuntimeException("ERROR: Event type is null for a non-DriveEvent");
+        if (type == null) throw new RuntimeException("Error: Event type is null for a non-DriveEvent");
 
         String[] params = type.parameters();
 

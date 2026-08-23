@@ -56,7 +56,7 @@ public class MiscHelper {
     }
 
     public static TextFormatter<String> posDoubleFormater() {
-        String doubleRegex = "(\\d*)|(\\d+\\.\\d*)";
+        String doubleRegex = "\\d*\\.?\\d*";
 
         return new TextFormatter<>(change -> {
             String newText = change.getControlNewText();
@@ -96,10 +96,11 @@ public class MiscHelper {
 
     private static class ResizeListener implements EventHandler<MouseEvent> {
         private final Stage stage;
+        @SuppressWarnings("FieldCanBeLocal")
         private final int border = 4;
         private Cursor cursorEvent = Cursor.DEFAULT;
-        private double startX = 0;
-        private double startY = 0;
+        private double startX;
+        private double startY;
 
         public ResizeListener(Stage stage) {
             this.stage = stage;
