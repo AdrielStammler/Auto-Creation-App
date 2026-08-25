@@ -12,6 +12,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -19,55 +20,72 @@ import javafx.stage.Stage;
 
 import static javafx.scene.input.KeyCode.*;
 
-
 public class Shortcuts {
-    public record Shortcut(String name, KeyCodeCombination shortcut) {
+    public record Shortcut(String name, KeyCodeCombination shortcut, String customCombo) {
         public Shortcut(String name, KeyCode key, KeyCombination.Modifier... modifiers) {
-            this(name, new KeyCodeCombination(key, modifiers));
+            this(name, new KeyCodeCombination(key, modifiers), "");
         }
+
         public static Shortcut withSc(String name, KeyCode key) {
             return new Shortcut(name, key, KeyCombination.SHORTCUT_DOWN);
         }
 
-        public static Shortcut withCtrl(String name, KeyCode key) {
-            return new Shortcut(name, key, KeyCombination.CONTROL_DOWN);
+        public static Shortcut withShiftCtrl(String name, KeyCode key) {
+            return new Shortcut(name, key, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        }
+
+        public Shortcut(String name, KeyCodeCombination shortcut) {
+            this(name, shortcut, "");
+        }
+
+        public Shortcut(String name, String customCombo) {
+            this(name, null, customCombo);
+        }
+
+        public String getShortcutText() {
+            if (shortcut != null)
+                return shortcut.getDisplayText();
+            return customCombo;
         }
     }
 
     private static final Shortcut[] shortcuts = {
-            // TODO make this the actual shortcuts
-            Shortcut.withSc("Test1", A),
-            Shortcut.withSc("Test2", B),
-            new Shortcut("Test3", C),
+            new Shortcut("Add Event", PLUS),
+            new Shortcut("Delete Event", DELETE),
+            new Shortcut("Select Previous Event", UP),
+            new Shortcut("Select Next Event", DOWN),
+            new Shortcut("Select/Move Event", "Left Mouse"),
+            new Shortcut("Force Rotate Event", "Right Mouse"),
+            new Shortcut("Force Move Event", "Shift + Left Mouse"),
+            Shortcut.withSc("New Auto", N),
+            Shortcut.withSc("Open Auto", O),
+            Shortcut.withShiftCtrl("Delete Auto", DELETE),
+            Shortcut.withSc("Settings", COMMA),
+            Shortcut.withSc("Shortcuts", SLASH),
+            Shortcut.withSc("Save Auto", S),
+            Shortcut.withSc("Rename Auto", R),
+            Shortcut.withSc("Duplicate Auto", D),
     };
+
     private static final int columns = 2;
     private static final int rows = (int) Math.ceil(1.0 * shortcuts.length / columns);
 
     public static GridPane getShortcutsPage(Stage popupStage) {
         GridPane pane = new GridPane();
-        pane.setHgap(5);
+        pane.setHgap(3);
         pane.setVgap(15);
         pane.setPadding(new Insets(30));
 
-        int totalGridCols = columns * 3 - 1;
-        final double percentWidth = 100.0 / totalGridCols;
+        int totalGridCols = columns * 4 - 1;
         for (int i = 0; i < totalGridCols; i++) {
-            ColumnConstraints col = new ColumnConstraints();
-            col.setPercentWidth(percentWidth);
-            if (i % 3 == 0) {
-                col.setHalignment(HPos.RIGHT);
-            } else if (i % 3 == 1) {
-                col.setHalignment(HPos.LEFT);
-            } else {
-                col.setHalignment(HPos.CENTER);
-            }
-            pane.getColumnConstraints().add(col);
+            pane.getColumnConstraints().add(createCol(i));
         }
 
-        Label title = new Label("Keyboard Shortcuts");
+        Label title = new Label("Application Shortcuts");
         title.setAlignment(Pos.CENTER);
         title.setFont(Font.font("System", FontWeight.BOLD, 20.0));
         title.setMinWidth(Region.USE_PREF_SIZE);
+        GridPane.setHalignment(title, HPos.CENTER);
         pane.add(title, 0, 0, totalGridCols, 1);
 
         for (int c = 0; c < columns; c++) {
@@ -77,16 +95,15 @@ public class Shortcuts {
                 if (i >= shortcuts.length) break;
 
                 Label label1 = new Label(shortcuts[i].name());
-                Label label2 = new Label(shortcuts[i].shortcut().getDisplayText());
+                Label label2 = new Label(shortcuts[i].getShortcutText());
 
-                pane.add(label1, c * 3, r);
-                pane.add(label2, c * 3 + 1, r);
+                pane.add(label1, c * 4, r);
+                pane.add(label2, c * 4 + 2, r);
             }
             if (c < columns - 1) {
-                Separator separator = new Separator();
-                separator.setOrientation(Orientation.VERTICAL);
-                pane.add(separator, c * 3 + 2, 1, 1, rows);
+                makeSeparator(pane, c * 4 + 3);
             }
+            makeSeparator(pane, c * 4 + 1);
         }
 
         Button exit = new Button("Exit");
@@ -100,5 +117,29 @@ public class Shortcuts {
         exit.setOnAction(event -> popupStage.close());
         pane.add(exit, 0, shortcuts.length + 1, totalGridCols, 1);
         return pane;
+    }
+
+    private static ColumnConstraints createCol(int i) {
+        ColumnConstraints col = new ColumnConstraints();
+        if (i % 4 == 0) {
+            col.setHalignment(HPos.RIGHT);
+            col.setHgrow(Priority.ALWAYS);
+        } else if (i % 4 == 1) {
+            col.setHalignment(HPos.CENTER);
+            col.setHgrow(Priority.NEVER);
+        } else if (i % 4 == 2) {
+            col.setHalignment(HPos.LEFT);
+            col.setHgrow(Priority.ALWAYS);
+        } else {
+            col.setHalignment(HPos.CENTER);
+            col.setHgrow(Priority.NEVER);
+            col.setPrefWidth(50);
+        }
+        return col;
+    }
+
+    private static void makeSeparator(GridPane pane, int columnIndex) {
+        Separator separator = new Separator(Orientation.VERTICAL);
+        pane.add(separator, columnIndex, 1, 1, rows);
     }
 }

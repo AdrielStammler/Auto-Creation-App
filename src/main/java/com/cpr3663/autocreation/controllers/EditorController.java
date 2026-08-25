@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class EditorController {
+    // TODO use correct units and use relative coords
     @FXML public HBox root;
 
     @FXML private CheckBox afterPrevCheck;
@@ -54,7 +55,7 @@ public class EditorController {
         delayCheck.setSelected(event.getDelayType().equals(Event.DelayTypes.NONE));
         delayCheck.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                delayTypeChoice.setValue(Objects.requireNonNullElse(prevDelayType, Event.DelayTypes.TIME));
+                delayTypeChoice.setValue(Objects.requireNonNullElse(prevDelayType == Event.DelayTypes.NONE ? null : prevDelayType, Event.DelayTypes.TIME));
             } else {
                 prevDelayType = delayTypeChoice.getValue();
                 delayTypeChoice.setValue(Event.DelayTypes.NONE);
@@ -112,6 +113,7 @@ public class EditorController {
         label("Y Pos:", 2);
         doubleBox(driveEvent.yProperty(), 2);
 
+        // TODO fix
         label("Rotation:", 3);
         doubleBox(driveEvent.thetaProperty(), 3);
 

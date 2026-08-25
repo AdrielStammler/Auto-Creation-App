@@ -14,7 +14,7 @@
                   </font>
             </Label>
 
-            <GridPane VBox.vgrow="NEVER">
+            <GridPane VBox.vgrow="NEVER" vgap="10" hgap="5">
                   <padding>
                         <Insets bottom="30" left="30" right="30" top="30" />
                   </padding>
@@ -26,14 +26,14 @@
                   <Label text="After Prev Event:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                   <CheckBox fx:id="afterPrevCheck" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                  <Label text="Has a delay" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                  <Label text="Has a delay:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                   <CheckBox fx:id="delayCheck" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                   <Label text="Delay Type:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                   <ChoiceBox fx:id="delayTypeChoice" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                   <Label text="Delay Amount:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                  <TextField fx:id="delayAmountText" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <TextField fx:id="delayAmountText" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="25"/>
             </GridPane>
 
             <Label alignment="CENTER" text="Params:" VBox.vgrow="NEVER">
@@ -42,7 +42,7 @@
                   </font>
             </Label>
 
-            <GridPane fx:id="paramGridPane" VBox.vgrow="ALWAYS">
+            <GridPane fx:id="paramGridPane" VBox.vgrow="ALWAYS" vgap="10" hgap="5">
                   <padding>
                         <Insets bottom="30" left="30" right="30" top="30" />
                   </padding>

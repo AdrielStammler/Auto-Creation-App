@@ -38,6 +38,7 @@ public class Field {
     private static Pane selectedAprilTag;
     private static Pane fieldPane;
     private static boolean isDrag;
+    private static boolean mayMove;
 
     public static Pane getFieldPane() {
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
@@ -48,9 +49,9 @@ public class Field {
         drawRobotPoses(pane);
         pane.setOnMousePressed(Helper::pressPane);
         pane.setOnMouseDragged(Helper::drag);
-        pane.setOnMouseClicked((MouseEvent event) -> {
-            if (isDrag) return;
+        pane.setOnMouseReleased((MouseEvent event) -> {
             AppStateManager.getInstance().setFieldEditing();
+            if (isDrag || !mayMove) return;
 
             Event selected = AppStateManager.getInstance().getSelectedEvent();
             if (selected instanceof DriveEvent driveEvent) {
@@ -114,12 +115,13 @@ public class Field {
             tagPane.layoutYProperty().bind(tagPane.heightProperty().divide(-2).add(position.getY()));
 
             tagPane.setPickOnBounds(true);
-            tagPane.setOnMouseClicked(e -> {
+            tagPane.setOnMousePressed(e -> {
                 AppStateManager.getInstance().setFieldEditing();
                 e.consume();
                 if (e.isShiftDown()) {
                     Helper.pressPane(e);
                 } else {
+                    mayMove = false;
                     Helper.setEventTag(fieldLayout, tagPane, id);
                 }
             });
@@ -198,7 +200,10 @@ public class Field {
 
     private static void addRobotListeners(DriveEvent event, ImageView robot) {
         robot.setPickOnBounds(true);
-        robot.setOnMousePressed(e -> Helper.press(e, event, robot, true));
+        robot.setOnMousePressed(e -> {
+            if (e.isShiftDown()) Helper.pressPane(e);
+            else Helper.press(e, event, robot, true);
+        });
         robot.setOnMouseDragged(e -> Helper.drag(e, event));
     }
 
@@ -294,6 +299,7 @@ public class Field {
 
         private static void press(MouseEvent e, DriveEvent event, ImageView robot, boolean isRobot) {
             AppStateManager.getInstance().setFieldEditing();
+            mayMove = true;
             isDrag = false;
             e.consume();
             if (selectedImageView == null) return;
@@ -329,6 +335,7 @@ public class Field {
 
         private static void drag(MouseEvent e, DriveEvent event) {
             AppStateManager.getInstance().setFieldEditing();
+            if (!mayMove) return;
             isDrag = true;
             e.consume();
             if (selectedImageView == null) return;
@@ -377,11 +384,12 @@ public class Field {
             threshold.radiusProperty().addListener((observable, oldValue, newRadius) -> {
                 double circumference = 2 * Math.PI * newRadius.doubleValue();
                 double dashLength = circumference / (totalDashes * 2);
+                if (dashLength == 0.0) dashLength = 1;
 
                 threshold.getStrokeDashArray().setAll(dashLength, dashLength);
             });
 
-            double initialLength = (2 * Math.PI * threshold.getRadius()) / (totalDashes * 2);
+            double initialLength = Math.max((2.0 * Math.PI * threshold.getRadius()) / (totalDashes * 2), 1.0);
             threshold.getStrokeDashArray().setAll(initialLength, initialLength);
             threshold.setId("Threshold");
             return threshold;
