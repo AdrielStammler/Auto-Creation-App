@@ -46,6 +46,7 @@ public class SettingsController {
         extraTypes = new ArrayList<>(AppStateManager.getInstance().getExtraTypes());
         darkModeBox.setSelected(AppStateManager.getInstance().isDarkMode());
         robotRepoLabel.setText(AppStateManager.getInstance().getRobotRepoPath());
+        robotRepoLabel.setOnAction(e -> robotRepoLabel.getParent().requestFocus());
         fieldImage = AppStateManager.getInstance().getFieldImage();
         aprilTagDropdown.getItems().addAll(AprilTagFields.values());
         aprilTagDropdown.getSelectionModel().select(AppStateManager.getInstance().getAprilTagField());
@@ -53,10 +54,13 @@ public class SettingsController {
         unitsDropDown.getSelectionModel().select(AppStateManager.getInstance().getDisplayUnits());
         robotSizeXText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getX())));
         robotSizeXText.setTextFormatter(MiscHelper.posDoubleFormater());
+        robotSizeXText.setOnAction(e -> robotSizeXText.getParent().requestFocus());
         robotSizeYText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getY())));
         robotSizeYText.setTextFormatter(MiscHelper.posDoubleFormater());
+        robotSizeYText.setOnAction(e -> robotSizeYText.getParent().requestFocus());
         fieldScaleText.setText(Double.toString(AppStateManager.getInstance().getFieldScale()));
         fieldScaleText.setTextFormatter(MiscHelper.posDoubleFormater());
+        fieldScaleText.setOnAction(e -> fieldScaleText.getParent().requestFocus());
         makeEditable(extraTypesNameList);
         makeEditable(extraTypesParamList);
 
