@@ -7,6 +7,7 @@ import com.cpr3663.autocreation.util.MiscHelper;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.units.DistanceUnit;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
@@ -108,17 +109,16 @@ public class EditorController {
         aprilTagBox(driveEvent.aprilTagProperty(), 0);
 
         label("X Pos:", 1);
-        doubleBox(driveEvent.xProperty(), 1);
+        doubleBox(driveEvent.xProperty(), 1, true);
 
         label("Y Pos:", 2);
-        doubleBox(driveEvent.yProperty(), 2);
+        doubleBox(driveEvent.yProperty(), 2, true);
 
-        // TODO fix
         label("Rotation:", 3);
-        doubleBox(driveEvent.thetaProperty(), 3);
+        doubleBox(driveEvent.thetaProperty(), 3, false);
 
         label("Threshold:", 4);
-        doubleBox(driveEvent.thresholdProperty(), 4);
+        posDoubleBox(driveEvent.thresholdProperty(), 4);
 
         label("Max Velocity:", 5);
         disableableDoubleBox(driveEvent.maxVelocityProperty(), 5);
@@ -147,19 +147,28 @@ public class EditorController {
         paramGridPane.add(field, 1, row);
     }
 
-    private void doubleBox(DoubleProperty property, int row) {
+    private void posDoubleBox(DoubleProperty property, int row) {
         TextField field = new TextField();
         TextFormatter<String> formatter = MiscHelper.posDoubleFormater();
         field.setTextFormatter(formatter);
         field.setOnAction(e -> field.getParent().requestFocus());
-        field.textProperty().bindBidirectional(property, new NumberStringConverter());
+        field.textProperty().bindBidirectional(property, new UnitNumberStringConverter());
+        paramGridPane.add(field, 1, row);
+    }
+
+    private void doubleBox(DoubleProperty property, int row, boolean useUnits) {
+        TextField field = new TextField();
+        TextFormatter<String> formatter = MiscHelper.doubleFormater();
+        field.setTextFormatter(formatter);
+        field.setOnAction(e -> field.getParent().requestFocus());
+        field.textProperty().bindBidirectional(property, useUnits ? new UnitNumberStringConverter() : new NumberStringConverter());
         paramGridPane.add(field, 1, row);
     }
 
     private void disableableDoubleBox(DoubleProperty property, int row) {
         TextField field = new TextField();
         CheckBox checkBox = new CheckBox();
-        field.textProperty().bindBidirectional(property, new NumberStringConverter());
+        field.textProperty().bindBidirectional(property, new UnitNumberStringConverter());
         field.setOnAction(e -> field.getParent().requestFocus());
         field.setTextFormatter(MiscHelper.posDoubleFormater());
 
@@ -206,4 +215,30 @@ public class EditorController {
         }
     }
 
+    // Converts Number to String while also converting from unit to Meters (the Number is in Meters and String is in unit)
+    private static class UnitNumberStringConverter extends NumberStringConverter {
+        private static DistanceUnit unit;
+
+        public UnitNumberStringConverter() {
+            super();
+            unit = AppStateManager.getInstance().getDisplayUnits();
+        }
+
+        public UnitNumberStringConverter(DistanceUnit unit) {
+            super();
+            UnitNumberStringConverter.unit = unit;
+        }
+
+        @Override
+        public String toString(Number value) {
+            return super.toString(unit.fromBaseUnits(value.doubleValue()));
+        }
+
+        @Override
+        public Number fromString(String value) {
+            Number val = super.fromString(value);
+            if (val == null) return 0.0;
+            return unit.toBaseUnits(val.doubleValue());
+        }
+    }
 }

@@ -66,6 +66,18 @@ public class MiscHelper {
         });
     }
 
+    public static TextFormatter<String> doubleFormater() {
+        String doubleRegex = "-?\\d*\\.?\\d*";
+
+        return new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.matches(doubleRegex)) {
+                return change;
+            }
+            return null;
+        });
+    }
+
     public static void addResizeListener(Stage stage) {
         ResizeListener resizeListener = new ResizeListener(stage);
         stage.getScene().addEventHandler(MouseEvent.MOUSE_MOVED, resizeListener);
