@@ -111,6 +111,7 @@ public class Main extends Application {
         }));
 
         FileHelper.open();
+        AppStateManager.getInstance().setIsSaved(true);
     }
 
     private static Runnable refreshField(BorderPane borderPane) {

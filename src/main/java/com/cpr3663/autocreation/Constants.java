@@ -19,6 +19,7 @@ public final class Constants {
 
     public static final class Paths {
         public static final String ROBOT_ICON = "/icons/RobotIcon.png";
+        public static final String TAG_ICON = "/icons/TagIcon.png";
         public static final String ALERT_ICON = "/icons/AlertIcon.png";
         public static final String APP_ICON = "/icons/AppIcon.png";
         public static final String FIELD_IMAGE = System.getProperty("user.home") + "/.autoCreation/images/field.png";

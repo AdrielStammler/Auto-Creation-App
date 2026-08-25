@@ -12,7 +12,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
@@ -22,10 +24,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class Field {
     private static final double[] initials = new double[2];
@@ -33,7 +35,7 @@ public class Field {
     private static double PIXELS_PER_METER;
     private static double FIELD_WIDTH;
     private static ImageView selectedImageView;
-    private static ImageView selectedAprilTag;
+    private static Pane selectedAprilTag;
     private static Pane fieldPane;
     private static boolean isDrag;
 
@@ -46,7 +48,7 @@ public class Field {
         drawRobotPoses(pane);
         pane.setOnMousePressed(Helper::pressPane);
         pane.setOnMouseDragged(Helper::drag);
-        pane.setOnMouseReleased((MouseEvent event) -> {
+        pane.setOnMouseClicked((MouseEvent event) -> {
             if (isDrag) return;
             AppStateManager.getInstance().setFieldEditing();
 
@@ -107,57 +109,54 @@ public class Field {
             Rotation2d rotation = pose.getRotation();
             rotation = rotation.plus(Rotation2d.fromDegrees(-90));
 
-            // Build the visual node for individual tags
-            Pane tagGroup = createTagVisual(id, rotation.getDegrees(), isSelected);
+            StackPane tagPane = createTagVisual(id, rotation.getDegrees(), isSelected);
+            tagPane.layoutXProperty().bind(tagPane.widthProperty().divide(-2).add(position.getX()));
+            tagPane.layoutYProperty().bind(tagPane.heightProperty().divide(-2).add(position.getY()));
 
-            // Relocate node so its absolute center sits on the coordinate point
-            tagGroup.layoutXProperty().bind(tagGroup.widthProperty().divide(-2).add(position.getX()));
-            tagGroup.layoutYProperty().bind(tagGroup.heightProperty().divide(-2).add(position.getY()));
+            tagPane.setPickOnBounds(true);
+            tagPane.setOnMouseClicked(e -> {
+                AppStateManager.getInstance().setFieldEditing();
+                e.consume();
+                if (e.isShiftDown()) {
+                    Helper.pressPane(e);
+                } else {
+                    Helper.setEventTag(fieldLayout, tagPane, id);
+                }
+            });
 
-            fieldPane.getChildren().add(tagGroup);
+            fieldPane.getChildren().add(tagPane);
         }
     }
 
-    private static Pane createTagVisual(int id, double rotationDeg, boolean isSelected) {
-        Pane tagNode = new Pane();
+    private static StackPane createTagVisual(int id, double rotationDeg, boolean isSelected) {
+        StackPane tagPane = new StackPane();
 
-        // TODO get image
-        double size = 20.0;
-        tagNode.setPrefSize(size, size);
+        Image tag = new Image(Objects.requireNonNull(Field.class.getResource(Constants.Paths.TAG_ICON)).toExternalForm());
+        ImageView tagView = new ImageView(tag);
 
-        // Representing the physical tag boundary
-        Rectangle square = new Rectangle(size, size);
-        square.setFill(Color.BLACK);
-        square.setStroke(Color.WHITE);
-        square.setStrokeWidth(1.5);
+        Label label = new Label(Integer.toString(id));
+        label.setStyle("-fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 10px;");
 
-        Rectangle pointer = new Rectangle(size / 2 - 1, 0, 2, size / 2);
-        pointer.setFill(Color.RED);
+        DropShadow outline = new DropShadow();
+        outline.setColor(Color.WHITE);
+        outline.setRadius(2);
+        outline.setSpread(1.0);
+        label.setEffect(outline);
 
-        Label idLabel = new Label(Integer.toString(id));
-        idLabel.setTextFill(Color.WHITE);
-        idLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 9px;");
-        idLabel.layoutXProperty().bind(tagNode.widthProperty().divide(2).add(-4));
-        idLabel.layoutYProperty().bind(tagNode.heightProperty().divide(2).add(-6));
+        tagPane.getChildren().addAll(tagView, label);
 
-        tagNode.getChildren().addAll(square, pointer, idLabel);
-
-        Rotate rotate = new Rotate();
-        rotate.setAngle(-rotationDeg);
-        rotate.pivotXProperty().bind(tagNode.widthProperty().divide(2));
-        rotate.pivotYProperty().bind(tagNode.heightProperty().divide(2));
-        tagNode.getTransforms().add(rotate);
+        Rotate rotate = new Rotate(-rotationDeg);
+        rotate.pivotXProperty().bind(tagPane.widthProperty().divide(2));
+        rotate.pivotYProperty().bind(tagPane.heightProperty().divide(2));
+        tagPane.getTransforms().add(rotate);
 
         if (isSelected) {
-            // TODO once is using Icon apply highlight
-//            Helper.highlightImage(icon);
+            Helper.highlightImage(tagPane);
         }
 
-        tagNode.setId("Tag-" + id);
+        tagPane.setId("Tag-" + id);
 
-        tagNode.setOnMouseClicked(e -> AppStateManager.getInstance().setFieldEditing());
-
-        return tagNode;
+        return tagPane;
     }
 
     private static void drawRobotPoses(Pane fieldPane) {
@@ -207,15 +206,15 @@ public class Field {
         private static final Color HIGHLIGHT_COLOR = Color.ORANGE;
         private static final Color NORMAL_ROBOT_COLOR = Color.WHITESMOKE;
 
-        private static void highlightImage(ImageView image) {
+        private static void highlightImage(Node image) {
             changeColor(image, HIGHLIGHT_COLOR);
         }
 
-        private static void colorRobot(ImageView image) {
+        private static void colorRobot(Node image) {
             changeColor(image, NORMAL_ROBOT_COLOR);
         }
 
-        private static void changeColor(ImageView image, Color color) {
+        private static void changeColor(Node image, Color color) {
             Light.Distant distantLight = new Light.Distant();
             distantLight.setElevation(90);
             distantLight.setColor(color);
@@ -225,7 +224,7 @@ public class Field {
             image.setEffect(lighting);
         }
 
-        private static void clearColor(ImageView image) {
+        private static void clearColor(Node image) {
             image.setEffect(null);
         }
 
@@ -248,7 +247,7 @@ public class Field {
 
             AprilTag aprilTag = ((DriveEvent) selectedEvent).getAprilTag();
             if (aprilTag == null || aprilTag.ID == -1) return;
-            selectedAprilTag = (ImageView) fieldPane.lookup("#Tag-" + aprilTag.ID);
+            selectedAprilTag = (Pane) fieldPane.lookup("#Tag-" + aprilTag.ID);
             highlightImage(selectedAprilTag);
         }
 
@@ -397,6 +396,21 @@ public class Field {
             Translation2d pos = unCenterRobotPixels(pixelsX, pixelsY);
             threshold.setCenterX(pos.getX());
             threshold.setCenterY(pos.getY());
+        }
+
+        private static void setEventTag(AprilTagFieldLayout fieldLayout, Pane tagView, int id) {
+            Event event = AppStateManager.getInstance().getSelectedEvent();
+            if (selectedAprilTag != null) {
+                clearColor(selectedAprilTag);
+                selectedAprilTag = null;
+            }
+            if (event instanceof DriveEvent driveEvent) {
+                Optional<Pose3d> optPose = fieldLayout.getTagPose(id);
+                AprilTag tag = optPose.map(pose -> new AprilTag(id, pose)).orElse(new AprilTag(-1, new Pose3d()));
+                driveEvent.setAprilTag(tag);
+                highlightImage(tagView);
+                selectedAprilTag = tagView;
+            }
         }
     }
 }

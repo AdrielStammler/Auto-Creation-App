@@ -194,9 +194,13 @@ public class EditorController {
         }
         @Override
         public AprilTag fromString(String string) {
-            int id = Integer.parseInt(string);
-            Optional<Pose3d> optPose = fieldLayout.getTagPose(id);
-            return optPose.map(pose -> new AprilTag(id, pose)).orElse(new AprilTag(-1, new Pose3d()));
+            try {
+                int id = Integer.parseInt(string);
+                Optional<Pose3d> optPose = fieldLayout.getTagPose(id);
+                return optPose.map(pose -> new AprilTag(id, pose)).orElse(new AprilTag(-1, new Pose3d()));
+            } catch (NumberFormatException e) {
+                return new AprilTag(-1, new Pose3d());
+            }
         }
     }
 
