@@ -28,7 +28,8 @@ public class EventsController {
         listView.setCellFactory(lv -> new DragDropCell());
         customBindBidirectional();
 
-        listView.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> AppStateManager.getInstance().setEventsEditing());
+        listView.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> AppStateManager.getInstance().setEventsEditing());
+        listView.addEventFilter(KeyEvent.KEY_PRESSED, e -> AppStateManager.getInstance().setEventsEditing());
 
         addButton.sceneProperty().addListener((observable, oldScene, newScene) -> {
             if (newScene != null) {
