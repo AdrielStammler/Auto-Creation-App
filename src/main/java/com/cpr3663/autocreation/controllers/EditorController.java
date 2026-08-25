@@ -113,12 +113,11 @@ public class EditorController {
         label("Y Pos:", 2);
         doubleBox(driveEvent.yProperty(), 2);
 
-        // TODO fix
         label("Rotation:", 3);
         doubleBox(driveEvent.thetaProperty(), 3);
 
         label("Threshold:", 4);
-        doubleBox(driveEvent.thresholdProperty(), 4);
+        posDoubleBox(driveEvent.thresholdProperty(), 4);
 
         label("Max Velocity:", 5);
         disableableDoubleBox(driveEvent.maxVelocityProperty(), 5);
@@ -147,9 +146,18 @@ public class EditorController {
         paramGridPane.add(field, 1, row);
     }
 
-    private void doubleBox(DoubleProperty property, int row) {
+    private void posDoubleBox(DoubleProperty property, int row) {
         TextField field = new TextField();
         TextFormatter<String> formatter = MiscHelper.posDoubleFormater();
+        field.setTextFormatter(formatter);
+        field.setOnAction(e -> field.getParent().requestFocus());
+        field.textProperty().bindBidirectional(property, new NumberStringConverter());
+        paramGridPane.add(field, 1, row);
+    }
+
+    private void doubleBox(DoubleProperty property, int row) {
+        TextField field = new TextField();
+        TextFormatter<String> formatter = MiscHelper.doubleFormater();
         field.setTextFormatter(formatter);
         field.setOnAction(e -> field.getParent().requestFocus());
         field.textProperty().bindBidirectional(property, new NumberStringConverter());
