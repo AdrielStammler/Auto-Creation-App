@@ -165,6 +165,15 @@ public class EditorController {
         paramGridPane.add(field, 1, row);
     }
 
+    private void doubleBox(DoubleProperty property, int row) {
+        TextField field = new TextField();
+        TextFormatter<String> formatter = MiscHelper.doubleFormater();
+        field.setTextFormatter(formatter);
+        field.setOnAction(e -> field.getParent().requestFocus());
+        field.textProperty().bindBidirectional(property, new NumberStringConverter());
+        paramGridPane.add(field, 1, row);
+    }
+
     private void disableableDoubleBox(DoubleProperty property, int row) {
         TextField field = new TextField();
         CheckBox checkBox = new CheckBox();
