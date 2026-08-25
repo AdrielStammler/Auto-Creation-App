@@ -39,7 +39,6 @@ public class Field {
 
     public static Pane getFieldPane() {
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
-        // TODO: weird behavior when Field Scale Changes
         PIXELS_PER_METER = 75.0 * AppStateManager.getInstance().getFieldScale();
         FIELD_WIDTH = fieldLayout.getFieldWidth();
         Pane pane = getPane(fieldLayout);

@@ -16,7 +16,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 
 public class MiscHelper {
-
     public static void setDarkMode(Window stage) {
         Scene scene = stage.getScene();
         scene.getStylesheets().clear();
@@ -169,7 +168,6 @@ public class MiscHelper {
                         }
                     }
                 }
-
             }
         }
     }
