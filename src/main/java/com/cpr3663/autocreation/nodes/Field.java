@@ -162,6 +162,7 @@ public class Field {
     }
 
     private static void drawRobotPoses(Pane fieldPane) {
+        // TODO add line that connects the events together showing the path
         Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
         double sizeX = AppStateManager.getInstance().getRobotSize().getX();
 
@@ -398,6 +399,9 @@ public class Field {
         private static void updateRobotPos(double pixelsX, double pixelsY) {
             selectedImageView.setX(pixelsX);
             selectedImageView.setY(pixelsY);
+
+            // TODO lookup Line selectedIndex - 1 and lookup line selectedIndex and update their ending and starting pos's, respectively
+            //  or save them off to a var then add code to updateSelection to update those vars
 
             Circle threshold = (Circle) fieldPane.lookup("#Threshold");
             if (threshold == null) throw new IllegalStateException("Threshold could not be found");
