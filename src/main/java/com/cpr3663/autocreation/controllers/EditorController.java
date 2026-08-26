@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class EditorController {
-    // TODO use correct units and use relative coords
     @FXML public HBox root;
 
     @FXML private CheckBox afterPrevCheck;
@@ -109,13 +108,13 @@ public class EditorController {
         aprilTagBox(driveEvent.aprilTagProperty(), 0);
 
         label("X Pos:", 1);
-        doubleBox(driveEvent.xProperty(), 1, true);
+        doubleBox(driveEvent.relativeXProperty(), 1, true);
 
         label("Y Pos:", 2);
-        doubleBox(driveEvent.yProperty(), 2, true);
+        doubleBox(driveEvent.relativeYProperty(), 2, true);
 
         label("Rotation:", 3);
-        doubleBox(driveEvent.thetaProperty(), 3, false);
+        doubleBox(driveEvent.relativeThetaProperty(), 3, false);
 
         label("Threshold:", 4);
         posDoubleBox(driveEvent.thresholdProperty(), 4);
@@ -162,15 +161,6 @@ public class EditorController {
         field.setTextFormatter(formatter);
         field.setOnAction(e -> field.getParent().requestFocus());
         field.textProperty().bindBidirectional(property, useUnits ? new UnitNumberStringConverter() : new NumberStringConverter());
-        paramGridPane.add(field, 1, row);
-    }
-
-    private void doubleBox(DoubleProperty property, int row) {
-        TextField field = new TextField();
-        TextFormatter<String> formatter = MiscHelper.doubleFormater();
-        field.setTextFormatter(formatter);
-        field.setOnAction(e -> field.getParent().requestFocus());
-        field.textProperty().bindBidirectional(property, new NumberStringConverter());
         paramGridPane.add(field, 1, row);
     }
 

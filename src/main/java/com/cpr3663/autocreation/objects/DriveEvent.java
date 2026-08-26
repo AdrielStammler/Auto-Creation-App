@@ -3,10 +3,9 @@ package com.cpr3663.autocreation.objects;
 import com.cpr3663.autocreation.Constants;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.*;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
+
+import java.util.function.DoubleSupplier;
 
 public class DriveEvent extends Event {
     private final DoubleProperty x;
@@ -69,16 +68,24 @@ public class DriveEvent extends Event {
         return new Pose2d(getX(), getY(), Rotation2d.fromDegrees(getTheta()));
     }
 
+    public DoubleProperty relativeXProperty() {
+        return new RelativeDoubleProperty(this, "relativeX", x, aprilTag, () -> aprilTag.getValue().pose.getX());
+    }
+
+    public DoubleProperty relativeYProperty() {
+        return new RelativeDoubleProperty(this, "relativeY", y, aprilTag, () -> aprilTag.getValue().pose.getY());
+    }
+
+    public DoubleProperty relativeThetaProperty() {
+        return new RelativeDoubleProperty(this, "relativeTheta", theta, aprilTag, () -> aprilTag.getValue().pose.getRotation().getZ());
+    }
+
     public Transform2d getRelativePose() {
         return getPose().minus(getAprilTag().pose.toPose2d());
     }
 
     public Translation2d getRelativePosition() {
         return getRelativePose().getTranslation();
-    }
-
-    public double getRelativeTheta() {
-        return getRelativePose().getRotation().getDegrees();
     }
 
     public void setPosition(double x, double y) {
@@ -169,5 +176,63 @@ public class DriveEvent extends Event {
     @Override
     public String toString() {
         return "Drive to (" + round(getX()) + ", " + round(getY()) + ")";
+    }
+
+    private static class RelativeDoubleProperty extends DoublePropertyBase {
+        private final DoubleProperty absoluteProperty;
+        private final Property<?> offsetProperty;
+        private final DoubleSupplier offsetSupplier;
+        private final Object bean;
+        private final String name;
+
+        /**
+         * Creates a bidirectional relative property wrapper.
+         *
+         * @param bean             The bean that owns this property.
+         * @param name             The name of this property.
+         * @param absoluteProperty The source/absolute property.
+         * @param offsetProperty      The observable offset object property.
+         * @param offsetSupplier   A Supplier for the dynamic offset that isn't a property.
+         */
+        public RelativeDoubleProperty(Object bean, String name,
+                                      DoubleProperty absoluteProperty,
+                                      Property<?> offsetProperty,
+                                      DoubleSupplier offsetSupplier) {
+            this.bean = bean;
+            this.name = name;
+            this.absoluteProperty = absoluteProperty;
+            this.offsetProperty = offsetProperty;
+            this.offsetSupplier = offsetSupplier;
+
+            this.absoluteProperty.addListener(obs -> this.fireValueChangedEvent());
+            this.offsetProperty.addListener(obs -> this.fireValueChangedEvent());
+        }
+
+        @Override
+        public double get() {
+            return absoluteProperty.get() - getOffset();
+        }
+
+        @Override
+        public void set(double newValue) {
+            absoluteProperty.set(newValue + getOffset());
+        }
+
+        private double getOffset() {
+            if (offsetProperty.getValue() == null) {
+                return 0.0;
+            }
+            return offsetSupplier.getAsDouble();
+        }
+
+        @Override
+        public Object getBean() {
+            return bean;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
     }
 }
