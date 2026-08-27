@@ -24,8 +24,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.transform.Rotate;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -162,11 +164,12 @@ public class Field {
     }
 
     private static void drawRobotPoses(Pane fieldPane) {
-        // TODO add line that connects the events together showing the path
         Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
         double sizeX = AppStateManager.getInstance().getRobotSize().getX();
+        Line prevLine = null;
 
         ObservableList<Event> events = AppStateManager.getInstance().getEvents();
+        ArrayList<ImageView> robots = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
             Event event = events.get(i);
             if (event instanceof DriveEvent driveEvent) {
@@ -190,13 +193,24 @@ public class Field {
                     fieldPane.getChildren().add(Helper.createThreshold(robotView.getX(), robotView.getY(), driveEvent.getThreshold()));
                 } else Helper.colorRobot(robotView);
 
+                if (prevLine != null) {
+                    Helper.setLinePos(prevLine, position, false);
+                    fieldPane.getChildren().add(prevLine);
+                }
+
+                Line line = new Line();
+                Helper.setLinePos(line, position, true);
+                line.setId("Line-" + i);
+                line.setStroke(Color.WHITE);
+                line.setStrokeWidth(3);
+                prevLine = line;
+
                 robotView.setId("Event-" + i);
-
                 addRobotListeners(driveEvent, robotView);
-
-                fieldPane.getChildren().add(robotView);
+                robots.add(robotView);
             }
         }
+        fieldPane.getChildren().addAll(robots);
     }
 
     private static void addRobotListeners(DriveEvent event, ImageView robot) {
@@ -400,14 +414,46 @@ public class Field {
             selectedImageView.setX(pixelsX);
             selectedImageView.setY(pixelsY);
 
-            // TODO lookup Line selectedIndex - 1 and lookup line selectedIndex and update their ending and starting pos's, respectively
-            //  or save them off to a var then add code to updateSelection to update those vars
+            String indexStr = selectedImageView.getId().substring(6);
+
+            int index = Integer.parseInt(indexStr);
+
+            Line toLine = (Line) fieldPane.lookup("#Line-" + (index - 1));
+            Line fromLine = (Line) fieldPane.lookup("#Line-" + (index));
+
+            if (toLine != null) {
+                setLinePos(toLine, pixelsX, pixelsY, false);
+            }
+            if (fromLine != null) {
+                setLinePos(fromLine, pixelsX, pixelsY, true);
+            }
 
             Circle threshold = (Circle) fieldPane.lookup("#Threshold");
             if (threshold == null) throw new IllegalStateException("Threshold could not be found");
             Translation2d pos = unCenterRobotPixels(pixelsX, pixelsY);
             threshold.setCenterX(pos.getX());
             threshold.setCenterY(pos.getY());
+        }
+
+        /**
+         * @param line      the line to modify
+         * @param x         the x position of the robot (uncentered)
+         * @param y         the y position of the robot (uncentered)
+         * @param isStart   if it should change the starting or ending pos of the line
+         */
+        private static void setLinePos(Line line, double x, double y, boolean isStart) {
+            Translation2d pos = unCenterRobotPixels(x, y);
+            if (isStart) {
+                line.setStartX(pos.getX());
+                line.setStartY(pos.getY());
+            } else {
+                line.setEndX(pos.getX());
+                line.setEndY(pos.getY());
+            }
+        }
+
+        private static void setLinePos(Line line, Translation2d pos, boolean isStart) {
+            setLinePos(line, pos.getX(), pos.getY(), isStart);
         }
 
         private static void setEventTag(AprilTagFieldLayout fieldLayout, Pane tagView, int id) {

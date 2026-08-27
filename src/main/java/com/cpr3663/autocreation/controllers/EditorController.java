@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.DistanceUnit;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
-import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -131,13 +130,6 @@ public class EditorController {
         paramGridPane.add(label, 0, row);
     }
 
-    private void textBox(StringProperty property, int row) {
-        TextField field = new TextField();
-        field.textProperty().bindBidirectional(property);
-        field.setOnAction(e -> field.getParent().requestFocus());
-        paramGridPane.add(field, 1, row);
-    }
-
     private void aprilTagBox(Property<AprilTag> property, int row) {
         TextField field = new TextField();
         field.textProperty().bindBidirectional(property, new AprilTagStringConverter());
@@ -221,11 +213,6 @@ public class EditorController {
         public UnitNumberStringConverter() {
             super();
             unit = AppStateManager.getInstance().getDisplayUnits();
-        }
-
-        public UnitNumberStringConverter(DistanceUnit unit) {
-            super();
-            UnitNumberStringConverter.unit = unit;
         }
 
         @Override

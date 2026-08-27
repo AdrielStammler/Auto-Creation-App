@@ -1,7 +1,7 @@
 package com.cpr3663.autocreation;
 
 public final class Constants {
-    public static final int ROBOT_IMAGE_Y_EXTRA_PIXELS = 11;
+    public static final double ROBOT_IMAGE_Y_EXTRA_PIXELS = 11.0/2.0;
     public static final String FILE_SUFFIX = ".dsv";
 
     public static final class Events {
