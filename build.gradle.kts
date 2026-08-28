@@ -1,13 +1,14 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     java
     application
-    id("org.javamodularity.moduleplugin") version "1.8.15"
     id("org.openjfx.javafxplugin") version "0.0.13"
-    id("org.beryx.jlink") version "2.25.0"
+    id("org.beryx.runtime") version "1.13.1"
 }
 
 group = "com.cpr3663"
-version = "1.0-SNAPSHOT"
+version = "1.0"
 
 repositories {
     mavenCentral()
@@ -28,8 +29,7 @@ tasks.withType<JavaCompile> {
 }
 
 application {
-    mainModule.set("com.cpr3663.autocreation")
-    mainClass.set("com.cpr3663.autocreation.HelloApplication")
+    mainClass.set("com.cpr3663.autocreation.Launcher")
 }
 
 javafx {
@@ -53,10 +53,34 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-jlink {
-    imageZip.set(layout.buildDirectory.file("/distributions/app-${javafx.platform.classifier}.zip"))
+val packageManagerType = providers.exec {
+    commandLine("sh", "-c", "if command -v rpm >/dev/null; then echo rpm; elif command -v dpkg >/dev/null; then echo deb; else echo unknown; fi")
+}.standardOutput.asText.map { it.trim() }
+
+runtime {
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
-    launcher {
-        name = "app"
+    jpackage {
+        imageName = "Auto Creation App"
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            installerType = "msi"
+            installerOptions = listOf(
+                "--win-dir-chooser",
+                "--win-shortcut",
+                "--win-menu",
+            )
+            imageOptions.addAll(listOf("--icon", "app-icon.ico"))
+        } else if (Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)) {
+            val type = packageManagerType.get()
+            if (type == "unknown") {
+                error("Unknown package manager type")
+            } else {
+                installerType = type
+                imageOptions.addAll(listOf("--icon", "app-icon.png"))
+            }
+        } else if (Os.isFamily(Os.FAMILY_MAC)) {
+            error("Mac is not supported")
+        } else {
+            error("Unsupported OS: " + System.getProperty("os.name"))
+        }
     }
 }

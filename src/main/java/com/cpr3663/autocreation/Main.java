@@ -31,6 +31,7 @@ public class Main extends Application {
         AppStateManager.getInstance().setHostServices(getHostServices());
 
         Node topBar = TopBar.getTopBar(stage);
+        // TODO make editor and events borders to the field draggable
         FXMLLoader eventsFxml = new FXMLLoader(Main.class.getResource("events-view.fxml"));
         FXMLLoader editorFxml = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
         Pane field = Field.getFieldPane();
