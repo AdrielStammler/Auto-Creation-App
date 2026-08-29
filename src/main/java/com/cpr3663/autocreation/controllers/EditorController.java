@@ -15,6 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 import javafx.util.converter.NumberStringConverter;
 
@@ -24,7 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class EditorController {
-    @FXML public HBox root;
+    @FXML public VBox root;
 
     @FXML private CheckBox afterPrevCheck;
     @FXML private CheckBox delayCheck;

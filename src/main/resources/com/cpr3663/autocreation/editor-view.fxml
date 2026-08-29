@@ -5,51 +5,48 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<HBox fx:id="root" alignment="CENTER_RIGHT" prefWidth="250" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.EditorController">
-      <Separator orientation="VERTICAL"/>
-      <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
-            <Label alignment="CENTER" text="General:" VBox.vgrow="NEVER">
-                  <font>
-                        <Font name="System Bold" size="20.0" />
-                  </font>
-            </Label>
+<VBox fx:id="root" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.EditorController">
+       <Label alignment="CENTER" text="General:" VBox.vgrow="NEVER">
+            <font>
+                  <Font name="System Bold" size="20.0" />
+            </font>
+      </Label>
 
-            <GridPane VBox.vgrow="NEVER" vgap="10" hgap="5">
-                  <padding>
-                        <Insets bottom="30" left="30" right="30" top="30" />
-                  </padding>
-                  <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" />
-                        <ColumnConstraints halignment="LEFT" />
-                  </columnConstraints>
+      <GridPane alignment="CENTER" VBox.vgrow="NEVER" vgap="10" hgap="5">
+            <padding>
+                  <Insets bottom="30" left="30" right="30" top="30" />
+            </padding>
+            <columnConstraints>
+                  <ColumnConstraints halignment="RIGHT" />
+                  <ColumnConstraints halignment="LEFT" />
+            </columnConstraints>
 
-                  <Label text="After Prev Event:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                  <CheckBox fx:id="afterPrevCheck" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            <Label text="After Prev Event:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <CheckBox fx:id="afterPrevCheck" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                  <Label text="Has a delay:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                  <CheckBox fx:id="delayCheck" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Has a delay:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <CheckBox fx:id="delayCheck" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                  <Label text="Delay Type:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                  <ChoiceBox fx:id="delayTypeChoice" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Delay Type:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <ChoiceBox fx:id="delayTypeChoice" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                  <Label text="Delay Amount:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                  <TextField fx:id="delayAmountText" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="25"/>
-            </GridPane>
+            <Label text="Delay Amount:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+            <TextField fx:id="delayAmountText" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="25"/>
+      </GridPane>
 
-            <Label alignment="CENTER" text="Params:" VBox.vgrow="NEVER">
-                  <font>
-                        <Font name="System Bold" size="20.0" />
-                  </font>
-            </Label>
+      <Label alignment="CENTER" text="Params:" VBox.vgrow="NEVER">
+            <font>
+                  <Font name="System Bold" size="20.0" />
+            </font>
+      </Label>
 
-            <GridPane fx:id="paramGridPane" VBox.vgrow="ALWAYS" vgap="10" hgap="5">
-                  <padding>
-                        <Insets bottom="30" left="30" right="30" top="30" />
-                  </padding>
-                  <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" />
-                        <ColumnConstraints halignment="LEFT" />
-                  </columnConstraints>
-            </GridPane>
-      </VBox>
-</HBox>
+      <GridPane alignment="TOP_CENTER" fx:id="paramGridPane" VBox.vgrow="ALWAYS" vgap="10" hgap="5">
+            <padding>
+                  <Insets bottom="30" left="30" right="30" top="30" />
+            </padding>
+            <columnConstraints>
+                  <ColumnConstraints halignment="RIGHT" />
+                  <ColumnConstraints halignment="LEFT" />
+            </columnConstraints>
+      </GridPane>
+</VBox>

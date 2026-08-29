@@ -39,11 +39,10 @@ public class FileHelper {
 
         ButtonType overwrite = new ButtonType("Overwrite");
         ButtonType open = new ButtonType("Open");
-        ButtonType cancel = new ButtonType("Cancel");
         Optional<ButtonType> result = PopUpHelper.showAlert(Alert.AlertType.WARNING, "The Auto \"" + name + "\" already exists.",
-                "Would you like to overwrite, open \"" + name + "\", or cancel?", overwrite, open, cancel);
+                "Would you like to overwrite, open \"" + name + "\", or cancel?", overwrite, open, ButtonType.CANCEL);
 
-        if (result.isPresent() && !result.get().equals(cancel)) {
+        if (result.isPresent() && !result.get().getButtonData().isCancelButton()) {
             if (result.get().equals(overwrite)) {
                 Files.delete(newAuto.toPath());
                 Files.createFile(newAuto.toPath());
@@ -94,7 +93,8 @@ public class FileHelper {
             return;
         }
 
-        // TODO add confirmation popup
+        Optional<ButtonType> reply = PopUpHelper.showAlert(Alert.AlertType.WARNING, "Delete Auto", "Are you sure you want to permanently delete the auto \"" + name + "\"?", new ButtonType("Yes, Delete"), ButtonType.CANCEL);
+        if (reply.isEmpty() || reply.get().getButtonData().isCancelButton()) return;
 
         Path path = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, name + Constants.FILE_SUFFIX);
 
@@ -151,7 +151,7 @@ public class FileHelper {
         Path newAuto = oldAuto.resolveSibling(fileName);
 
         if (Files.exists(newAuto)) {
-            PopUpHelper.showAlert(Alert.AlertType.ERROR, "Name in Use!", "There is already a auto named \"" + newName + "\"!", ButtonType.OK);
+            PopUpHelper.showAlert(Alert.AlertType.ERROR, "Name in Use!", "There is already a auto named \"" + newName + "\"!");
             return;
         }
 
@@ -177,7 +177,7 @@ public class FileHelper {
         Path newAuto = oldAuto.resolveSibling(fileName);
 
         if (Files.exists(newAuto)) {
-            PopUpHelper.showAlert(Alert.AlertType.ERROR, "Name in Use!", "There is already a auto named \"" + newName + "\"!", ButtonType.OK);
+            PopUpHelper.showAlert(Alert.AlertType.ERROR, "Name in Use!", "There is already a auto named \"" + newName + "\"!");
             return;
         }
 

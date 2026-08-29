@@ -7,15 +7,15 @@ import com.cpr3663.autocreation.util.FileHelper;
 import com.cpr3663.autocreation.util.MiscHelper;
 import com.cpr3663.autocreation.util.PopUpHelper;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
@@ -31,26 +31,25 @@ public class Main extends Application {
         AppStateManager.getInstance().setHostServices(getHostServices());
 
         Node topBar = TopBar.getTopBar(stage);
-        // TODO make editor and events borders to the field draggable
         FXMLLoader eventsFxml = new FXMLLoader(Main.class.getResource("events-view.fxml"));
         FXMLLoader editorFxml = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
         Pane field = Field.getFieldPane();
 
-        // Creating and defining the BorderPane
-        BorderPane borderPane = new BorderPane();
-        borderPane.setTop(topBar);
-        borderPane.setCenter(field);
-        borderPane.setLeft(eventsFxml.load());
-        borderPane.setRight(editorFxml.load());
+        // Creating and defining the VBox and SplitPane
+        SplitPane splitPane = new SplitPane();
+        splitPane.getItems().addAll(eventsFxml.load(), field, editorFxml.load());
+        Platform.runLater(() -> splitPane.setDividerPositions(0.1, 0.85));
+        VBox.setVgrow(splitPane, Priority.ALWAYS);
+        VBox vBox = new VBox(topBar, splitPane);
 
         Rectangle overlay = new Rectangle();
-        overlay.widthProperty().bind(borderPane.widthProperty());
-        overlay.heightProperty().bind(borderPane.heightProperty());
+        overlay.widthProperty().bind(vBox.widthProperty());
+        overlay.heightProperty().bind(vBox.heightProperty());
         overlay.setFill(Color.BLACK);
         overlay.setMouseTransparent(true);
         overlay.setOpacity(0);
 
-        StackPane root = new StackPane(borderPane, overlay);
+        StackPane root = new StackPane(vBox, overlay);
         AppStateManager.getInstance().setRoot(root);
 
         // Creating scene and setting stage properties
@@ -72,8 +71,7 @@ public class Main extends Application {
 
         // Add Listeners
         AppStateManager.getInstance().isDarkModeProperty().addListener(run(() -> MiscHelper.setDarkMode(stage)));
-        AppStateManager.getInstance().fieldScaleProperty().addListener(run(refreshField(borderPane)));
-        AppStateManager.getInstance().fieldImageProperty().addListener(run(refreshField(borderPane)));
+        AppStateManager.getInstance().fieldImageProperty().addListener(run(refreshField(splitPane)));
         AppStateManager.getInstance().openAutoNameProperty().addListener(run(() -> {
             FileHelper.open();
             AppStateManager.getInstance().saveState();
@@ -94,7 +92,7 @@ public class Main extends Application {
         });
         AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> {
             if (AppStateManager.getInstance().isNotFieldEditing()) {
-                refreshField(borderPane).run();
+                refreshField(splitPane).run();
             }
 
         });
@@ -103,7 +101,7 @@ public class Main extends Application {
             if (AppStateManager.getInstance().isNotEditorEditing()) {
                 FXMLLoader editorFxml2 = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
                 try {
-                    borderPane.setRight(editorFxml2.load());
+                    splitPane.getItems().set(2, editorFxml2.load());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -114,8 +112,8 @@ public class Main extends Application {
         AppStateManager.getInstance().setIsSaved(true);
     }
 
-    private static Runnable refreshField(BorderPane borderPane) {
-        return () -> borderPane.setCenter(Field.getFieldPane());
+    private static Runnable refreshField(SplitPane splitPane) {
+        return () -> splitPane.getItems().set(1, Field.getFieldPane());
     }
 
     private static <T> ChangeListener<T> run(Runnable runnable) {

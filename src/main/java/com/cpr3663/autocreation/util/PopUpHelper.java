@@ -46,7 +46,6 @@ public class PopUpHelper {
 
         ButtonType buttonSave = new ButtonType("Continue & Save");
         ButtonType buttonDiscard = new ButtonType("Continue & Discard");
-        ButtonType buttonCancel = new ButtonType("Cancel");
 
         Image icon = new Image(Objects.requireNonNull(PopUpHelper.class.getResource(Constants.Paths.ALERT_ICON)).toExternalForm());
         Stage stage = (Stage) ask.getDialogPane().getScene().getWindow();
@@ -56,14 +55,14 @@ public class PopUpHelper {
         iconView.setFitHeight(65);
         ask.setGraphic(iconView);
 
-        ask.getButtonTypes().setAll(buttonSave, buttonDiscard, buttonCancel);
+        ask.getButtonTypes().setAll(buttonSave, buttonDiscard, ButtonType.CANCEL);
         ask.setTitle("Unsaved Changes");
         ask.setHeaderText("You have unsaved changes, are you sure you want to continue?");
         ask.getDialogPane().setContent(new Region());
 
         Optional<ButtonType> result = ask.showAndWait();
 
-        if (result.isPresent() && !result.get().equals(buttonCancel)) {
+        if (result.isPresent() && !result.get().getButtonData().isCancelButton()) {
             if (result.get().equals(buttonSave)) {
                 FileHelper.save();
                 return false;
@@ -225,7 +224,8 @@ public class PopUpHelper {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(message);
-        alert.getButtonTypes().setAll(buttons);
+        if (buttons != null && buttons.length != 0)
+            alert.getButtonTypes().setAll(buttons);
         return alert.showAndWait();
     }
 

@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefWidth="150" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.EventsController">
+<VBox minWidth="100" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.EventsController">
     <ListView fx:id="listView" VBox.vgrow="ALWAYS"/>
     <HBox alignment="CENTER_RIGHT">
         <Button fx:id="addButton" onAction="#addEvent" mnemonicParsing="false" text="Add" />

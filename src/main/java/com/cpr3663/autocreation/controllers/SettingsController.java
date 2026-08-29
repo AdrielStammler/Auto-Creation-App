@@ -33,7 +33,6 @@ public class SettingsController {
     @FXML public ComboBox<DistanceUnit> unitsDropDown;
     @FXML private TextField robotSizeXText;
     @FXML private TextField robotSizeYText;
-    @FXML private TextField fieldScaleText;
     @FXML private ListView<String> extraTypesNameList;
     @FXML private ListView<String> extraTypesParamList;
     private Stage stage;
@@ -58,9 +57,6 @@ public class SettingsController {
         robotSizeYText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getY())));
         robotSizeYText.setTextFormatter(MiscHelper.posDoubleFormater());
         robotSizeYText.setOnAction(e -> robotSizeYText.getParent().requestFocus());
-        fieldScaleText.setText(Double.toString(AppStateManager.getInstance().getFieldScale()));
-        fieldScaleText.setTextFormatter(MiscHelper.posDoubleFormater());
-        fieldScaleText.setOnAction(e -> fieldScaleText.getParent().requestFocus());
         makeEditable(extraTypesNameList);
         makeEditable(extraTypesParamList);
 
@@ -173,7 +169,6 @@ public class SettingsController {
         stateManager.setDisplayUnits(unitsDropDown.getSelectionModel().getSelectedItem());
         stateManager.setRobotSize(stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeXText.getText())),
                 stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeYText.getText())));
-        stateManager.setFieldScale(Double.parseDouble(fieldScaleText.getText()));
         saveParams();
         extraTypes.sort(Comparator.comparing(Event.Type::name));
         stateManager.setExtraTypes(extraTypes.stream().map(type -> new Event.Type(type.name(), type.parameters())).toArray(Event.Type[]::new));

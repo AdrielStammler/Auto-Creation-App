@@ -10,8 +10,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
@@ -26,6 +29,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Scale;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -34,8 +38,10 @@ import java.util.Optional;
 public class Field {
     private static final double[] initials = new double[2];
     private static final boolean[] isRotating = new boolean[1];
-    private static double PIXELS_PER_METER;
-    private static double FIELD_WIDTH;
+    private static final double PIXELS_PER_METER = 75.0;
+    private static double FIELD_WIDTH; // Y Direction on the fieldPane
+    @SuppressWarnings("FieldCanBeLocal")
+    private static double FIELD_LENGTH; // X Direction on the fieldPane
     private static ImageView selectedImageView;
     private static Pane selectedAprilTag;
     private static Pane fieldPane;
@@ -44,9 +50,9 @@ public class Field {
 
     public static Pane getFieldPane() {
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
-        PIXELS_PER_METER = 75.0 * AppStateManager.getInstance().getFieldScale();
         FIELD_WIDTH = fieldLayout.getFieldWidth();
-        Pane pane = getPane(fieldLayout);
+        FIELD_LENGTH = fieldLayout.getFieldLength();
+        Pane pane = getPane();
         drawAprilTags(pane, fieldLayout);
         drawRobotPoses(pane);
         pane.setOnMousePressed(Helper::pressPane);
@@ -69,17 +75,37 @@ public class Field {
                 Helper.updateRobotPos(visualPosition.getX(), visualPosition.getY());
             }
         });
-        fieldPane = pane;
-        return pane;
-    }
-
-    private static Pane getPane(AprilTagFieldLayout fieldLayout) {
-        Pane pane = new Pane();
-        double xSize = fieldLayout.getFieldLength() * PIXELS_PER_METER;
-        double ySize = fieldLayout.getFieldWidth() * PIXELS_PER_METER;
+        double xSize = FIELD_LENGTH * PIXELS_PER_METER;
+        double ySize = FIELD_WIDTH * PIXELS_PER_METER;
         pane.setMinSize(xSize, ySize);
         pane.setPrefSize(xSize, ySize);
         pane.setMaxSize(xSize, ySize);
+        fieldPane = pane;
+
+        Pane wrapper = new Pane(pane);
+        wrapper.setMinSize(200, 200);
+
+        Scale scale = new Scale();
+        scale.setPivotX(0.0);
+        scale.setPivotY(0.0);
+        pane.getTransforms().add(scale);
+
+        DoubleBinding factor = Bindings.createDoubleBinding(
+            () -> Math.min(wrapper.getWidth() / xSize, wrapper.getHeight() / ySize),
+                    wrapper.widthProperty(), wrapper.heightProperty()
+        );
+
+        scale.xProperty().bind(factor);
+        scale.yProperty().bind(factor);
+
+        pane.translateXProperty().bind(wrapper.widthProperty().subtract(factor.multiply(xSize)).divide(2));
+        pane.translateYProperty().bind(wrapper.heightProperty().subtract(factor.multiply(ySize)).divide(2));
+
+        return wrapper;
+    }
+
+    private static Pane getPane() {
+        Pane pane = new Pane();
 
         Image image = AppStateManager.getInstance().getFieldImage();
         if (image == null || image.isError()) return pane;
@@ -326,7 +352,7 @@ public class Field {
             if (isRobot && !shouldRotate) {
                 double width = robot.getBoundsInLocal().getWidth();
                 double height = robot.getBoundsInLocal().getHeight();
-                Translation2d scenePos = new Translation2d(e.getSceneX(), e.getSceneY());
+                Translation2d scenePos = Helper.eventLocalPixels(e);
                 Bounds bounds = robot.localToScene(robot.getBoundsInLocal());
                 Translation2d pos = scenePos.minus(new Translation2d(bounds.getCenterX(), bounds.getCenterY()));
                 Translation2d target = new Translation2d(0, -(height / 2) * 9 / 10);
@@ -340,8 +366,7 @@ public class Field {
             }
 
             isRotating[0] = false;
-            initials[0] = e.getSceneX();
-            initials[1] = e.getSceneY();
+            Helper.updateInitials(e);
         }
 
         private static void drag(MouseEvent e) {
@@ -365,7 +390,8 @@ public class Field {
             if (isRotating[0]) {
                 rotate(e, event);
             } else {
-                Translation2d delta = new Translation2d(e.getSceneX() - initials[0], e.getSceneY() - initials[1]);
+                Translation2d pos = Helper.eventLocalPixels(e);
+                Translation2d delta = pos.minus(new Translation2d(initials[0], initials[1]));
                 Translation2d currPos = new Translation2d(selectedImageView.getX(), selectedImageView.getY());
                 Translation2d newPos = currPos.plus(delta);
 
@@ -373,8 +399,7 @@ public class Field {
 
                 event.setPosition(fromPixels(unCenterRobotPixels(newPos)));
 
-                initials[0] = e.getSceneX();
-                initials[1] = e.getSceneY();
+                Helper.updateInitials(e);
             }
         }
 
@@ -469,6 +494,21 @@ public class Field {
                 highlightImage(tagView);
                 selectedAprilTag = tagView;
             }
+        }
+
+        private static void updateInitials(MouseEvent e) {
+            Translation2d pos = eventLocalPixels(e);
+            initials[0] = pos.getX();
+            initials[1] = pos.getY();
+        }
+
+        private static Translation2d eventLocalPixels(MouseEvent e) {
+            return sceneToLocalPixels(e.getSceneX(), e.getSceneY());
+        }
+
+        private static Translation2d sceneToLocalPixels(double x, double y) {
+            Point2D point = fieldPane.sceneToLocal(x, y);
+            return new Translation2d(point.getX(), point.getY());
         }
     }
 }
