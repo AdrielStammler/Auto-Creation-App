@@ -65,6 +65,8 @@ public class TopBar {
         topBar.setOnMousePressed((MouseEvent event) -> {
             xOffset = event.getSceneX();
             yOffset = event.getSceneY();
+
+            if (event.getClickCount() == 2) mainStage.setMaximized(!mainStage.isMaximized());
         });
 
         topBar.setOnMouseDragged((MouseEvent event) -> {
