@@ -94,6 +94,8 @@ public class FileHelper {
             return;
         }
 
+        // TODO add confirmation popup
+
         Path path = Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, name + Constants.FILE_SUFFIX);
 
         boolean existed;

@@ -60,7 +60,7 @@ val packageManagerType = providers.exec {
 runtime {
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
     jpackage {
-        imageName = "Auto Creation App"
+        imageName = "Auto Creation"
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             installerType = "msi"
             installerOptions = listOf(

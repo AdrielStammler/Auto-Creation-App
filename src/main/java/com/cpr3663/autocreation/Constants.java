@@ -31,10 +31,6 @@ public final class Constants {
     }
 
     public static final class Stage {
-        public static final String TITLE = "Auto Creation";
-
-        public static final int FIELD_WIDTH = 400;
-
         public static final int WIDTH = 1650;
         public static final int HEIGHT = 800;
     }
