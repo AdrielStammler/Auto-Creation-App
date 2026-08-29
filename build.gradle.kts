@@ -1,5 +1,8 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
+
+var versionStr = "1.1.1"
+
 plugins {
     java
     application
@@ -8,7 +11,7 @@ plugins {
 }
 
 group = "com.cpr3663"
-version = "1.0"
+version = versionStr
 
 repositories {
     mavenCentral()
@@ -61,12 +64,14 @@ runtime {
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
     jpackage {
         imageName = "Auto Creation"
+        appVersion = versionStr
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             installerType = "msi"
             installerOptions = listOf(
                 "--win-dir-chooser",
                 "--win-shortcut",
                 "--win-menu",
+                "--win-upgrade-uuid", "ae1bf218-9767-491e-acb6-3aa92756a5ed",
             )
             imageOptions.addAll(listOf("--icon", "app-icon.ico"))
         } else if (Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)) {
@@ -75,6 +80,14 @@ runtime {
                 error("Unknown package manager type")
             } else {
                 installerType = type
+                installerOptions = listOf(
+                    "--linux-package-name", "auto-creation",
+                    "--linux-shortcut",
+                    "--linux-menu-group", "Utility",
+                    "--linux-deb-maintainer", "stammler.adriel@gmail.com",
+                    "--linux-app-category", "utils",
+                    "--linux-package-deps",
+                )
                 imageOptions.addAll(listOf("--icon", "app-icon.png"))
             }
         } else if (Os.isFamily(Os.FAMILY_MAC)) {
