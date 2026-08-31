@@ -3,6 +3,7 @@ package com.cpr3663.autocreation.controllers;
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.objects.DriveEvent;
 import com.cpr3663.autocreation.objects.Event;
+import com.cpr3663.autocreation.util.Enums;
 import com.cpr3663.autocreation.util.MiscHelper;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -29,14 +30,14 @@ public class EditorController {
 
     @FXML private CheckBox afterPrevCheck;
     @FXML private CheckBox delayCheck;
-    @FXML private ChoiceBox<Event.DelayTypes> delayTypeChoice;
+    @FXML private ChoiceBox<Enums.DelayTypes> delayTypeChoice;
     @FXML private TextField delayAmountText;
 
     @FXML private GridPane paramGridPane;
 
     private Event event;
 
-    private Event.DelayTypes prevDelayType;
+    private Enums.DelayTypes prevDelayType;
 
     @FXML
     private void initialize() {
@@ -52,21 +53,21 @@ public class EditorController {
         root.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> AppStateManager.getInstance().setEditorEditing());
 
         afterPrevCheck.selectedProperty().bindBidirectional(event.afterPrevProperty());
-        delayCheck.setSelected(event.getDelayType().equals(Event.DelayTypes.NONE));
+        delayCheck.setSelected(event.getDelayType().equals(Enums.DelayTypes.NONE));
         delayCheck.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                delayTypeChoice.setValue(Objects.requireNonNullElse(prevDelayType == Event.DelayTypes.NONE ? null : prevDelayType, Event.DelayTypes.TIME));
+                delayTypeChoice.setValue(Objects.requireNonNullElse(prevDelayType == Enums.DelayTypes.NONE ? null : prevDelayType, Enums.DelayTypes.TIME));
             } else {
                 prevDelayType = delayTypeChoice.getValue();
-                delayTypeChoice.setValue(Event.DelayTypes.NONE);
+                delayTypeChoice.setValue(Enums.DelayTypes.NONE);
             }
         });
 
-        delayTypeChoice.getItems().addAll(Arrays.copyOfRange(Event.DelayTypes.values(), 1, Event.DelayTypes.values().length));
+        delayTypeChoice.getItems().addAll(Arrays.copyOfRange(Enums.DelayTypes.values(), 1, Enums.DelayTypes.values().length));
         delayTypeChoice.valueProperty().bindBidirectional(event.delayTypeProperty());
         delayTypeChoice.selectionModelProperty().addListener((obs, old, newV) -> {
-            Event.DelayTypes type = newV.getSelectedItem();
-            if (type.equals(Event.DelayTypes.TIME))
+            Enums.DelayTypes type = newV.getSelectedItem();
+            if (type.equals(Enums.DelayTypes.TIME))
                 delayAmountText.setTextFormatter(MiscHelper.countFormater());
             else
                 delayAmountText.setTextFormatter(MiscHelper.posDoubleFormater());

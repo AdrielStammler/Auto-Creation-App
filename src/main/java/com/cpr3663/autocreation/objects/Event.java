@@ -1,6 +1,7 @@
 package com.cpr3663.autocreation.objects;
 
 import com.cpr3663.autocreation.Constants;
+import com.cpr3663.autocreation.util.Enums;
 import javafx.beans.property.*;
 
 import java.util.Arrays;
@@ -14,15 +15,15 @@ public class Event {
     private final String name;
     private StringProperty[] parameters;
     private final BooleanProperty afterPrev;
-    private final ObjectProperty<DelayTypes> delayType;
+    private final ObjectProperty<Enums.DelayTypes> delayType;
     private final DoubleProperty delay;
 
-    public Event(String name, String[] parameters, Type type, boolean afterPrev, DelayTypes delayType, double delay) {
+    public Event(String name, String[] parameters, Type type, boolean afterPrev, Enums.DelayTypes delayType, double delay) {
         this.type = type;
         this.name = name;
         this.parameters = Arrays.stream(parameters).map(SimpleStringProperty::new).toArray(StringProperty[]::new);
         this.afterPrev = new SimpleBooleanProperty(afterPrev);
-        this.delayType = new SimpleObjectProperty<>(DelayTypes.NONE);
+        this.delayType = new SimpleObjectProperty<>(Enums.DelayTypes.NONE);
         setDelayType(delayType);
         this.delay = new SimpleDoubleProperty(delay);
 
@@ -33,7 +34,7 @@ public class Event {
     }
 
     public Event(String name, String[] parameters, Type type) {
-        this(name, parameters, type, true, DelayTypes.NONE, 0.0);
+        this(name, parameters, type, true, Enums.DelayTypes.NONE, 0.0);
     }
 
     public Event(Type type) {
@@ -97,15 +98,15 @@ public class Event {
         this.afterPrev.set(afterPrev);
     }
 
-    public ObjectProperty<DelayTypes> delayTypeProperty() {
+    public ObjectProperty<Enums.DelayTypes> delayTypeProperty() {
         return delayType;
     }
 
-    public DelayTypes getDelayType() {
+    public Enums.DelayTypes getDelayType() {
         return delayType.get();
     }
 
-    public void setDelayType(DelayTypes delayType) {
+    public void setDelayType(Enums.DelayTypes delayType) {
         if (!afterPrev.get() || delayType.worksAfterPrev()) {
             this.delayType.set(delayType);
         }
@@ -134,23 +135,6 @@ public class Event {
         if (getType() == null) paramNames = Constants.Events.DRIVE_PARAMS;
         else paramNames = String.join(Constants.Events.PARAM_DELIMITER, getType().parameters());
         return String.join(Constants.Events.DELIMITER, name, paramNames, params, Boolean.toString(isAfterPrev()), getDelayType().name(), Double.toString(getDelay()));
-    }
-
-    public enum DelayTypes {
-        NONE(true),
-        TIME(true),
-        PROGRESS(false),
-        DISTANCE(false);
-
-        private final boolean worksAfterPrev;
-
-        DelayTypes(boolean worksAfterPrev) {
-            this.worksAfterPrev = worksAfterPrev;
-        }
-
-        public boolean worksAfterPrev() {
-            return worksAfterPrev;
-        }
     }
 
     public record Type(String name, String... parameters) {

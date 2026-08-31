@@ -2,6 +2,7 @@ package com.cpr3663.autocreation.controllers;
 
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.objects.Event;
+import com.cpr3663.autocreation.util.Enums;
 import com.cpr3663.autocreation.util.MiscHelper;
 import com.cpr3663.autocreation.util.PopUpHelper;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -11,7 +12,6 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -27,7 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class SettingsController {
-    @FXML private CheckBox darkModeBox;
+    @FXML public ComboBox<Enums.Themes> themeDropdown;
     @FXML private TextField robotRepoLabel;
     @FXML private ComboBox<AprilTagFields> aprilTagDropdown;
     @FXML public ComboBox<DistanceUnit> unitsDropDown;
@@ -43,7 +43,8 @@ public class SettingsController {
     @FXML
     private void initialize() {
         extraTypes = new ArrayList<>(AppStateManager.getInstance().getExtraTypes());
-        darkModeBox.setSelected(AppStateManager.getInstance().isDarkMode());
+        themeDropdown.getItems().addAll(Enums.Themes.values());
+        themeDropdown.getSelectionModel().select(AppStateManager.getInstance().getTheme());
         robotRepoLabel.setText(AppStateManager.getInstance().getRobotRepoPath());
         robotRepoLabel.setOnAction(e -> robotRepoLabel.getParent().requestFocus());
         fieldImage = AppStateManager.getInstance().getFieldImage();
@@ -162,7 +163,7 @@ public class SettingsController {
     @FXML
     private void save() {
         AppStateManager stateManager = AppStateManager.getInstance();
-        stateManager.setIsDarkMode(darkModeBox.isSelected());
+        stateManager.setTheme(themeDropdown.getValue());
         stateManager.setRobotRepoPath(robotRepoLabel.getText());
         stateManager.setFieldImage(fieldImage);
         stateManager.setAprilTagField(aprilTagDropdown.getSelectionModel().getSelectedItem());

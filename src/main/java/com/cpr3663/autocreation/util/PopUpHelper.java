@@ -83,7 +83,7 @@ public class PopUpHelper {
 
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
-            MiscHelper.setDarkMode(popupStage);
+            MiscHelper.setTheme(popupStage);
             SettingsController controller = loader.getController();
             controller.setStage(popupStage);
 
@@ -103,7 +103,7 @@ public class PopUpHelper {
 
         Scene scene = new Scene(Shortcuts.getShortcutsPage(popupStage));
         popupStage.setScene(scene);
-        MiscHelper.setDarkMode(popupStage);
+        MiscHelper.setTheme(popupStage);
 
         showPopUp(popupStage);
     }
@@ -149,7 +149,7 @@ public class PopUpHelper {
 
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
-            MiscHelper.setDarkMode(popupStage);
+            MiscHelper.setTheme(popupStage);
             AutoNameController controller = loader.getController();
             controller.setStage(popupStage);
             controller.setNew(newAuto);
@@ -180,7 +180,7 @@ public class PopUpHelper {
 
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
-            MiscHelper.setDarkMode(popupStage);
+            MiscHelper.setTheme(popupStage);
             EventTypeController controller = loader.getController();
             controller.setStage(popupStage);
 
@@ -206,7 +206,7 @@ public class PopUpHelper {
 
             Scene scene = new Scene(loader.load());
             popupStage.setScene(scene);
-            MiscHelper.setDarkMode(popupStage);
+            MiscHelper.setTheme(popupStage);
             UploadImageController controller = loader.getController();
             controller.setStage(popupStage);
 
@@ -218,6 +218,10 @@ public class PopUpHelper {
             Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, null, e);
             return null;
         }
+    }
+
+    public static void showAbout() {
+        // TODO
     }
 
     public static Optional<ButtonType> showAlert(Alert.AlertType type, String title, String message, ButtonType... buttons) {

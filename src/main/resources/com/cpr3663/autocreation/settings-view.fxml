@@ -26,8 +26,8 @@
     </Label>
 
     <!-- Row 1: Dark Mode -->
-    <Label text="Dark Mode:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-    <CheckBox fx:id="darkModeBox" text="Enable Dark Mode" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+    <Label text="Theme:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <ComboBox fx:id="themeDropdown" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
     <!-- Row 2: Robot Repo Path -->
     <Label text="Path to the Robot Code Repo:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>

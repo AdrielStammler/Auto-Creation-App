@@ -62,7 +62,8 @@ public class Main extends Application {
         stage.requestFocus();
         Image icon = new Image(Objects.requireNonNull(PopUpHelper.class.getResource(Constants.Paths.APP_ICON)).toExternalForm());
         stage.getIcons().add(icon);
-        MiscHelper.setDarkMode(stage);
+        MiscHelper.initThemes();
+        MiscHelper.setTheme(stage);
 
         stage.setOnCloseRequest(e -> {
             e.consume();
@@ -70,7 +71,7 @@ public class Main extends Application {
         });
 
         // Add Listeners
-        AppStateManager.getInstance().isDarkModeProperty().addListener(run(() -> MiscHelper.setDarkMode(stage)));
+        AppStateManager.getInstance().themeProperty().addListener(run(() -> MiscHelper.setTheme(stage)));
         AppStateManager.getInstance().fieldImageProperty().addListener(run(refreshField(splitPane)));
         AppStateManager.getInstance().openAutoNameProperty().addListener(run(() -> {
             FileHelper.open();
@@ -118,12 +119,5 @@ public class Main extends Application {
 
     private static <T> ChangeListener<T> run(Runnable runnable) {
         return (observable, oldValue, newValue) -> runnable.run();
-    }
-
-    public enum Sections {
-        MENU,
-        EVENTS,
-        FIELD,
-        EDITOR
     }
 }

@@ -23,6 +23,7 @@ public final class Constants {
         public static final String ALERT_ICON = "/icons/AlertIcon.png";
         public static final String APP_ICON = "/icons/AppIcon.png";
         public static final String FIELD_IMAGE = System.getProperty("user.home") + "/.autoCreation/images/field.png";
+        public static final String DEFAULT_FIELD_IMAGE = "/other/default-field.png";
         public static final String DARK_THEME = "/themes/dark-theme.css";
 
         private static final String ROBOT_REPO_DEPLOY = "/src/main/deploy/auto-creation";

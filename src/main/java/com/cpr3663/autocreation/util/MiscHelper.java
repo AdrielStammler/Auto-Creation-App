@@ -2,6 +2,7 @@ package com.cpr3663.autocreation.util;
 
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
+import com.jthemedetecor.OsThemeDetector;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -15,11 +16,39 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 public class MiscHelper {
-    public static void setDarkMode(Window stage) {
+    private static OsThemeDetector detector;
+
+    public static void initThemes() {
+        detector = OsThemeDetector.getDetector();
+        detector.registerListener(isDark -> {
+            if (AppStateManager.getInstance().getTheme() == Enums.Themes.SYSTEM) {
+                javafx.application.Platform.runLater(() -> {
+                    AppStateManager.getInstance().setTheme(Enums.Themes.DARK);
+                    AppStateManager.getInstance().setTheme(Enums.Themes.SYSTEM);
+                });
+            }
+        });
+    }
+
+    public static void setTheme(Window stage) {
+        boolean useDarkMode;
+        Enums.Themes currentMode = AppStateManager.getInstance().getTheme();
+
+        if (currentMode == Enums.Themes.SYSTEM) {
+            useDarkMode = detector.isDark();
+        } else {
+            useDarkMode = (currentMode == Enums.Themes.DARK);
+        }
+
         Scene scene = stage.getScene();
         scene.getStylesheets().clear();
-        if (AppStateManager.getInstance().isDarkMode()) {
+        if (useDarkMode) {
             scene.getStylesheets().add(Constants.Paths.DARK_THEME);
         }
 //        else {
@@ -30,6 +59,22 @@ public class MiscHelper {
     public static void closeRequest() {
         boolean cancel = PopUpHelper.checkForSaving();
         if (!cancel) Platform.exit();
+    }
+
+    public static void openFile(String path) {
+        openFile(Path.of(path));
+    }
+
+    public static void openFile(Path path) {
+        try {
+            if (Files.exists(path) && Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(path.toAbsolutePath().toFile());
+           } else {
+                System.err.println("Folder does not exist or Desktop API is not supported.");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static TextFormatter<String> countFormater() {

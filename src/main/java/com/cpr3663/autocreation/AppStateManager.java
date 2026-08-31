@@ -2,6 +2,7 @@ package com.cpr3663.autocreation;
 
 import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.objects.RefreshableListProperty;
+import com.cpr3663.autocreation.util.Enums;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.DistanceUnit;
@@ -20,6 +21,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.prefs.Preferences;
 
 public class AppStateManager {
@@ -27,7 +29,7 @@ public class AppStateManager {
     private static final Preferences prefs = Preferences.userNodeForPackage(AppStateManager.class);
 
     private static final class Keys {
-        private static final String DARK_MODE = "isDarkMode";
+        private static final String THEME = "theme";
         private static final String OPEN_AUTO = "openAutoName";
         private static final String ROBOT_REPO = "robotRepoPath";
         private static final String TAG_FIELD = "aprilTagField";
@@ -38,7 +40,7 @@ public class AppStateManager {
     }
 
     public void saveState() {
-        prefs.putBoolean(Keys.DARK_MODE, isDarkMode());
+        prefs.put(Keys.THEME, getTheme().name());
         prefs.put(Keys.OPEN_AUTO, getOpenAutoName());
         prefs.put(Keys.ROBOT_REPO, getRobotRepoPath());
         prefs.put(Keys.TAG_FIELD, getAprilTagField().name());
@@ -68,7 +70,7 @@ public class AppStateManager {
     }
 
     public void loadState() {
-        setIsDarkMode(prefs.getBoolean(Keys.DARK_MODE, isDarkMode()));
+        setTheme(Enums.Themes.valueOf(prefs.get(Keys.THEME, getTheme().name())));
         setOpenAutoName(prefs.get(Keys.OPEN_AUTO, getOpenAutoName()));
         setRobotRepoPath(prefs.get(Keys.ROBOT_REPO, getRobotRepoPath()));
         setAprilTagField(AprilTagFields.valueOf(prefs.get(Keys.TAG_FIELD, getAprilTagField().name())));
@@ -82,6 +84,7 @@ public class AppStateManager {
         });
         File file = new File(Constants.Paths.FIELD_IMAGE);
         if (file.exists()) setFieldImage(new Image(file.toURI().toString()));
+        else setFieldImage(new Image(Objects.requireNonNull(AppStateManager.class.getResource(Constants.Paths.DEFAULT_FIELD_IMAGE)).toExternalForm()));
 
         String base64String = prefs.get(Keys.EXTRA_TYPES, null);
         if (base64String == null || base64String.isEmpty()) return;
@@ -113,12 +116,12 @@ public class AppStateManager {
     private StackPane root;
     private final BooleanProperty isSaved = new SimpleBooleanProperty(true);
     private final IntegerProperty selectedIndex = new SimpleIntegerProperty(-1);
-    private final ObjectProperty<Main.Sections> currentEditor = new SimpleObjectProperty<>(Main.Sections.EVENTS);
+    private final ObjectProperty<Enums.Sections> currentEditor = new SimpleObjectProperty<>(Enums.Sections.EVENTS);
 
     private final RefreshableListProperty<Event> events = new RefreshableListProperty<>(FXCollections.observableArrayList());
 
     // Persistent Ones      MUST HAVE DEFAULT VALUE OR WILL CRASH APP UPON THE ATTEMPT TO SAVE IT INTO PREFERENCES
-    private final BooleanProperty isDarkMode = new SimpleBooleanProperty(false);
+    private final ObjectProperty<Enums.Themes> theme = new SimpleObjectProperty<>(Enums.Themes.SYSTEM);
     private final StringProperty openAutoName = new SimpleStringProperty("");
     private final StringProperty robotRepoPath = new SimpleStringProperty(System.getProperty("user.home"));
     private final ObjectProperty<Image> fieldImage = new SimpleObjectProperty<>(null);
@@ -170,32 +173,32 @@ public class AppStateManager {
         return events.get(index);
     }
 
-    public ObjectProperty<Main.Sections> currentEditorProperty() {
+    public ObjectProperty<Enums.Sections> currentEditorProperty() {
         return currentEditor;
     }
 
-    public Main.Sections getCurrentEditor() {
+    public Enums.Sections getCurrentEditor() {
         return currentEditor.get();
     }
 
     public boolean isNotFieldEditing() {
-        return currentEditor.get() != Main.Sections.FIELD;
+        return currentEditor.get() != Enums.Sections.FIELD;
     }
 
     public boolean isNotEditorEditing() {
-        return currentEditor.get() != Main.Sections.EDITOR;
+        return currentEditor.get() != Enums.Sections.EDITOR;
     }
 
     public void setFieldEditing() {
-        this.currentEditor.set(Main.Sections.FIELD);
+        this.currentEditor.set(Enums.Sections.FIELD);
     }
 
     public void setEditorEditing() {
-        this.currentEditor.set(Main.Sections.EDITOR);
+        this.currentEditor.set(Enums.Sections.EDITOR);
     }
 
     public void setEventsEditing() {
-        this.currentEditor.set(Main.Sections.EVENTS);
+        this.currentEditor.set(Enums.Sections.EVENTS);
     }
 
     public void setRoot(StackPane root) {
@@ -226,16 +229,16 @@ public class AppStateManager {
         this.events.add(event);
     }
 
-    public BooleanProperty isDarkModeProperty() {
-        return isDarkMode;
+    public ObjectProperty<Enums.Themes> themeProperty() {
+        return theme;
     }
 
-    public boolean isDarkMode() {
-        return isDarkMode.get();
+    public Enums.Themes getTheme() {
+        return theme.get();
     }
 
-    public void setIsDarkMode(boolean isDarkMode) {
-        this.isDarkMode.set(isDarkMode);
+    public void setTheme(Enums.Themes theme) {
+        this.theme.set(theme);
     }
 
     public StringProperty openAutoNameProperty() {

@@ -25,6 +25,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Objects;
 
 public class TopBar {
@@ -46,7 +47,7 @@ public class TopBar {
         iconView.setStyle("-fx-background-color: transparent;");
 
         Label openAuto = new Label();
-        openAuto.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
+        openAuto.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         openAuto.textProperty().bind(Bindings.createStringBinding(() -> {
                     String val = AppStateManager.getInstance().getOpenAutoName();
                     return (val == null || val.isBlank()) ? "No Open Auto" : val;
@@ -172,6 +173,10 @@ public class TopBar {
         save.disableProperty().bind(AppStateManager.getInstance().isSavedProperty());
         MenuItem rename = new MenuItem("_Rename");
         MenuItem duplicate = new MenuItem("_Duplicate");
+        MenuItem openDir = new MenuItem("Open Auto _Directory");
+        MenuItem openFile = new MenuItem("Open Auto _File");
+
+        SeparatorMenuItem separator = new SeparatorMenuItem();
 
         // Setting Accelerators
         save.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
@@ -182,10 +187,12 @@ public class TopBar {
         save.setOnAction(e -> FileHelper.save());
         rename.setOnAction(e -> FileHelper.rename());
         duplicate.setOnAction(e -> FileHelper.duplicate());
+        openDir.setOnAction(e -> MiscHelper.openFile(Constants.Paths.ROBOT_REPO_AUTOS_FOLDER));
+        openFile.setOnAction(e -> MiscHelper.openFile(Path.of(Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, AppStateManager.getInstance().getOpenAutoName())));
 
         // Create menu and add items
         Menu menu = new Menu("_Auto");
-        menu.getItems().addAll(save, rename, duplicate);
+        menu.getItems().addAll(save, rename, duplicate, separator, openDir, openFile);
 
         return menu;
     }
@@ -199,6 +206,7 @@ public class TopBar {
         // Creating Events
         reportIssue.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Links.CREATE_GITHUB_ISSUE));
         openGitHub.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Links.OPEN_GITHUB));
+        about.setOnAction(e -> PopUpHelper.showAbout());
 
         // Create menu and add items
         Menu menu = new Menu("_Help");

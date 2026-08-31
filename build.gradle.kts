@@ -16,6 +16,7 @@ version = versionStr
 repositories {
     mavenCentral()
     maven(uri("https://frcmaven.wpi.edu/artifactory/release/"))
+    maven(uri("https://jitpack.io"))
 }
 
 val junitVersion = "5.12.1"
@@ -50,6 +51,7 @@ dependencies {
     implementation("edu.wpi.first.wpiunits:wpiunits-java:${wpilibVersion}")
     implementation("us.hebi.quickbuf:quickbuf-runtime:1.4")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4")
+    implementation("com.github.Dansoftowner:jSystemThemeDetector:3.8")
 }
 
 tasks.withType<Test> {
