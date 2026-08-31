@@ -122,7 +122,7 @@ public class AppStateManager {
 
     // Persistent Ones      MUST HAVE DEFAULT VALUE OR WILL CRASH APP UPON THE ATTEMPT TO SAVE IT INTO PREFERENCES
     private final ObjectProperty<Enums.Themes> theme = new SimpleObjectProperty<>(Enums.Themes.SYSTEM);
-    private final StringProperty openAutoName = new SimpleStringProperty("");
+    private final StringProperty openAutoName = new SimpleStringProperty(""); // Not including the .dsv
     private final StringProperty robotRepoPath = new SimpleStringProperty(System.getProperty("user.home"));
     private final ObjectProperty<Image> fieldImage = new SimpleObjectProperty<>(null);
     private final ObjectProperty<AprilTagFields> aprilTagField = new SimpleObjectProperty<>(AprilTagFields.kDefaultField);

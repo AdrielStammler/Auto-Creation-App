@@ -61,17 +61,18 @@ public class MiscHelper {
         if (!cancel) Platform.exit();
     }
 
-    public static void openFile(String path) {
-        openFile(Path.of(path));
-    }
-
     public static void openFile(Path path) {
         try {
-            if (Files.exists(path) && Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().open(path.toAbsolutePath().toFile());
-           } else {
-                System.err.println("Folder does not exist or Desktop API is not supported.");
+            if (!Files.exists(path)) {
+                System.err.println("File: \"" + path.toAbsolutePath() + "\" does not exist.");
+                return;
             }
+            if (!Desktop.isDesktopSupported()) {
+                System.err.println("Desktop API is not supported.");
+                return;
+            }
+            Desktop.getDesktop().open(path.toAbsolutePath().toFile());
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

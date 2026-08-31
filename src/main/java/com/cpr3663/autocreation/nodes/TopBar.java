@@ -187,8 +187,8 @@ public class TopBar {
         save.setOnAction(e -> FileHelper.save());
         rename.setOnAction(e -> FileHelper.rename());
         duplicate.setOnAction(e -> FileHelper.duplicate());
-        openDir.setOnAction(e -> MiscHelper.openFile(Constants.Paths.ROBOT_REPO_AUTOS_FOLDER));
-        openFile.setOnAction(e -> MiscHelper.openFile(Path.of(Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, AppStateManager.getInstance().getOpenAutoName())));
+        openDir.setOnAction(e -> MiscHelper.openFile(Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER)));
+        openFile.setOnAction(e -> MiscHelper.openFile(Path.of(AppStateManager.getInstance().getRobotRepoPath(), Constants.Paths.ROBOT_REPO_AUTOS_FOLDER, AppStateManager.getInstance().getOpenAutoName() + Constants.FILE_SUFFIX)));
 
         // Create menu and add items
         Menu menu = new Menu("_Auto");
