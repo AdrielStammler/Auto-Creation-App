@@ -190,6 +190,7 @@ public class Field {
     }
 
     private static void drawRobotPoses(Pane fieldPane) {
+        // TODO add special colors for start and end points and make it stay even when selected and deselected
         Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
         double sizeX = AppStateManager.getInstance().getRobotSize().getX();
         Line prevLine = null;

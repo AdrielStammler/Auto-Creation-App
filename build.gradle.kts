@@ -1,7 +1,7 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 
-var versionStr = "1.1.1"
+var versionStr = "1.0.0"
 
 plugins {
     java
