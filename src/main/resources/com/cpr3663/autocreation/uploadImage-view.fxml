@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" onDragDropped="#dropped" onDragOver="#dragged" prefHeight="400.0" prefWidth="600.0" spacing="5" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.UploadImageController">
+        <Button fx:id="browseButton" mnemonicParsing="false" onAction="#browse" text="Browse" />
+        <Label text="or drag a file here" />
+</VBox>

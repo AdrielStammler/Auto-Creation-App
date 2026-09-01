@@ -1,36 +1,142 @@
 package com.cpr3663.autocreation;
 
+import com.cpr3663.autocreation.objects.Event;
+import com.cpr3663.autocreation.objects.RefreshableListProperty;
+import com.cpr3663.autocreation.util.Enums;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.Units;
 import javafx.application.HostServices;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Window;
+
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.prefs.Preferences;
 
 public class AppStateManager {
+    // Create a preferences and methods to save and load certain variables/settings
+    private static final Preferences prefs = Preferences.userNodeForPackage(AppStateManager.class);
+
+    private static final class Keys {
+        private static final String THEME = "theme";
+        private static final String OPEN_AUTO = "openAutoName";
+        private static final String ROBOT_REPO = "robotRepoPath";
+        private static final String TAG_FIELD = "aprilTagField";
+        private static final String ROBOT_SIZE_X = "robotSizeX";
+        private static final String ROBOT_SIZE_Y = "robotSizeY";
+        private static final String DISPLAY_UNIT = "displayUnits";
+        private static final String EXTRA_TYPES = "extraEventTypes";
+    }
+
+    public void saveState() {
+        prefs.put(Keys.THEME, getTheme().name());
+        prefs.put(Keys.OPEN_AUTO, getOpenAutoName());
+        prefs.put(Keys.ROBOT_REPO, getRobotRepoPath());
+        prefs.put(Keys.TAG_FIELD, getAprilTagField().name());
+        prefs.putDouble(Keys.ROBOT_SIZE_X, getRobotSize().getX());
+        prefs.putDouble(Keys.ROBOT_SIZE_Y, getRobotSize().getY());
+        prefs.put(Keys.DISPLAY_UNIT, getDisplayUnits().symbol());
+        File file = new File(Constants.Paths.FIELD_IMAGE);
+        file.getParentFile().mkdirs();
+        try {
+            ImageIO.write(SwingFXUtils.fromFXImage(getFieldImage(), null), "png", file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+
+            // Convert ObservableList into a standard Serializable ArrayList
+            ArrayList<Event.Type> serializableList = new ArrayList<>(extraTypes.get());
+            oos.writeObject(serializableList);
+
+            // Encode the binary bytes to a safe Preferences String
+            String base64String = Base64.getEncoder().encodeToString(baos.toByteArray());
+            prefs.put(Keys.EXTRA_TYPES, base64String);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void loadState() {
+        setTheme(Enums.Themes.valueOf(prefs.get(Keys.THEME, getTheme().name())));
+        setOpenAutoName(prefs.get(Keys.OPEN_AUTO, getOpenAutoName()));
+        setRobotRepoPath(prefs.get(Keys.ROBOT_REPO, getRobotRepoPath()));
+        setAprilTagField(AprilTagFields.valueOf(prefs.get(Keys.TAG_FIELD, getAprilTagField().name())));
+        setRobotSize(prefs.getDouble(Keys.ROBOT_SIZE_X, getRobotSize().getX()), prefs.getDouble(Keys.ROBOT_SIZE_Y, getRobotSize().getY()));
+        setDisplayUnits(switch(prefs.get(Keys.DISPLAY_UNIT, getDisplayUnits().symbol())) {
+            case "cm" -> Units.Centimeters;
+            case "in" -> Units.Inches;
+            case "ft" -> Units.Feet;
+            case "mm" -> Units.Millimeters;
+            default -> Units.Meters;
+        });
+        File file = new File(Constants.Paths.FIELD_IMAGE);
+        if (file.exists()) setFieldImage(new Image(file.toURI().toString()));
+        else setFieldImage(new Image(Objects.requireNonNull(AppStateManager.class.getResource(Constants.Paths.DEFAULT_FIELD_IMAGE)).toExternalForm()));
+
+        String base64String = prefs.get(Keys.EXTRA_TYPES, null);
+        if (base64String == null || base64String.isEmpty()) return;
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(Base64.getDecoder().decode(base64String));
+             ObjectInputStream ois = new ObjectInputStream(bais)) {
+
+            @SuppressWarnings("unchecked")
+            List<Event.Type> loadedList = (List<Event.Type>) ois.readObject();
+            extraTypes.setAll(loadedList);
+        } catch (Exception e) {
+            extraTypes.clear();
+            throw new RuntimeException(e);
+        }
+    }
+
     // Single instance of the state manager
     private static final AppStateManager INSTANCE = new AppStateManager();
 
-    private AppStateManager() {}
+    private AppStateManager() {
+        loadState();
+    }
 
     public static AppStateManager getInstance() {
         return INSTANCE;
     }
 
     // Creating Properties
-    private final ObjectProperty<HostServices> hostServices = new SimpleObjectProperty<>(null);
+    private HostServices hostServices;
+    private StackPane root;
     private final BooleanProperty isSaved = new SimpleBooleanProperty(true);
+    private final IntegerProperty selectedIndex = new SimpleIntegerProperty(-1);
+    private final ObjectProperty<Enums.Sections> currentEditor = new SimpleObjectProperty<>(Enums.Sections.EVENTS);
 
-    // Getting properties, Getting values, and Setting values
-    public ObjectProperty<HostServices> hostServicesProperty() {
+    private final RefreshableListProperty<Event> events = new RefreshableListProperty<>(FXCollections.observableArrayList());
+
+    // Persistent Ones      MUST HAVE DEFAULT VALUE OR WILL CRASH APP UPON THE ATTEMPT TO SAVE IT INTO PREFERENCES
+    private final ObjectProperty<Enums.Themes> theme = new SimpleObjectProperty<>(Enums.Themes.SYSTEM);
+    private final StringProperty openAutoName = new SimpleStringProperty(""); // Not including the .dsv
+    private final StringProperty robotRepoPath = new SimpleStringProperty(System.getProperty("user.home"));
+    private final ObjectProperty<Image> fieldImage = new SimpleObjectProperty<>(null);
+    private final ObjectProperty<AprilTagFields> aprilTagField = new SimpleObjectProperty<>(AprilTagFields.kDefaultField);
+    private final ObjectProperty<Translation2d> robotSize = new SimpleObjectProperty<>(new Translation2d(1, 1));
+    private final ObjectProperty<DistanceUnit> displayUnits = new SimpleObjectProperty<>(Units.Meters);
+    private final ListProperty<Event.Type> extraTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    // Getters and Setters
+    public HostServices getHostServices() {
         return hostServices;
     }
 
-    public HostServices getHostServices() {
-        return hostServices.get();
-    }
-
     public void setHostServices(HostServices hostServices) {
-        this.hostServices.set(hostServices);
+        this.hostServices = hostServices;
     }
 
     public BooleanProperty isSavedProperty() {
@@ -43,5 +149,187 @@ public class AppStateManager {
 
     public void setIsSaved(boolean isSaved) {
         this.isSaved.set(isSaved);
+    }
+
+    public IntegerProperty selectedIndexProperty() {
+        return selectedIndex;
+    }
+
+    public void setSelectedIndex(int selectedIndex) {
+        this.selectedIndex.set(selectedIndex);
+    }
+
+    public int getSelectedIndex() {
+        return selectedIndex.get();
+    }
+
+    public void setSelectedEvent(Event event) {
+        setSelectedIndex(events.indexOf(event));
+    }
+
+    public Event getSelectedEvent() {
+        int index = getSelectedIndex();
+        if (index == -1 || index >= events.getSize()) return null;
+        return events.get(index);
+    }
+
+    public ObjectProperty<Enums.Sections> currentEditorProperty() {
+        return currentEditor;
+    }
+
+    public Enums.Sections getCurrentEditor() {
+        return currentEditor.get();
+    }
+
+    public boolean isNotFieldEditing() {
+        return currentEditor.get() != Enums.Sections.FIELD;
+    }
+
+    public boolean isNotEditorEditing() {
+        return currentEditor.get() != Enums.Sections.EDITOR;
+    }
+
+    public void setFieldEditing() {
+        this.currentEditor.set(Enums.Sections.FIELD);
+    }
+
+    public void setEditorEditing() {
+        this.currentEditor.set(Enums.Sections.EDITOR);
+    }
+
+    public void setEventsEditing() {
+        this.currentEditor.set(Enums.Sections.EVENTS);
+    }
+
+    public void setRoot(StackPane root) {
+        this.root = root;
+    }
+
+    public StackPane getRoot() {
+        return root;
+    }
+
+    public Window getWindow() {
+        return getRoot().getScene().getWindow();
+    }
+
+    public RefreshableListProperty<Event> eventsProperty() {
+        return events;
+    }
+
+    public ObservableList<Event> getEvents() {
+        return events.get();
+    }
+
+    public void setEvents(ObservableList<Event> events) {
+        this.events.set(events);
+    }
+
+    public void addEvent(Event event) {
+        this.events.add(event);
+    }
+
+    public ObjectProperty<Enums.Themes> themeProperty() {
+        return theme;
+    }
+
+    public Enums.Themes getTheme() {
+        return theme.get();
+    }
+
+    public void setTheme(Enums.Themes theme) {
+        this.theme.set(theme);
+    }
+
+    public StringProperty openAutoNameProperty() {
+        return openAutoName;
+    }
+
+    public String getOpenAutoName() {
+        return openAutoName.get();
+    }
+
+    public void setOpenAutoName(String openAutoName) {
+        this.openAutoName.set(openAutoName);
+    }
+
+    public StringProperty robotRepoPathProperty() {
+        return robotRepoPath;
+    }
+
+    public String getRobotRepoPath() {
+        return robotRepoPath.get();
+    }
+
+    public void setRobotRepoPath(String robotRepoPath) {
+        this.robotRepoPath.set(robotRepoPath);
+    }
+
+    public ObjectProperty<Image> fieldImageProperty() {
+        return fieldImage;
+    }
+
+    public Image getFieldImage() {
+        return fieldImage.get();
+    }
+
+    public void setFieldImage(Image fieldImage) {
+        this.fieldImage.set(fieldImage);
+    }
+
+    public ObjectProperty<AprilTagFields> aprilTagFieldProperty() {
+        return aprilTagField;
+    }
+
+    public AprilTagFields getAprilTagField() {
+        return aprilTagField.get();
+    }
+
+    public void setAprilTagField(AprilTagFields aprilTagField) {
+        this.aprilTagField.set(aprilTagField);
+    }
+
+    public ObjectProperty<Translation2d> robotSizeProperty() {
+        return robotSize;
+    }
+
+    public Translation2d getRobotSize() {
+        return robotSize.get();
+    }
+
+    public void setRobotSize(double x, double y) {
+        setRobotSize(new Translation2d(x, y));
+    }
+
+    public void setRobotSize(Translation2d robotSize) {
+        this.robotSize.set(robotSize);
+    }
+
+    public ObjectProperty<DistanceUnit> displayUnitsProperty() {
+        return displayUnits;
+    }
+
+    public DistanceUnit getDisplayUnits() {
+        return displayUnits.get();
+    }
+
+    public void setDisplayUnits(DistanceUnit displayUnits) {
+        this.displayUnits.set(displayUnits);
+    }
+
+    public ListProperty<Event.Type> eventTypesProperty() {
+        return extraTypes;
+    }
+
+    public ObservableList<Event.Type> getExtraTypes() {
+        return extraTypes.get();
+    }
+
+    public void setExtraTypes(ObservableList<Event.Type> extraTypes) {
+        this.extraTypes.set(extraTypes);
+    }
+
+    public void setExtraTypes(Event.Type... extraTypes) {
+        this.extraTypes.set(FXCollections.observableArrayList(extraTypes));
     }
 }

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.text.Font?>
+<VBox alignment="TOP_CENTER" prefWidth="360.0" prefHeight="300.0" spacing="10.0"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cpr3663.autocreation.controllers.AboutController">
+
+    <padding>
+        <Insets top="24.0" right="24.0" bottom="18.0" left="24.0"/>
+    </padding>
+
+    <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
+        <Image url="@../../../icons/AppIcon.png" backgroundLoading="true"/>
+    </ImageView>
+
+    <Label fx:id="appNameLabel" styleClass="app-name" text="My App"/>
+
+    <HBox alignment="CENTER" spacing="4.0">
+        <Label fx:id="versionLabel" styleClass="app-version" text="Version 1.0.0"/>
+        <Label text="("/>
+        <Hyperlink onAction="#onReleaseNotesClicked" text="Release Notes">
+            <font>
+                <Font name="System Bold"/>
+            </font>
+        </Hyperlink>
+        <Label text=")"/>
+    </HBox>
+
+    <HBox fx:id="updateStatusBox" alignment="CENTER" spacing="6.0" visible="false" managed="false">
+        <ProgressIndicator fx:id="updateSpinner" prefHeight="14.0" prefWidth="14.0"/>
+        <Label fx:id="updateStatusLabel" styleClass="update-status" text="Checking for updates…" wrapText="true"/>
+    </HBox>
+
+    <Button fx:id="updateActionButton" defaultButton="true" onAction="#onUpdateActionClicked"
+            styleClass="update-button" text="Check for Updates"/>
+
+    <Region prefHeight="6.0"/>
+
+    <Button cancelButton="true" onAction="#onCloseClicked" text="Close"/>
+</VBox>

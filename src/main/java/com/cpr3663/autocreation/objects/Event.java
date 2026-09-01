@@ -1,76 +1,159 @@
 package com.cpr3663.autocreation.objects;
 
-public class Event {
-    private String name;
-    private String[] parameters;
-    private boolean afterPrev;
-    private DelayTypes delayType;
-    private int delay;
+import com.cpr3663.autocreation.Constants;
+import com.cpr3663.autocreation.util.Enums;
+import javafx.beans.property.*;
 
-    public Event(String name, String[] parameters, boolean afterPrev, DelayTypes delayType, int delay) {
+import java.util.Arrays;
+import java.util.List;
+
+public class Event {
+    private Runnable onChangeCallback;
+
+    private final Type type;
+
+    private final String name;
+    private StringProperty[] parameters;
+    private final BooleanProperty afterPrev;
+    private final ObjectProperty<Enums.DelayTypes> delayType;
+    private final DoubleProperty delay;
+
+    public Event(String name, String[] parameters, Type type, boolean afterPrev, Enums.DelayTypes delayType, double delay) {
+        this.type = type;
         this.name = name;
-        this.parameters = parameters;
-        this.afterPrev = afterPrev;
-        this.delayType = DelayTypes.NONE;
+        this.parameters = Arrays.stream(parameters).map(SimpleStringProperty::new).toArray(StringProperty[]::new);
+        this.afterPrev = new SimpleBooleanProperty(afterPrev);
+        this.delayType = new SimpleObjectProperty<>(Enums.DelayTypes.NONE);
         setDelayType(delayType);
-        this.delay = delay;
+        this.delay = new SimpleDoubleProperty(delay);
+
+        Arrays.stream(this.parameters).forEach(this::addChangeListener);
+        addChangeListener(this.afterPrev);
+        addChangeListener(this.delayType);
+        addChangeListener(this.delay);
+    }
+
+    public Event(String name, String[] parameters, Type type) {
+        this(name, parameters, type, true, Enums.DelayTypes.NONE, 0.0);
+    }
+
+    public Event(Type type) {
+        this(type.name(), new String[type.parameters().length], type);
+    }
+
+    public void setOnChangeCallback(Runnable onChangeCallback) {
+        this.onChangeCallback = onChangeCallback;
+    }
+
+    protected void changed() {
+        if (onChangeCallback != null) onChangeCallback.run();
+    }
+
+    protected <T> void addChangeListener(Property<T> property) {
+        property.addListener((obs, old, newV) -> changed());
+    }
+
+    public Type getType() {
+        return type;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String[] getParameters() {
+    public StringProperty[] parameters() {
         return parameters;
     }
 
-    public void setParameters(String[] parameters) {
-        this.parameters = parameters;
+    public String[] getParameters() {
+        return Arrays.stream(parameters).map(StringProperty::getValueSafe).toArray(String[]::new);
     }
 
-    public boolean isAfterPrev() {
+    public StringProperty parameterProperty(int i) {
+        return parameters[i];
+    }
+
+    public String getParameter(int i) {
+        return parameters[i].getValueSafe();
+    }
+
+    public void setParameters(String[] parameters) {
+        this.parameters = Arrays.stream(parameters).map(SimpleStringProperty::new).toArray(StringProperty[]::new);
+        changed();
+    }
+
+    public void setParameter(String value, int index) {
+        this.parameters[index].set(value);
+    }
+
+    public BooleanProperty afterPrevProperty() {
         return afterPrev;
     }
 
-    public void setAfterPrev(boolean afterPrev) {
-        this.afterPrev = afterPrev;
+    public boolean isAfterPrev() {
+        return afterPrev.get();
     }
 
-    public DelayTypes getDelayType() {
+    public void setAfterPrev(boolean afterPrev) {
+        this.afterPrev.set(afterPrev);
+    }
+
+    public ObjectProperty<Enums.DelayTypes> delayTypeProperty() {
         return delayType;
     }
 
-    public void setDelayType(DelayTypes delayType) {
-        if (!afterPrev || delayType.worksAfterPrev())
-            this.delayType = delayType;
+    public Enums.DelayTypes getDelayType() {
+        return delayType.get();
     }
 
-    public int getDelay() {
+    public void setDelayType(Enums.DelayTypes delayType) {
+        if (!afterPrev.get() || delayType.worksAfterPrev()) {
+            this.delayType.set(delayType);
+        }
+    }
+
+    public DoubleProperty delayProperty() {
         return delay;
     }
 
-    public void setDelay(int delay) {
-        this.delay = delay;
+    public double getDelay() {
+        return delay.get();
     }
 
-    public enum DelayTypes {
-        NONE(true),
-        TIME(true),
-        PROGRESS(false),
-        DISTANCE(false);
+    public void setDelay(double delay) {
+        this.delay.set(delay);
+    }
 
-        private final boolean worksAfterPrev;
+    @Override
+    public String toString() {
+        return name;
+    }
 
-        DelayTypes(boolean worksAfterPrev) {
-            this.worksAfterPrev = worksAfterPrev;
+    public String toFileRow() {
+        String params = String.join(Constants.Events.PARAM_DELIMITER, getParameters());
+        String paramNames;
+        if (getType() == null) paramNames = Constants.Events.DRIVE_PARAMS;
+        else paramNames = String.join(Constants.Events.PARAM_DELIMITER, getType().parameters());
+        return String.join(Constants.Events.DELIMITER, name, paramNames, params, Boolean.toString(isAfterPrev()), getDelayType().name(), Double.toString(getDelay()));
+    }
+
+    public record Type(String name, String... parameters) {
+        public Type(String name, List<String> parameters) {
+            this(name, sortedArray(parameters));
         }
 
-        public boolean worksAfterPrev() {
-            return worksAfterPrev;
+        private static String[] sortedArray(List<String> parameters) {
+            if (parameters == null) {
+                return new String[0];
+            }
+            return parameters.stream()
+                    .sorted()
+                    .toArray(String[]::new);
+        }
+
+        @Override
+        public String toString() {
+            return name + (parameters.length == 0 ? "" : ": " + Arrays.toString(parameters));
         }
     }
 }

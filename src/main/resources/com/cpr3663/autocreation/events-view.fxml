@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox minWidth="100" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cpr3663.autocreation.controllers.EventsController">
+    <ListView fx:id="listView" VBox.vgrow="ALWAYS"/>
+    <HBox alignment="CENTER_RIGHT">
+        <Button fx:id="addButton" onAction="#addEvent" mnemonicParsing="false" text="Add" />
+        <Button fx:id="deleteButton" onAction="#deleteEvent" mnemonicParsing="false" text="Delete" />
+    </HBox>
+</VBox>

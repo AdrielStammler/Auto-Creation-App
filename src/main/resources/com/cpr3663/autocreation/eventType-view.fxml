@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com"
+      xmlns:fx="http://javafx.com"
+      fx:controller="com.cpr3663.autocreation.controllers.EventTypeController"
+      alignment="CENTER" spacing="15.0" style="-fx-padding: 20;">
+
+    <Label fx:id="label" text="Choose an event type:" />
+
+    <ListView fx:id="listView" />
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Submit" onAction="#handleSubmit" />
+        <Button text="Cancel" onAction="#handleCancel" />
+    </HBox>
+</VBox>
