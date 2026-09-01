@@ -174,7 +174,7 @@ public class TopBar {
         MenuItem rename = new MenuItem("_Rename");
         MenuItem duplicate = new MenuItem("_Duplicate");
         MenuItem openDir = new MenuItem("Open Auto _Directory");
-        MenuItem openFile = new MenuItem("Open Auto _File");
+        MenuItem openFile = new MenuItem("Open Auto Fi_le");
 
         SeparatorMenuItem separator = new SeparatorMenuItem();
 
@@ -201,11 +201,14 @@ public class TopBar {
         // Create Menu Items
         MenuItem reportIssue = new MenuItem("_Report Issue");
         MenuItem openGitHub = new MenuItem("Open _GitHub");
-        MenuItem about = new MenuItem("_About");
+        MenuItem about = new MenuItem("A_bout");
+
+        // Setting Accelerators
+        about.setAccelerator(new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN));
 
         // Creating Events
-        reportIssue.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Links.CREATE_GITHUB_ISSUE));
-        openGitHub.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Links.OPEN_GITHUB));
+        reportIssue.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Links.CREATE_ISSUE));
+        openGitHub.setOnAction(e -> AppStateManager.getInstance().getHostServices().showDocument(Constants.Links.GITHUB));
         about.setOnAction(e -> PopUpHelper.showAbout());
 
         // Create menu and add items

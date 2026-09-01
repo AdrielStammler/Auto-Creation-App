@@ -65,6 +65,7 @@ public class Shortcuts {
             Shortcut.withSc("Save Auto", S),
             Shortcut.withSc("Rename Auto", R),
             Shortcut.withSc("Duplicate Auto", D),
+            new Shortcut("Open About", A, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN),
     };
 
     private static final int columns = 2;

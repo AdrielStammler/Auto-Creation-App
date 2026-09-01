@@ -190,7 +190,6 @@ public class Field {
     }
 
     private static void drawRobotPoses(Pane fieldPane) {
-        // TODO add special colors for start and end points and make it stay even when selected and deselected
         Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
         double sizeX = AppStateManager.getInstance().getRobotSize().getX();
         Line prevLine = null;
@@ -218,7 +217,7 @@ public class Field {
                     selectedImageView = robotView;
 
                     fieldPane.getChildren().add(Helper.createThreshold(robotView.getX(), robotView.getY(), driveEvent.getThreshold()));
-                } else Helper.colorRobot(robotView);
+                } else Helper.colorRobot(robotView, i == 0, i == events.size() - 1);
 
                 if (prevLine != null) {
                     Helper.setLinePos(prevLine, position, false);
@@ -252,13 +251,27 @@ public class Field {
     public static class Helper {
         private static final Color HIGHLIGHT_COLOR = Color.ORANGE;
         private static final Color NORMAL_ROBOT_COLOR = Color.WHITESMOKE;
+        private static final Color FIRST_ROBOT_COLOR = Color.LIGHTGREEN;
+        private static final Color LAST_ROBOT_COLOR = Color.LIGHTBLUE;
 
         private static void highlightImage(Node image) {
             changeColor(image, HIGHLIGHT_COLOR);
         }
 
         private static void colorRobot(Node image) {
-            changeColor(image, NORMAL_ROBOT_COLOR);
+            int id = Integer.parseInt(image.getId().substring(6));
+            int numEvents = AppStateManager.getInstance().getEvents().size();
+            colorRobot(image, id == 0, id == numEvents - 1);
+        }
+
+        private static void colorRobot(Node image, boolean isFirst, boolean isLast) {
+            if (isFirst) {
+                changeColor(image, FIRST_ROBOT_COLOR);
+            } else if (isLast) {
+                changeColor(image, LAST_ROBOT_COLOR);
+            } else {
+                changeColor(image, NORMAL_ROBOT_COLOR);
+            }
         }
 
         private static void changeColor(Node image, Color color) {
@@ -440,9 +453,7 @@ public class Field {
             selectedImageView.setX(pixelsX);
             selectedImageView.setY(pixelsY);
 
-            String indexStr = selectedImageView.getId().substring(6);
-
-            int index = Integer.parseInt(indexStr);
+            int index = Integer.parseInt(selectedImageView.getId().substring(6));
 
             Line toLine = (Line) fieldPane.lookup("#Line-" + (index - 1));
             Line fromLine = (Line) fieldPane.lookup("#Line-" + (index));

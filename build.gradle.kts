@@ -99,3 +99,13 @@ runtime {
         }
     }
 }
+
+val generateVersionProps by tasks.registering(WriteProperties::class) {
+    description = "Creates a file storing the app version making it accessing by the java code"
+    destinationFile = layout.buildDirectory.file("resources/main/version.properties")
+    property("version", versionStr)
+}
+
+tasks.named("processResources") {
+    dependsOn(generateVersionProps)
+}

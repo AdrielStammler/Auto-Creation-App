@@ -1,5 +1,9 @@
 package com.cpr3663.autocreation;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 public final class Constants {
     public static final double ROBOT_IMAGE_Y_EXTRA_PIXELS = 11.0/2.0;
     public static final String FILE_SUFFIX = ".dsv";
@@ -13,8 +17,9 @@ public final class Constants {
     }
 
     public static final class Links {
-        public static final String CREATE_GITHUB_ISSUE = "https://github.com/AdrielStammler/Auto-Creation-App/issues/new";
-        public static final String OPEN_GITHUB = "https://github.com/AdrielStammler/Auto-Creation-App";
+        public static final String CREATE_ISSUE = "https://github.com/AdrielStammler/Auto-Creation-App/issues/new";
+        public static final String GITHUB = "https://github.com/AdrielStammler/Auto-Creation-App";
+        public static final String RELEASE_NOTES = "https://github.com/AdrielStammler/Auto-Creation-App/releases#release-v" + App.APP_VERSION;
     }
 
     public static final class Paths {
@@ -31,8 +36,24 @@ public final class Constants {
         public static final String ROBOT_REPO_POINTS_FOLDER = ROBOT_REPO_DEPLOY + "/points";
     }
 
-    public static final class Stage {
-        public static final int WIDTH = 1650;
-        public static final int HEIGHT = 800;
+    public static final class App {
+        public static final String APP_NAME = "Auto Creation";
+        public static final String APP_VERSION = getVersion();
+
+        public static final int DEFAULT_WIDTH = 1650;
+        public static final int DEFAULT_HEIGHT = 800;
+    }
+
+    private static String getVersion() {
+        try (InputStream in = Constants.class.getResourceAsStream("/version.properties")) {
+            if (in == null) {
+                return "unknown";
+            }
+            Properties props = new Properties();
+            props.load(in);
+            return props.getProperty("version", "unknown");
+        } catch (IOException e) {
+            return "unknown";
+        }
     }
 }

@@ -2,10 +2,7 @@ package com.cpr3663.autocreation.util;
 
 import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
-import com.cpr3663.autocreation.controllers.AutoNameController;
-import com.cpr3663.autocreation.controllers.EventTypeController;
-import com.cpr3663.autocreation.controllers.SettingsController;
-import com.cpr3663.autocreation.controllers.UploadImageController;
+import com.cpr3663.autocreation.controllers.*;
 import com.cpr3663.autocreation.nodes.Shortcuts;
 import com.cpr3663.autocreation.objects.DriveEvent;
 import com.cpr3663.autocreation.objects.Event;
@@ -36,7 +33,7 @@ import java.util.logging.Logger;
 public class PopUpHelper {
     /**
      * @return a {@link Boolean} representing if the caller may continue with overriding (if overriding would occur).
-     *  {@link Boolean true}: Do not override/cancel. {@link Boolean false}: Override or continue
+     * {@link Boolean true}: Do not override/cancel. {@link Boolean false}: Override or continue
      */
     public static boolean checkForSaving() {
         if (AppStateManager.getInstance().isSaved())
@@ -159,7 +156,7 @@ public class PopUpHelper {
             return Optional.ofNullable(controller.getUserInput());
 
         } catch (IOException e) {
-            Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, e.getMessage(), e);
             return Optional.empty();
         }
     }
@@ -189,7 +186,7 @@ public class PopUpHelper {
             return controller.getUserInput();
 
         } catch (IOException e) {
-            Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, e.getMessage(), e);
             return OptionalInt.empty();
         }
     }
@@ -215,13 +212,30 @@ public class PopUpHelper {
             return controller.getImage();
 
         } catch (IOException e) {
-            Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, e.getMessage(), e);
             return null;
         }
     }
 
     public static void showAbout() {
-        // TODO
+        try {
+            FXMLLoader loader = new FXMLLoader(PopUpHelper.class.getResource("/com/cpr3663/autocreation/about-view.fxml"));
+            Stage popupStage = new Stage();
+            popupStage.initModality(Modality.APPLICATION_MODAL);
+            popupStage.initStyle(StageStyle.UNDECORATED);
+            popupStage.initOwner(AppStateManager.getInstance().getWindow());
+
+            Scene scene = new Scene(loader.load());
+            popupStage.setScene(scene);
+            MiscHelper.setTheme(popupStage);
+            AboutController controller = loader.getController();
+            controller.setStage(popupStage);
+
+            showPopUp(popupStage);
+
+        } catch (IOException e) {
+            Logger.getLogger(PopUpHelper.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        }
     }
 
     public static Optional<ButtonType> showAlert(Alert.AlertType type, String title, String message, ButtonType... buttons) {

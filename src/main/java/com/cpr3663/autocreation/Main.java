@@ -1,15 +1,15 @@
 package com.cpr3663.autocreation;
 
+import com.cpr3663.autocreation.controllers.AboutController;
 import com.cpr3663.autocreation.nodes.Field;
 import com.cpr3663.autocreation.nodes.TopBar;
 import com.cpr3663.autocreation.objects.Event;
-import com.cpr3663.autocreation.util.FileHelper;
-import com.cpr3663.autocreation.util.MiscHelper;
-import com.cpr3663.autocreation.util.PopUpHelper;
+import com.cpr3663.autocreation.util.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -53,7 +53,7 @@ public class Main extends Application {
         AppStateManager.getInstance().setRoot(root);
 
         // Creating scene and setting stage properties
-        Scene scene = new Scene(root, Constants.Stage.WIDTH, Constants.Stage.HEIGHT);
+        Scene scene = new Scene(root, Constants.App.DEFAULT_WIDTH, Constants.App.DEFAULT_HEIGHT);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
         MiscHelper.addResizeListener(stage);
@@ -111,13 +111,42 @@ public class Main extends Application {
 
         FileHelper.open();
         AppStateManager.getInstance().setIsSaved(true);
+        checkForUpdate();
     }
 
     private static Runnable refreshField(SplitPane splitPane) {
-        return () -> splitPane.getItems().set(1, Field.getFieldPane());
+        return () -> {
+            double[] dividerPos = splitPane.getDividerPositions();
+            splitPane.getItems().set(1, Field.getFieldPane());
+            splitPane.setDividerPositions(dividerPos);
+        };
     }
 
     private static <T> ChangeListener<T> run(Runnable runnable) {
         return (observable, oldValue, newValue) -> runnable.run();
+    }
+
+    public void checkForUpdate() {
+        GitHubUpdateChecker updateChecker = new GitHubUpdateChecker();
+        Task<AboutController.UpdateResult> task = new Task<>() {
+            @Override
+            protected AboutController.UpdateResult call() throws Exception {
+                return updateChecker.checkForUpdates();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            AboutController.UpdateResult result = task.getValue();
+            if (result.isUpdateAvailable()) {
+                String url = updateChecker.getLatestReleaseUrl();
+                Toast.Builder.of(result.getMessage() + " at:\n" + url).duration(10_000).bkgdColor(Color.color(0.0, 0.5, 0.0)).show();
+            }
+        });
+
+        task.setOnFailed(e -> {});
+
+        Thread thread = new Thread(task, "startup-update-check");
+        thread.setDaemon(true);
+        thread.start();
     }
 }

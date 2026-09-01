@@ -10,6 +10,18 @@
     -fx-text-fill: lightgray;
 }
 
+.hyperlink {
+    -fx-text-fill: #61dafb;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #aecbfa;
+}
+
+.hyperlink:visited {
+    -fx-text-fill: #c58af9;
+}
+
 .text-field {
     -fx-prompt-text-fill: gray;
 }
