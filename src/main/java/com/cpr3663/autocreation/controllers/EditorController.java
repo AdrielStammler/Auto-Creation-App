@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class EditorController {
+    // TODO add a button and shortcut to reset AprilTag to origin
     @FXML public VBox root;
 
     @FXML private CheckBox afterPrevCheck;

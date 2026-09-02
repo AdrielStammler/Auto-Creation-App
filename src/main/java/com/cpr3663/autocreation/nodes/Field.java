@@ -36,6 +36,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class Field {
+    // TODO inverted mode
     private static final double[] initials = new double[2];
     private static final boolean[] isRotating = new boolean[1];
     private static final double PIXELS_PER_METER = 75.0;

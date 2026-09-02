@@ -65,7 +65,7 @@ val packageManagerType = providers.exec {
 runtime {
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
     jpackage {
-        imageName = "Auto Creation"
+        imageName = "auto-creation"
         appVersion = versionStr
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             installerType = "msi"
@@ -83,7 +83,7 @@ runtime {
             } else {
                 installerType = type
                 installerOptions = listOf(
-                    "--linux-package-name", "auto-creation",
+                    "--linux-package-name", imageName,
                     "--linux-shortcut",
                     "--linux-menu-group", "Utility",
                     "--linux-deb-maintainer", "stammler.adriel@gmail.com",
