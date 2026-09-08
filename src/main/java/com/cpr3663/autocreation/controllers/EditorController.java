@@ -143,13 +143,13 @@ public class EditorController {
         AtomicReference<String> prev = new AtomicReference<>();
         checkBox.selectedProperty().addListener((obs, old, newV) -> {
             if (newV) {
-                field.setTextFormatter(MiscHelper.intFormater());
+                field.setTextFormatter(MiscHelper.countFormater());
                 if (field.getText().equals("-1") || field.getText().isBlank()) {
                     String str = prev.get();
                     field.setText((str == null || str.isBlank() || str.equals("-1")) ? "1" : str);
                 }
             } else {
-                field.setTextFormatter(null);
+                field.setTextFormatter(MiscHelper.intFormater());
                 prev.set(field.getText());
                 field.setText("-1");
             }

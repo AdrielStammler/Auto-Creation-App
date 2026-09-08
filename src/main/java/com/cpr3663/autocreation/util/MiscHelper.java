@@ -22,6 +22,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class MiscHelper {
+    private static final String negRegex = "-?";
+    private static final String intRegex = "\\d*";
+    private static final String doubleRegex = "\\d*\\.?\\d*";
+
     private static OsThemeDetector detector;
 
     public static void initThemes() {
@@ -79,45 +83,25 @@ public class MiscHelper {
     }
 
     public static TextFormatter<String> countFormater() {
-        return new TextFormatter<>(change -> {
-            String newText = change.getControlNewText();
-
-            if (newText.matches("\\d*")) {
-                return change;
-            }
-            return null;
-        });
+        return createFormatter(intRegex);
     }
 
     public static TextFormatter<String> intFormater() {
-        return new TextFormatter<>(change -> {
-            String newText = change.getControlNewText();
-
-            if (newText.matches("-?\\d*")) {
-                return change;
-            }
-            return null;
-        });
+        return createFormatter(negRegex + intRegex);
     }
 
     public static TextFormatter<String> posDoubleFormater() {
-        String doubleRegex = "\\d*\\.?\\d*";
-
-        return new TextFormatter<>(change -> {
-            String newText = change.getControlNewText();
-            if (newText.matches(doubleRegex)) {
-                return change;
-            }
-            return null;
-        });
+        return createFormatter(doubleRegex);
     }
 
     public static TextFormatter<String> doubleFormater() {
-        String doubleRegex = "-?\\d*\\.?\\d*";
+        return createFormatter(negRegex + doubleRegex);
+    }
 
+    private static TextFormatter<String> createFormatter(String regex) {
         return new TextFormatter<>(change -> {
             String newText = change.getControlNewText();
-            if (newText.matches(doubleRegex)) {
+            if (newText.matches(regex)) {
                 return change;
             }
             return null;
