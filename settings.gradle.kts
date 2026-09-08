@@ -1,1 +1,1 @@
-rootProject.name = "Auto-Creation"
+rootProject.name = "auto-creation"
