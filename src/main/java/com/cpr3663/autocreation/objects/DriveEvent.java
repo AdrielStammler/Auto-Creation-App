@@ -39,6 +39,7 @@ public class DriveEvent extends Event {
         addParamChangeListener(this.threshold);
         addParamChangeListener(this.maxVelocity);
         addParamChangeListener(this.maxAcceleration);
+        this.aprilTag.addListener((obs, old, newV) -> super.changed());
     }
 
     public DriveEvent() {
