@@ -17,7 +17,7 @@ public final class Constants {
     }
 
     public static final class Links {
-        public static final String CREATE_ISSUE = "https://github.com/AdrielStammler/Auto-Creation-App/issues/new";
+        public static final String CREATE_ISSUE = "https://github.com/AdrielStammler/Auto-Creation-App/issues/new/choose";
         public static final String GITHUB = "https://github.com/AdrielStammler/Auto-Creation-App";
         public static final String RELEASE_NOTES = "https://github.com/AdrielStammler/Auto-Creation-App/releases#release-v" + App.APP_VERSION;
     }

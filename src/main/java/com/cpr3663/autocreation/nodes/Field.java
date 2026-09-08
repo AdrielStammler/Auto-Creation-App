@@ -36,10 +36,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class Field {
-    // TODO inverted mode
     private static final double[] initials = new double[2];
     private static final boolean[] isRotating = new boolean[1];
-    private static final double PIXELS_PER_METER = 75.0;
+    private static final double PIXELS_PER_METER = 75.0; // Arbitrary value to ensure all things are on the same scale but will be scaled with a wrapper
     private static double FIELD_WIDTH; // Y Direction on the fieldPane
     @SuppressWarnings("FieldCanBeLocal")
     private static double FIELD_LENGTH; // X Direction on the fieldPane
