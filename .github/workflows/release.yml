@@ -50,7 +50,7 @@ jobs:
     container: fedora:41
     steps:
       - name: Install deps
-        run: dnf install -y java-17-openjdk-devel rpm-build git which fontconfig
+        run: dnf install -y java-17-openjdk-devel java-17-openjdk-jmods rpm-build git which fontconfig
       - uses: actions/checkout@v5
       - name: Extract version from tag
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
