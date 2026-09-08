@@ -59,7 +59,7 @@ tasks.withType<Test> {
 }
 
 val packageManagerType = providers.exec {
-    commandLine("sh", "-c", "if command -v rpm >/dev/null; then echo rpm; elif command -v dpkg >/dev/null; then echo deb; else echo unknown; fi")
+    commandLine("sh", "-c", "if command -v dpkg >/dev/null; then echo deb; elif command -v rpm >/dev/null; then echo rpm; else echo unknown; fi")
 }.standardOutput.asText.map { it.trim() }
 
 runtime {
