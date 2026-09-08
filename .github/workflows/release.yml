@@ -69,6 +69,9 @@ jobs:
           merge-multiple: true
           path: dist
 
+      - name: List downloaded artifacts (debug)
+        run: find dist -type f
+
       - name: Rename and zip
         run: |
           VERSION=${GITHUB_REF_NAME#v}
