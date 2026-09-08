@@ -34,6 +34,8 @@ jobs:
       - name: Install packaging deps
         run: sudo apt-get update && sudo apt-get install -y fakeroot binutils
       - run: chmod +x ./gradlew && ./gradlew clean jpackage "-PappVersion=${{ env.VERSION }}"
+      - name: List jpackage output (debug)
+        run: find build/jpackage -maxdepth 1 -type f
       - name: Create tar.gz of the app image
         run: |
           cd build/jpackage
@@ -77,10 +79,10 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}
           cd dist
 
-          mv auto-creation-${VERSION}.msi   auto-creation-${VERSION}-windows-x64.msi
-          mv auto-creation-${VERSION}.rpm   auto-creation-${VERSION}-linux-x64.rpm
-          mv auto-creation-${VERSION}.deb   auto-creation-${VERSION}-linux-x64.deb
-          mv auto-creation.tar.gz           auto-creation-${VERSION}-linux-x64.tar.gz
+          mv auto-creation*.msi          auto-creation-${VERSION}-windows-x64.msi
+          mv auto-creation*.rpm          auto-creation-${VERSION}-linux-x64.rpm
+          mv auto-creation*.deb          auto-creation-${VERSION}-linux-x64.deb
+          mv auto-creation.tar.gz        auto-creation-${VERSION}-linux-x64.tar.gz
 
           zip auto-creation-${VERSION}-windows-x64.msi.zip auto-creation-${VERSION}-windows-x64.msi
           zip auto-creation-${VERSION}-linux-x64.rpm.zip   auto-creation-${VERSION}-linux-x64.rpm
