@@ -77,8 +77,10 @@ runtime {
                 "--win-menu",
                 "--win-upgrade-uuid", "ae1bf218-9767-491e-acb6-3aa92756a5ed",
             )
-            imageOptions.addAll(listOf("--icon", "app-icon.ico",
+            imageOptions.addAll(listOf(
+                "--icon", "app-icon.ico",
                 "--vendor", "Adriel Stammler",
+                "--name", "Auto Creation",
                 ))
         } else if (Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)) {
             val type = packageManagerType.get()
@@ -94,8 +96,10 @@ runtime {
                     "--linux-app-category", "utils",
                     "--linux-package-deps",
                 )
-                imageOptions.addAll(listOf("--icon", file("app-icon.png").absolutePath,
+                imageOptions.addAll(listOf(
+                    "--icon", file("app-icon.png").absolutePath,
                     "--vendor", "Adriel Stammler",
+                    "--name", "Auto Creation",
                 ))
             }
         } else if (Os.isFamily(Os.FAMILY_MAC)) {
