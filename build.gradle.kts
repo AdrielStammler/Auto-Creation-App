@@ -1,7 +1,7 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 
-var versionStr = "1.0.0"
+val versionStr: String = (findProperty("appVersion") as String?) ?: "1.0.0"
 
 plugins {
     java
@@ -59,13 +59,13 @@ tasks.withType<Test> {
 }
 
 val packageManagerType = providers.exec {
-    commandLine("sh", "-c", "if command -v rpm >/dev/null; then echo rpm; elif command -v dpkg >/dev/null; then echo deb; else echo unknown; fi")
+    commandLine("sh", "-c", "if command -v dpkg >/dev/null; then echo deb; elif command -v rpm >/dev/null; then echo rpm; else echo unknown; fi")
 }.standardOutput.asText.map { it.trim() }
 
 runtime {
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
     jpackage {
-        imageName = "Auto Creation"
+        imageName = "auto-creation"
         appVersion = versionStr
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             installerType = "msi"
@@ -83,7 +83,7 @@ runtime {
             } else {
                 installerType = type
                 installerOptions = listOf(
-                    "--linux-package-name", "auto-creation",
+                    "--linux-package-name", imageName,
                     "--linux-shortcut",
                     "--linux-menu-group", "Utility",
                     "--linux-deb-maintainer", "stammler.adriel@gmail.com",

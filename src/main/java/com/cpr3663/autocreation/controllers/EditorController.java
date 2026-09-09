@@ -134,10 +134,32 @@ public class EditorController {
 
     private void aprilTagBox(Property<AprilTag> property, int row) {
         TextField field = new TextField();
+        CheckBox checkBox = new CheckBox();
         field.textProperty().bindBidirectional(property, new AprilTagStringConverter());
         field.setOnAction(e -> field.getParent().requestFocus());
         field.setTextFormatter(MiscHelper.intFormater());
-        paramGridPane.add(field, 1, row);
+
+        field.disableProperty().bind(checkBox.selectedProperty().not());
+        AtomicReference<String> prev = new AtomicReference<>();
+        checkBox.selectedProperty().addListener((obs, old, newV) -> {
+            if (newV) {
+                field.setTextFormatter(MiscHelper.countFormater());
+                if (field.getText().equals("-1") || field.getText().isBlank()) {
+                    String str = prev.get();
+                    field.setText((str == null || str.isBlank() || str.equals("-1")) ? "1" : str);
+                }
+            } else {
+                field.setTextFormatter(MiscHelper.intFormater());
+                prev.set(field.getText());
+                field.setText("-1");
+            }
+        });
+        field.textProperty().addListener((obs, old, newV) -> checkBox.setSelected(!newV.equals("-1")));
+
+        checkBox.setSelected(!field.getText().equals("-1"));
+
+        HBox hBox = new HBox(checkBox, field);
+        paramGridPane.add(hBox, 1, row);
     }
 
     private void posDoubleBox(DoubleProperty property, int row) {
