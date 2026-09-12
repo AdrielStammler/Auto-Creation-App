@@ -42,7 +42,7 @@ jobs:
       - name: Create tar.gz of the app image
         run: |
           cd build/jpackage
-          tar -czf auto-creation.tar.gz auto-creation
+          tar -czf auto-creation.tar.gz "Auto Creation"
       - uses: actions/upload-artifact@v5
         with:
           name: deb-and-tar
