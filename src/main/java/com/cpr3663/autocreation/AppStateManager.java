@@ -70,9 +70,9 @@ public class AppStateManager {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        prefs.putInt(Keys.DEFAULT_THRESHOLD, getDefaultThreshold());
-        prefs.putInt(Keys.DEFAULT_MAX_VEL, getDefaultMaxVel());
-        prefs.putInt(Keys.DEFAULT_MAX_ACCEL, getDefaultMaxAccel());
+        prefs.putDouble(Keys.DEFAULT_THRESHOLD, getDefaultThreshold());
+        prefs.putDouble(Keys.DEFAULT_MAX_VEL, getDefaultMaxVel());
+        prefs.putDouble(Keys.DEFAULT_MAX_ACCEL, getDefaultMaxAccel());
     }
 
     public void loadState() {
@@ -104,9 +104,9 @@ public class AppStateManager {
             extraTypes.clear();
             throw new RuntimeException(e);
         }
-        setDefaultThreshold(prefs.getInt(Keys.DEFAULT_THRESHOLD, getDefaultThreshold()));
-        setDefaultMaxVel(prefs.getInt(Keys.DEFAULT_MAX_VEL, getDefaultMaxVel()));
-        setDefaultMaxAccel(prefs.getInt(Keys.DEFAULT_MAX_ACCEL, getDefaultMaxAccel()));
+        setDefaultThreshold(prefs.getDouble(Keys.DEFAULT_THRESHOLD, getDefaultThreshold()));
+        setDefaultMaxVel(prefs.getDouble(Keys.DEFAULT_MAX_VEL, getDefaultMaxVel()));
+        setDefaultMaxAccel(prefs.getDouble(Keys.DEFAULT_MAX_ACCEL, getDefaultMaxAccel()));
     }
 
     // Single instance of the state manager
@@ -138,9 +138,9 @@ public class AppStateManager {
     private final ObjectProperty<Translation2d> robotSize = new SimpleObjectProperty<>(new Translation2d(1, 1));
     private final ObjectProperty<DistanceUnit> displayUnits = new SimpleObjectProperty<>(Units.Meters);
     private final ListProperty<Event.Type> extraTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final IntegerProperty defaultThreshold = new SimpleIntegerProperty(1);
-    private final IntegerProperty defaultMaxVel = new SimpleIntegerProperty(-1);
-    private final IntegerProperty defaultMaxAccel = new SimpleIntegerProperty(-1);
+    private final DoubleProperty defaultThreshold = new SimpleDoubleProperty(1.0);
+    private final DoubleProperty defaultMaxVel = new SimpleDoubleProperty(-1.0);
+    private final DoubleProperty defaultMaxAccel = new SimpleDoubleProperty(-1.0);
 
     // Getters and Setters
     public HostServices getHostServices() {
@@ -345,39 +345,39 @@ public class AppStateManager {
         this.extraTypes.set(FXCollections.observableArrayList(extraTypes));
     }
 
-    public IntegerProperty defaultThresholdProperty() {
+    public DoubleProperty defaultThresholdProperty() {
         return defaultThreshold;
     }
 
-    public int getDefaultThreshold() {
+    public double getDefaultThreshold() {
         return defaultThreshold.get();
     }
 
-    public void setDefaultThreshold(int threshold) {
+    public void setDefaultThreshold(double threshold) {
         this.defaultThreshold.set(threshold);
     }
 
-    public IntegerProperty defaultMaxVelProperty() {
+    public DoubleProperty defaultMaxVelProperty() {
         return defaultMaxVel;
     }
 
-    public Integer getDefaultMaxVel() {
+    public double getDefaultMaxVel() {
         return defaultMaxVel.get();
     }
 
-    public void setDefaultMaxVel(int threshold) {
+    public void setDefaultMaxVel(double threshold) {
         this.defaultMaxVel.set(threshold);
     }
 
-    public IntegerProperty defaultMaxAccelProperty() {
+    public DoubleProperty defaultMaxAccelProperty() {
         return defaultMaxAccel;
     }
 
-    public Integer getDefaultMaxAccel() {
+    public double getDefaultMaxAccel() {
         return defaultMaxAccel.get();
     }
 
-    public void setDefaultMaxAccel(int threshold) {
+    public void setDefaultMaxAccel(double threshold) {
         this.defaultMaxAccel.set(threshold);
     }
 }
