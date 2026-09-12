@@ -37,6 +37,8 @@ public class AppStateManager {
         private static final String ROBOT_SIZE_Y = "robotSizeY";
         private static final String DISPLAY_UNIT = "displayUnits";
         private static final String EXTRA_TYPES = "extraEventTypes";
+        // TODO save off the defaults to prefs
+        //  and also implement to Settings and then DriveEvent
     }
 
     public void saveState() {
@@ -129,6 +131,9 @@ public class AppStateManager {
     private final ObjectProperty<Translation2d> robotSize = new SimpleObjectProperty<>(new Translation2d(1, 1));
     private final ObjectProperty<DistanceUnit> displayUnits = new SimpleObjectProperty<>(Units.Meters);
     private final ListProperty<Event.Type> extraTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final IntegerProperty defaultThreshold = new SimpleIntegerProperty(1);
+    private final Property<Integer> defaultMaxVel = new SimpleObjectProperty<>();
+    private final Property<Integer> defaultMaxAccel = new SimpleObjectProperty<>();
 
     // Getters and Setters
     public HostServices getHostServices() {
@@ -331,5 +336,41 @@ public class AppStateManager {
 
     public void setExtraTypes(Event.Type... extraTypes) {
         this.extraTypes.set(FXCollections.observableArrayList(extraTypes));
+    }
+
+    public IntegerProperty defaultThresholdProperty() {
+        return defaultThreshold;
+    }
+
+    public int getDefaultThreshold() {
+        return defaultThreshold.get();
+    }
+
+    public void setDefaultThreshold(int threshold) {
+        this.defaultThreshold.set(threshold);
+    }
+
+    public Property<Integer> defaultMaxVelProperty() {
+        return defaultMaxVel;
+    }
+
+    public Integer getDefaultMaxVel() {
+        return defaultMaxVel.getValue();
+    }
+
+    public void setDefaultMaxVel(Integer threshold) {
+        this.defaultMaxVel.setValue(threshold);
+    }
+
+    public Property<Integer> defaultMaxAccelProperty() {
+        return defaultMaxAccel;
+    }
+
+    public Integer getDefaultMaxAccel() {
+        return defaultMaxAccel.getValue();
+    }
+
+    public void setDefaultMaxAccel(Integer threshold) {
+        this.defaultMaxAccel.setValue(threshold);
     }
 }
