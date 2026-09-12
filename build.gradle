@@ -64,8 +64,12 @@ def packageManagerType = providers.exec {
 runtime {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     jpackage {
-        imageName = 'auto-creation'
+        imageName = 'Auto Creation'
         appVersion = versionStr
+        description = 'An app for creating autos, specifically designed for FRC and for the team CPR 3663.'
+        def internalName = 'auto-creation'
+        def vendor = 'Adriel Stammler'
+
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             installerType = 'msi'
             installerOptions = [
@@ -74,7 +78,10 @@ runtime {
                     '--win-menu',
                     '--win-upgrade-uuid', 'ae1bf218-9767-491e-acb6-3aa92756a5ed',
             ]
-            imageOptions.addAll(['--icon', 'app-icon.ico'])
+            imageOptions.addAll([
+                    '--icon', 'app-icon.ico',
+                    '--vendor', vendor,
+            ])
         } else if (Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)) {
             def type = packageManagerType.get()
             if (type == 'unknown') {
@@ -82,14 +89,17 @@ runtime {
             } else {
                 installerType = type
                 installerOptions = [
-                        '--linux-package-name', imageName,
+                        '--linux-package-name', internalName,
                         '--linux-shortcut',
                         '--linux-menu-group', 'Utility',
                         '--linux-deb-maintainer', 'stammler.adriel@gmail.com',
                         '--linux-app-category', 'utils',
                         '--linux-package-deps',
                 ]
-                imageOptions.addAll(['--icon', 'app-icon.png'])
+                imageOptions.addAll([
+                        '--icon', 'app-icon.png',
+                        '--vendor', vendor,
+                ])
             }
         } else if (Os.isFamily(Os.FAMILY_MAC)) {
             throw new GradleException('Mac is not supported')
