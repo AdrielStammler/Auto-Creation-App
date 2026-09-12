@@ -1,6 +1,5 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
-
 val versionStr: String = (findProperty("appVersion") as String?) ?: "1.0.0"
 
 plugins {
@@ -20,7 +19,7 @@ repositories {
 }
 
 val junitVersion = "5.12.1"
-var wpilibVersion = "2026.2.1"
+val wpilibVersion = "2026.2.1"
 
 java {
     toolchain {
@@ -67,6 +66,10 @@ runtime {
     jpackage {
         imageName = "auto-creation"
         appVersion = versionStr
+        description = "An app for creating autos, specifically designed for FRC and for the team CPR 3663."
+        val appName = "Auto Creation"
+        val vendor = "Adriel Stammler"
+
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             installerType = "msi"
             installerOptions = listOf(
@@ -75,7 +78,11 @@ runtime {
                 "--win-menu",
                 "--win-upgrade-uuid", "ae1bf218-9767-491e-acb6-3aa92756a5ed",
             )
-            imageOptions.addAll(listOf("--icon", "app-icon.ico"))
+            imageOptions.addAll(listOf(
+                "--icon", "app-icon.ico",
+                "--vendor", vendor,
+                "--name", appName,
+                ))
         } else if (Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)) {
             val type = packageManagerType.get()
             if (type == "unknown") {
@@ -90,7 +97,11 @@ runtime {
                     "--linux-app-category", "utils",
                     "--linux-package-deps",
                 )
-                imageOptions.addAll(listOf("--icon", "app-icon.png"))
+                imageOptions.addAll(listOf(
+                    "--icon", file("app-icon.png").absolutePath,
+                    "--vendor", vendor,
+                    "--name", appName,
+                ))
             }
         } else if (Os.isFamily(Os.FAMILY_MAC)) {
             error("Mac is not supported")
