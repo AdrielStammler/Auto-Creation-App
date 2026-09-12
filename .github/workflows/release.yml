@@ -20,7 +20,7 @@ jobs:
       - name: Extract version from tag
         shell: bash
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
-      - run: ./gradlew clean jpackage "-PappVersion=${{ env.VERSION }}"
+      - run: ./gradlew clean jpackage "-PappVersion=${{ env.VERSION }}" --info
       - uses: actions/upload-artifact@v5
         with:
           name: msi
@@ -36,13 +36,13 @@ jobs:
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
       - name: Install packaging deps
         run: sudo apt-get update && sudo apt-get install -y fakeroot binutils
-      - run: chmod +x ./gradlew && ./gradlew clean jpackage "-PappVersion=${{ env.VERSION }}"
+      - run: chmod +x ./gradlew && ./gradlew clean jpackage "-PappVersion=${{ env.VERSION }}" --info
       - name: List jpackage output (debug)
         run: find build/jpackage -maxdepth 1 -type f
       - name: Create tar.gz of the app image
         run: |
           cd build/jpackage
-          tar -czf auto-creation.tar.gz auto-creation
+          tar -czf auto-creation.tar.gz "Auto Creation"
       - uses: actions/upload-artifact@v5
         with:
           name: deb-and-tar
@@ -59,7 +59,7 @@ jobs:
       - uses: actions/checkout@v5
       - name: Extract version from tag
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
-      - run: chmod +x ./gradlew && ./gradlew clean jpackage "-PappVersion=${{ env.VERSION }}"
+      - run: chmod +x ./gradlew && ./gradlew clean jpackage "-PappVersion=${{ env.VERSION }}" --info
       - uses: actions/upload-artifact@v5
         with:
           name: rpm

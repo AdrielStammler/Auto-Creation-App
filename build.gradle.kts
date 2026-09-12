@@ -64,10 +64,10 @@ val packageManagerType = providers.exec {
 runtime {
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
     jpackage {
-        imageName = "auto-creation"
+        imageName = "Auto Creation"
         appVersion = versionStr
         description = "An app for creating autos, specifically designed for FRC and for the team CPR 3663."
-        val appName = "Auto Creation"
+        val internalName = "auto-creation"
         val vendor = "Adriel Stammler"
 
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -81,7 +81,6 @@ runtime {
             imageOptions.addAll(listOf(
                 "--icon", "app-icon.ico",
                 "--vendor", vendor,
-                "--name", appName,
                 ))
         } else if (Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)) {
             val type = packageManagerType.get()
@@ -90,7 +89,7 @@ runtime {
             } else {
                 installerType = type
                 installerOptions = listOf(
-                    "--linux-package-name", imageName,
+                    "--linux-package-name", internalName,
                     "--linux-shortcut",
                     "--linux-menu-group", "Utility",
                     "--linux-deb-maintainer", "stammler.adriel@gmail.com",
@@ -100,7 +99,6 @@ runtime {
                 imageOptions.addAll(listOf(
                     "--icon", file("app-icon.png").absolutePath,
                     "--vendor", vendor,
-                    "--name", appName,
                 ))
             }
         } else if (Os.isFamily(Os.FAMILY_MAC)) {
