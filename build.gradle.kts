@@ -77,7 +77,6 @@ runtime {
                 "--win-shortcut",
                 "--win-menu",
                 "--win-upgrade-uuid", "ae1bf218-9767-491e-acb6-3aa92756a5ed",
-                "--name", internalName,
             )
             imageOptions.addAll(listOf(
                 "--icon", "app-icon.ico",
@@ -96,7 +95,6 @@ runtime {
                     "--linux-deb-maintainer", "stammler.adriel@gmail.com",
                     "--linux-app-category", "utils",
                     "--linux-package-deps",
-                    "--name", internalName,
                 )
                 imageOptions.addAll(listOf(
                     "--icon", file("app-icon.png").absolutePath,
