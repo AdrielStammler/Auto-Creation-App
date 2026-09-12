@@ -37,8 +37,9 @@ public class AppStateManager {
         private static final String ROBOT_SIZE_Y = "robotSizeY";
         private static final String DISPLAY_UNIT = "displayUnits";
         private static final String EXTRA_TYPES = "extraEventTypes";
-        // TODO save off the defaults to prefs
-        //  and also implement to Settings and then DriveEvent
+        private static final String DEFAULT_THRESHOLD = "defaultThreshold";
+        private static final String DEFAULT_MAX_VEL = "defaultMaxVelocity";
+        private static final String DEFAULT_MAX_ACCEL = "defaultMaxAcceleration";
     }
 
     public void saveState() {
@@ -69,6 +70,9 @@ public class AppStateManager {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        prefs.putInt(Keys.DEFAULT_THRESHOLD, getDefaultThreshold());
+        prefs.putInt(Keys.DEFAULT_MAX_VEL, getDefaultMaxVel());
+        prefs.putInt(Keys.DEFAULT_MAX_ACCEL, getDefaultMaxAccel());
     }
 
     public void loadState() {
@@ -100,6 +104,9 @@ public class AppStateManager {
             extraTypes.clear();
             throw new RuntimeException(e);
         }
+        setDefaultThreshold(prefs.getInt(Keys.DEFAULT_THRESHOLD, getDefaultThreshold()));
+        setDefaultMaxVel(prefs.getInt(Keys.DEFAULT_MAX_VEL, getDefaultMaxVel()));
+        setDefaultMaxAccel(prefs.getInt(Keys.DEFAULT_MAX_ACCEL, getDefaultMaxAccel()));
     }
 
     // Single instance of the state manager
@@ -132,8 +139,8 @@ public class AppStateManager {
     private final ObjectProperty<DistanceUnit> displayUnits = new SimpleObjectProperty<>(Units.Meters);
     private final ListProperty<Event.Type> extraTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final IntegerProperty defaultThreshold = new SimpleIntegerProperty(1);
-    private final Property<Integer> defaultMaxVel = new SimpleObjectProperty<>();
-    private final Property<Integer> defaultMaxAccel = new SimpleObjectProperty<>();
+    private final IntegerProperty defaultMaxVel = new SimpleIntegerProperty(-1);
+    private final IntegerProperty defaultMaxAccel = new SimpleIntegerProperty(-1);
 
     // Getters and Setters
     public HostServices getHostServices() {
@@ -350,27 +357,27 @@ public class AppStateManager {
         this.defaultThreshold.set(threshold);
     }
 
-    public Property<Integer> defaultMaxVelProperty() {
+    public IntegerProperty defaultMaxVelProperty() {
         return defaultMaxVel;
     }
 
     public Integer getDefaultMaxVel() {
-        return defaultMaxVel.getValue();
+        return defaultMaxVel.get();
     }
 
-    public void setDefaultMaxVel(Integer threshold) {
-        this.defaultMaxVel.setValue(threshold);
+    public void setDefaultMaxVel(int threshold) {
+        this.defaultMaxVel.set(threshold);
     }
 
-    public Property<Integer> defaultMaxAccelProperty() {
+    public IntegerProperty defaultMaxAccelProperty() {
         return defaultMaxAccel;
     }
 
     public Integer getDefaultMaxAccel() {
-        return defaultMaxAccel.getValue();
+        return defaultMaxAccel.get();
     }
 
-    public void setDefaultMaxAccel(Integer threshold) {
-        this.defaultMaxAccel.setValue(threshold);
+    public void setDefaultMaxAccel(int threshold) {
+        this.defaultMaxAccel.set(threshold);
     }
 }
