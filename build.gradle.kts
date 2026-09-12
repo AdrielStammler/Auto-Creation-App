@@ -90,7 +90,7 @@ runtime {
             } else {
                 installerType = type
                 installerOptions = listOf(
-                    "--linux-package-name", imageName,
+                    "--linux-package-name", internalName,
                     "--linux-shortcut",
                     "--linux-menu-group", "Utility",
                     "--linux-deb-maintainer", "stammler.adriel@gmail.com",
