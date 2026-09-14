@@ -1,5 +1,6 @@
 package com.cpr3663.autocreation.objects;
 
+import com.cpr3663.autocreation.AppStateManager;
 import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.util.Enums;
 import edu.wpi.first.apriltag.AprilTag;
@@ -19,10 +20,12 @@ public class DriveEvent extends Event {
     // IF ID = -1 then it's not a tag it's other (e.g. origin)
     private final Property<AprilTag> aprilTag = new SimpleObjectProperty<>(new AprilTag(-1, new Pose3d()));
 
-    public DriveEvent(double xPos, double yPos, double theta, double threshold, boolean afterPrev, Enums.DelayTypes delayType, double delay) {
-        this(xPos, yPos, theta, threshold, -1, -1, afterPrev, delayType, delay);
+    // Pass in all the parameters without a default.
+    public DriveEvent(double xPos, double yPos, double theta, boolean afterPrev, Enums.DelayTypes delayType, double delay) {
+        this(xPos, yPos, theta, AppStateManager.getInstance().getDefaultThreshold(), AppStateManager.getInstance().getDefaultMaxVel(), AppStateManager.getInstance().getDefaultMaxAccel(), afterPrev, delayType, delay);
     }
 
+    // Pass in every single parameter
     public DriveEvent(double xPos, double yPos, double theta, double threshold, double maxVel, double maxAccel, boolean afterPrev, Enums.DelayTypes delayType, double delay) {
         super(Constants.Events.DRIVE_NAME, new String[]{}, null, afterPrev, delayType, delay);
         this.x = new SimpleDoubleProperty(xPos);
@@ -42,8 +45,9 @@ public class DriveEvent extends Event {
         this.aprilTag.addListener((obs, old, newV) -> super.changed());
     }
 
+    // No parameters
     public DriveEvent() {
-        this(0, 0, 0, 1, -1, -1, true, Enums.DelayTypes.NONE, 0);
+        this(0, 0, 0, true, Enums.DelayTypes.NONE, 0);
     }
 
     private static double round(double value) {

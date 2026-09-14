@@ -35,6 +35,9 @@ public class SettingsController {
     @FXML private TextField robotSizeYText;
     @FXML private ListView<String> extraTypesNameList;
     @FXML private ListView<String> extraTypesParamList;
+    @FXML private TextField defaultThreshold;
+    @FXML private TextField defaultMaxVel;
+    @FXML private TextField defaultMaxAccel;
     private Stage stage;
     private Image fieldImage;
     private List<Event.Type> extraTypes;
@@ -43,18 +46,25 @@ public class SettingsController {
     @FXML
     private void initialize() {
         extraTypes = new ArrayList<>(AppStateManager.getInstance().getExtraTypes());
+
         themeDropdown.getItems().addAll(Enums.Themes.values());
         themeDropdown.getSelectionModel().select(AppStateManager.getInstance().getTheme());
+
         robotRepoLabel.setText(AppStateManager.getInstance().getRobotRepoPath());
         robotRepoLabel.setOnAction(e -> robotRepoLabel.getParent().requestFocus());
+
         fieldImage = AppStateManager.getInstance().getFieldImage();
+
         aprilTagDropdown.getItems().addAll(AprilTagFields.values());
         aprilTagDropdown.getSelectionModel().select(AppStateManager.getInstance().getAprilTagField());
+
         unitsDropDown.getItems().addAll(Units.Meters, Units.Feet, Units.Inches, Units.Millimeters, Units.Centimeters);
         unitsDropDown.getSelectionModel().select(AppStateManager.getInstance().getDisplayUnits());
+
         robotSizeXText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getX())));
         robotSizeXText.setTextFormatter(MiscHelper.posDoubleFormater());
         robotSizeXText.setOnAction(e -> robotSizeXText.getParent().requestFocus());
+
         robotSizeYText.setText(Double.toString(AppStateManager.getInstance().getDisplayUnits().fromBaseUnits(AppStateManager.getInstance().getRobotSize().getY())));
         robotSizeYText.setTextFormatter(MiscHelper.posDoubleFormater());
         robotSizeYText.setOnAction(e -> robotSizeYText.getParent().requestFocus());
@@ -73,25 +83,36 @@ public class SettingsController {
                             .orElse(new Event.Type(name)))
                     .toList());
         });
-
         extraTypesNameList.getSelectionModel().selectedIndexProperty().addListener((obs, oldIndex, newIndex) -> {
             selectedIndex = newIndex.intValue();
             if (oldIndex.intValue() == -1) return;
 
-            saveParams(oldIndex.intValue());
+            saveExtraTypeParams(oldIndex.intValue());
             
             extraTypesParamList.getItems().clear();
             if (newIndex.intValue() >= 0)
                 extraTypesParamList.getItems().addAll(extraTypes.get(newIndex.intValue()).parameters());
         });
+
+        defaultThreshold.setText(Double.toString(AppStateManager.getInstance().getDefaultThreshold()));
+        defaultThreshold.setTextFormatter(MiscHelper.posDoubleFormater());
+        defaultThreshold.setOnAction(e -> defaultThreshold.getParent().requestFocus());
+
+        defaultMaxVel.setText(Double.toString(AppStateManager.getInstance().getDefaultMaxVel()));
+        defaultMaxVel.setTextFormatter(MiscHelper.doubleFormater());
+        defaultMaxVel.setOnAction(e -> defaultMaxVel.getParent().requestFocus());
+
+        defaultMaxAccel.setText(Double.toString(AppStateManager.getInstance().getDefaultMaxAccel()));
+        defaultMaxAccel.setTextFormatter(MiscHelper.doubleFormater());
+        defaultMaxAccel.setOnAction(e -> defaultMaxAccel.getParent().requestFocus());
     }
 
-    private void saveParams() {
+    private void saveExtraTypeParams() {
         if (selectedIndex == -1) return;
-        saveParams(selectedIndex);
+        saveExtraTypeParams(selectedIndex);
     }
 
-    private void saveParams(int i) {
+    private void saveExtraTypeParams(int i) {
         Event.Type type = extraTypes.get(i);
         extraTypes.set(i, new Event.Type(type.name(), extraTypesParamList.getItems()));
     }
@@ -170,12 +191,21 @@ public class SettingsController {
         stateManager.setDisplayUnits(unitsDropDown.getSelectionModel().getSelectedItem());
         stateManager.setRobotSize(stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeXText.getText())),
                 stateManager.getDisplayUnits().toBaseUnits(Double.parseDouble(robotSizeYText.getText())));
-        saveParams();
+        this.saveExtraTypeParams();
         extraTypes.sort(Comparator.comparing(Event.Type::name));
         stateManager.setExtraTypes(extraTypes.stream().map(type -> new Event.Type(type.name(), type.parameters())).toArray(Event.Type[]::new));
+        stateManager.setDefaultThreshold(Double.parseDouble(defaultThreshold.getText()));
+        stateManager.setDefaultMaxVel(toValidDouble(defaultMaxVel.getText()));
+        stateManager.setDefaultMaxAccel(toValidDouble(defaultMaxAccel.getText()));
 
         stateManager.eventsProperty().forceRefresh();
         stateManager.saveState();
         stage.close();
+    }
+
+    private static double toValidDouble(String string) {
+        double num = Double.parseDouble(string);
+        if (num > 0.0) return num;
+        else return -1;
     }
 }
