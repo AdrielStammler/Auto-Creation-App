@@ -48,9 +48,11 @@ dependencies {
     implementation "edu.wpi.first.wpimath:wpimath-java:${wpilibVersion}"
     implementation "edu.wpi.first.wpiutil:wpiutil-java:${wpilibVersion}"
     implementation "edu.wpi.first.wpiunits:wpiunits-java:${wpilibVersion}"
+
     implementation 'us.hebi.quickbuf:quickbuf-runtime:1.4'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.21.4'
     implementation 'com.github.Dansoftowner:jSystemThemeDetector:3.8'
+    implementation 'org.slf4j:slf4j-simple:2.0.13'
 }
 
 tasks.withType(Test).configureEach {
