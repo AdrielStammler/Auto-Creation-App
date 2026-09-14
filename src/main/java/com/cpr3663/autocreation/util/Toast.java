@@ -6,10 +6,12 @@ import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
@@ -23,6 +25,8 @@ public final class Toast {
 
     public static class Builder {
         private final String message;
+        private Hyperlink link;
+        private String afterMessage;
         private int toastDelay = 2000;
         private int fadeInDuration = 500;
         private int fadeOutDuration = 500;
@@ -34,6 +38,18 @@ public final class Toast {
 
         public static Builder of(String message) {
             return new Builder(message);
+        }
+
+        public Builder link(String text, String link) {
+            Hyperlink hyperlink = new Hyperlink(text);
+            hyperlink.setOnAction(event -> AppStateManager.getInstance().getHostServices().showDocument(link));
+            this.link = hyperlink;
+            return this;
+        }
+
+        public Builder afterMessage(String afterMessage) {
+            this.afterMessage = afterMessage;
+            return this;
         }
 
         public Builder duration(int duration) {
@@ -64,7 +80,7 @@ public final class Toast {
 
         public void show() {
             Toast.show(AppStateManager.getInstance().getWindow(),
-                    message, toastDelay, fadeInDuration, fadeOutDuration, bkgdColor);
+                    message, link, afterMessage, toastDelay, fadeInDuration, fadeOutDuration, bkgdColor);
         }
     }
 
@@ -72,17 +88,28 @@ public final class Toast {
         Builder.of(message).show();
     }
 
-    private static void show(Window owner, String message, int duration, int fadeInDuration, int fadeOutDuration, Color bkgdColor) {
-        Stage toastStage = new Stage();
-        toastStage.initOwner(owner);
-        toastStage.setResizable(false);
-        toastStage.initStyle(StageStyle.TRANSPARENT);
-
+    private static void show(Window owner, String message, Hyperlink link, String afterMessage, int duration, int fadeInDuration, int fadeOutDuration, Color bkgdColor) {
         Text text = new Text(message);
         text.setFont(Font.font("Verdana", 14));
         text.setFill(Color.WHITE);
 
-        StackPane root = new StackPane(text);
+        Text afterText;
+        if (afterMessage != null) {
+            afterText = new Text(afterMessage);
+            afterText.setFont(Font.font("Verdana", 14));
+            afterText.setFill(Color.WHITE);
+        } else afterText = null;
+
+        TextFlow textFlow;
+        if (link != null) {
+            if (afterText != null)
+                textFlow = new TextFlow(text, link, afterText);
+            else
+                textFlow = new TextFlow(text, link);
+        } else
+            textFlow = new TextFlow(text);
+
+        StackPane root = new StackPane(textFlow);
         root.setStyle(String.format("-fx-background-radius: 20; -fx-background-color: rgba(%d, %d, %d, 0.65); -fx-padding: 10px 20px;",
                 (int)(bkgdColor.getRed() * 255),
                 (int)(bkgdColor.getGreen() * 255),
@@ -92,8 +119,12 @@ public final class Toast {
 
         Scene scene = new Scene(root);
         scene.setFill(Color.TRANSPARENT);
-        toastStage.setScene(scene);
 
+        Stage toastStage = new Stage();
+        toastStage.setScene(scene);
+        toastStage.initOwner(owner);
+        toastStage.initStyle(StageStyle.TRANSPARENT);
+        MiscHelper.setTheme(toastStage);
         toastStage.show();
         toastStage.setX(owner.getX() + (owner.getWidth() / 2) - (toastStage.getWidth() / 2));
         toastStage.setY(owner.getY() + owner.getHeight() - toastStage.getHeight() - 50);
