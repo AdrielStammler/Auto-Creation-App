@@ -38,7 +38,7 @@ public class AboutController {
         }
 
         public static UpdateResult available(String versionLabel) {
-            return new UpdateResult(true, "An update is available: " + versionLabel);
+            return new UpdateResult(true, "An update is available: v" + versionLabel);
         }
 
         public boolean isUpdateAvailable() {
