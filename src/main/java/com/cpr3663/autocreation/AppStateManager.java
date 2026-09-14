@@ -37,6 +37,9 @@ public class AppStateManager {
         private static final String ROBOT_SIZE_Y = "robotSizeY";
         private static final String DISPLAY_UNIT = "displayUnits";
         private static final String EXTRA_TYPES = "extraEventTypes";
+        private static final String DEFAULT_THRESHOLD = "defaultThreshold";
+        private static final String DEFAULT_MAX_VEL = "defaultMaxVelocity";
+        private static final String DEFAULT_MAX_ACCEL = "defaultMaxAcceleration";
     }
 
     public void saveState() {
@@ -67,6 +70,9 @@ public class AppStateManager {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        prefs.putDouble(Keys.DEFAULT_THRESHOLD, getDefaultThreshold());
+        prefs.putDouble(Keys.DEFAULT_MAX_VEL, getDefaultMaxVel());
+        prefs.putDouble(Keys.DEFAULT_MAX_ACCEL, getDefaultMaxAccel());
     }
 
     public void loadState() {
@@ -98,6 +104,9 @@ public class AppStateManager {
             extraTypes.clear();
             throw new RuntimeException(e);
         }
+        setDefaultThreshold(prefs.getDouble(Keys.DEFAULT_THRESHOLD, getDefaultThreshold()));
+        setDefaultMaxVel(prefs.getDouble(Keys.DEFAULT_MAX_VEL, getDefaultMaxVel()));
+        setDefaultMaxAccel(prefs.getDouble(Keys.DEFAULT_MAX_ACCEL, getDefaultMaxAccel()));
     }
 
     // Single instance of the state manager
@@ -129,6 +138,9 @@ public class AppStateManager {
     private final ObjectProperty<Translation2d> robotSize = new SimpleObjectProperty<>(new Translation2d(1, 1));
     private final ObjectProperty<DistanceUnit> displayUnits = new SimpleObjectProperty<>(Units.Meters);
     private final ListProperty<Event.Type> extraTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final DoubleProperty defaultThreshold = new SimpleDoubleProperty(1.0);
+    private final DoubleProperty defaultMaxVel = new SimpleDoubleProperty(-1.0);
+    private final DoubleProperty defaultMaxAccel = new SimpleDoubleProperty(-1.0);
 
     // Getters and Setters
     public HostServices getHostServices() {
@@ -331,5 +343,41 @@ public class AppStateManager {
 
     public void setExtraTypes(Event.Type... extraTypes) {
         this.extraTypes.set(FXCollections.observableArrayList(extraTypes));
+    }
+
+    public DoubleProperty defaultThresholdProperty() {
+        return defaultThreshold;
+    }
+
+    public double getDefaultThreshold() {
+        return defaultThreshold.get();
+    }
+
+    public void setDefaultThreshold(double threshold) {
+        this.defaultThreshold.set(threshold);
+    }
+
+    public DoubleProperty defaultMaxVelProperty() {
+        return defaultMaxVel;
+    }
+
+    public double getDefaultMaxVel() {
+        return defaultMaxVel.get();
+    }
+
+    public void setDefaultMaxVel(double threshold) {
+        this.defaultMaxVel.set(threshold);
+    }
+
+    public DoubleProperty defaultMaxAccelProperty() {
+        return defaultMaxAccel;
+    }
+
+    public double getDefaultMaxAccel() {
+        return defaultMaxAccel.get();
+    }
+
+    public void setDefaultMaxAccel(double threshold) {
+        this.defaultMaxAccel.set(threshold);
     }
 }
