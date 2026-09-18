@@ -315,14 +315,13 @@ public class Field {
             highlightImage(selectedAprilTag);
         }
 
-        /**
-         * The uniform scale factor applied to the full ROBOT_IMAGE (body + arrow padding) to
-         * render a robot whose body is {@code size} meters. Derived the same way drawRobotPoses
-         * sizes the ImageView, so centering/hit-testing math always agrees with what's on screen.
-         */
         private static Translation2d robotImageScale(Translation2d size) {
-            // TODO
-            return Translation2d.kZero;
+            double xScale = (size.getX() * PIXELS_PER_METER) / ROBOT_IMAGE.getWidth();
+
+            double actualHeight = ROBOT_IMAGE.getHeight() - Constants.ROBOT_IMAGE_Y_EXTRA_PIXELS * 2;
+            double yScale = (size.getY() * PIXELS_PER_METER) / actualHeight;
+
+            return new Translation2d(xScale, yScale);
         }
 
         private static double robotImageYPaddingPixels() {
