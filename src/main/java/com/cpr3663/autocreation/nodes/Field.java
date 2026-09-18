@@ -39,6 +39,11 @@ public class Field {
     private static final double[] initials = new double[2];
     private static final boolean[] isRotating = new boolean[1];
     private static final double PIXELS_PER_METER = 75.0; // Arbitrary value to ensure all things are on the same scale but will be scaled with a wrapper
+
+    // Base Robot Size to make scaling correct
+    private static final Image ROBOT_IMAGE = new Image(
+            Objects.requireNonNull(Field.class.getResource(Constants.Paths.ROBOT_ICON)).toExternalForm()
+    );
     private static double FIELD_WIDTH; // Y Direction on the fieldPane
     @SuppressWarnings("FieldCanBeLocal")
     private static double FIELD_LENGTH; // X Direction on the fieldPane
@@ -91,8 +96,8 @@ public class Field {
         pane.getTransforms().add(scale);
 
         DoubleBinding factor = Bindings.createDoubleBinding(
-            () -> Math.min(wrapper.getWidth() / xSize, wrapper.getHeight() / ySize),
-                    wrapper.widthProperty(), wrapper.heightProperty()
+                () -> Math.min(wrapper.getWidth() / xSize, wrapper.getHeight() / ySize),
+                wrapper.widthProperty(), wrapper.heightProperty()
         );
 
         scale.xProperty().bind(factor);
@@ -191,7 +196,7 @@ public class Field {
 
     private static void drawRobotPoses(Pane fieldPane) {
         Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
-        double sizeX = AppStateManager.getInstance().getRobotSize().getX();
+        Translation2d scale = Helper.robotImageScale(AppStateManager.getInstance().getRobotSize());
         Line prevLine = null;
 
         ObservableList<Event> events = AppStateManager.getInstance().getEvents();
@@ -199,8 +204,7 @@ public class Field {
         for (int i = 0; i < events.size(); i++) {
             Event event = events.get(i);
             if (event instanceof DriveEvent driveEvent) {
-                Image robot = new Image(Objects.requireNonNull(Field.class.getResource(Constants.Paths.ROBOT_ICON)).toExternalForm());
-                ImageView robotView = new ImageView(robot);
+                ImageView robotView = new ImageView(ROBOT_IMAGE);
 
                 Translation2d position = Helper.centerRobotPixels(Helper.toPixels(driveEvent.getX(), driveEvent.getY()));
 
@@ -208,9 +212,9 @@ public class Field {
                 robotView.setY(position.getY());
                 robotView.setRotate(driveEvent.getTheta() + 90.0);
 
-                robotView.setPreserveRatio(true);
                 robotView.setSmooth(true);
-                robotView.setFitWidth(sizeX * PIXELS_PER_METER);
+                robotView.setFitWidth(ROBOT_IMAGE.getWidth() * scale.getX());
+                robotView.setFitHeight(ROBOT_IMAGE.getHeight() * scale.getY());
 
                 if (event.equals(selectedEvent)) {
                     Helper.highlightImage(robotView);
@@ -311,13 +315,29 @@ public class Field {
             highlightImage(selectedAprilTag);
         }
 
+        /**
+         * The uniform scale factor applied to the full ROBOT_IMAGE (body + arrow padding) to
+         * render a robot whose body is {@code size} meters. Derived the same way drawRobotPoses
+         * sizes the ImageView, so centering/hit-testing math always agrees with what's on screen.
+         */
+        private static Translation2d robotImageScale(Translation2d size) {
+            // TODO
+            return Translation2d.kZero;
+        }
+
+        private static double robotImageYPaddingPixels() {
+            Translation2d robotSize = AppStateManager.getInstance().getRobotSize();
+            double scale = robotImageScale(robotSize).getY();
+            return Constants.ROBOT_IMAGE_Y_EXTRA_PIXELS * scale;
+        }
+
         public static Translation2d unCenterRobotPixels(Translation2d position) {
             return unCenterRobotPixels(position.getX(), position.getY());
         }
 
         private static Translation2d unCenterRobotPixels(double x, double y) {
             Translation2d robotSize = AppStateManager.getInstance().getRobotSize().times(PIXELS_PER_METER);
-            return new Translation2d(x + (robotSize.getX() / 2), y + (robotSize.getY() / 2) + Constants.ROBOT_IMAGE_Y_EXTRA_PIXELS);
+            return new Translation2d(x + (robotSize.getX() / 2), y + (robotSize.getY() / 2) + robotImageYPaddingPixels());
         }
 
 
@@ -327,7 +347,7 @@ public class Field {
 
         private static Translation2d centerRobotPixels(double x, double y) {
             Translation2d robotSize = AppStateManager.getInstance().getRobotSize().times(PIXELS_PER_METER);
-            return new Translation2d(x - (robotSize.getX() / 2), y - (robotSize.getY() / 2) - Constants.ROBOT_IMAGE_Y_EXTRA_PIXELS);
+            return new Translation2d(x - (robotSize.getX() / 2), y - (robotSize.getY() / 2) - robotImageYPaddingPixels());
         }
 
         private static Translation2d toPixels(Translation2d position) {
@@ -473,10 +493,10 @@ public class Field {
         }
 
         /**
-         * @param line      the line to modify
-         * @param x         the x position of the robot (uncentered)
-         * @param y         the y position of the robot (uncentered)
-         * @param isStart   if it should change the starting or ending pos of the line
+         * @param line    the line to modify
+         * @param x       the x position of the robot (uncentered)
+         * @param y       the y position of the robot (uncentered)
+         * @param isStart if it should change the starting or ending pos of the line
          */
         private static void setLinePos(Line line, double x, double y, boolean isStart) {
             Translation2d pos = unCenterRobotPixels(x, y);

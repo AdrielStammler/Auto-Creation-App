@@ -76,6 +76,7 @@ public class Main extends Application {
         // Add Listeners
         AppStateManager.getInstance().themeProperty().addListener(run(() -> MiscHelper.setTheme(stage)));
         AppStateManager.getInstance().fieldImageProperty().addListener(run(refreshField(splitPane)));
+        AppStateManager.getInstance().robotSizeProperty().addListener(run(refreshField(splitPane)));
         AppStateManager.getInstance().openAutoNameProperty().addListener(run(() -> {
             FileHelper.open();
             AppStateManager.getInstance().saveState();

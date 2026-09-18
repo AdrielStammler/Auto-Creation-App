@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public final class Constants {
-    public static final double ROBOT_IMAGE_Y_EXTRA_PIXELS = 11.0/2.0;
+    public static final double ROBOT_IMAGE_Y_EXTRA_PIXELS = 11.0;
     public static final String FILE_SUFFIX = ".dsv";
 
     public static final class Events {
