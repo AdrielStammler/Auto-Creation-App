@@ -53,7 +53,7 @@ public class Field {
     private static boolean isDrag;
     private static boolean mayMove;
 
-    public static Pane getFieldPane() {
+    public static Pane getFieldPane(boolean flipped) {
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AppStateManager.getInstance().getAprilTagField());
         FIELD_WIDTH = fieldLayout.getFieldWidth();
         FIELD_LENGTH = fieldLayout.getFieldLength();
@@ -105,6 +105,10 @@ public class Field {
 
         pane.translateXProperty().bind(wrapper.widthProperty().subtract(factor.multiply(xSize)).divide(2));
         pane.translateYProperty().bind(wrapper.heightProperty().subtract(factor.multiply(ySize)).divide(2));
+
+        if (flipped) {
+            pane.getTransforms().add(new Rotate(180, xSize / 2, ySize / 2));
+        }
 
         return wrapper;
     }
@@ -171,6 +175,7 @@ public class Field {
 
         Label label = new Label(Integer.toString(id));
         label.setStyle("-fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 10px;");
+        label.getTransforms().add(new Rotate(180, label.getWidth() / 2, label.getHeight() / 2));
 
         DropShadow outline = new DropShadow();
         outline.setColor(Color.WHITE);
