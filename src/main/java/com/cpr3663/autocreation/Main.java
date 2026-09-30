@@ -7,12 +7,15 @@ import com.cpr3663.autocreation.objects.Event;
 import com.cpr3663.autocreation.util.*;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
@@ -28,6 +31,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class Main extends Application {
+    private static final BooleanProperty fieldFlipped = new SimpleBooleanProperty(false);
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -36,11 +40,11 @@ public class Main extends Application {
         Node topBar = TopBar.getTopBar(stage);
         FXMLLoader eventsFxml = new FXMLLoader(Main.class.getResource("events-view.fxml"));
         FXMLLoader editorFxml = new FXMLLoader(Main.class.getResource("editor-view.fxml"));
-        Pane field = Field.getFieldPane();
 
         // Creating and defining the VBox and SplitPane
         SplitPane splitPane = new SplitPane();
-        splitPane.getItems().addAll(eventsFxml.load(), field, editorFxml.load());
+        splitPane.getItems().addAll(eventsFxml.load(), new Pane(), editorFxml.load());
+        setField(splitPane);
         Platform.runLater(() -> splitPane.setDividerPositions(0.1, 0.85));
         VBox.setVgrow(splitPane, Priority.ALWAYS);
         VBox vBox = new VBox(topBar, splitPane);
@@ -75,8 +79,9 @@ public class Main extends Application {
 
         // Add Listeners
         AppStateManager.getInstance().themeProperty().addListener(run(() -> MiscHelper.setTheme(stage)));
-        AppStateManager.getInstance().fieldImageProperty().addListener(run(refreshField(splitPane)));
-        AppStateManager.getInstance().robotSizeProperty().addListener(run(refreshField(splitPane)));
+        fieldFlipped.addListener(run(setField(splitPane)));
+        AppStateManager.getInstance().fieldImageProperty().addListener(run(setField(splitPane)));
+        AppStateManager.getInstance().robotSizeProperty().addListener(run(setField(splitPane)));
         AppStateManager.getInstance().openAutoNameProperty().addListener(run(() -> {
             FileHelper.open();
             AppStateManager.getInstance().saveState();
@@ -97,7 +102,7 @@ public class Main extends Application {
         });
         AppStateManager.getInstance().eventsProperty().addListener((ListChangeListener<Event>) change -> {
             if (AppStateManager.getInstance().isNotFieldEditing()) {
-                refreshField(splitPane).run();
+                setField(splitPane).run();
             }
 
         });
@@ -118,10 +123,16 @@ public class Main extends Application {
         checkForUpdate();
     }
 
-    private static Runnable refreshField(SplitPane splitPane) {
+    private static Runnable setField(SplitPane splitPane) {
         return () -> {
             double[] dividerPos = splitPane.getDividerPositions();
-            splitPane.getItems().set(1, Field.getFieldPane());
+
+            Pane fieldPane = Field.getFieldPane(fieldFlipped.get());
+            CheckBox flipField = new CheckBox("Field Flipped");
+            flipField.selectedProperty().bindBidirectional(fieldFlipped);
+            VBox.setVgrow(fieldPane, Priority.ALWAYS);
+
+            splitPane.getItems().set(1, new VBox(flipField, fieldPane));
             splitPane.setDividerPositions(dividerPos);
         };
     }

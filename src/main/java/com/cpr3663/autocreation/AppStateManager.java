@@ -175,22 +175,8 @@ public class AppStateManager {
         return selectedIndex.get();
     }
 
-    public void setSelectedEvent(Event event) {
-        setSelectedIndex(events.indexOf(event));
-    }
-
-    public Event getSelectedEvent() {
-        int index = getSelectedIndex();
-        if (index == -1 || index >= events.getSize()) return null;
-        return events.get(index);
-    }
-
     public ObjectProperty<Enums.Sections> currentEditorProperty() {
         return currentEditor;
-    }
-
-    public Enums.Sections getCurrentEditor() {
-        return currentEditor.get();
     }
 
     public boolean isNotFieldEditing() {
@@ -211,6 +197,16 @@ public class AppStateManager {
 
     public void setEventsEditing() {
         this.currentEditor.set(Enums.Sections.EVENTS);
+    }
+
+    public void setSelectedEvent(Event event) {
+        setSelectedIndex(events.indexOf(event));
+    }
+
+    public Event getSelectedEvent() {
+        int index = getSelectedIndex();
+        if (index == -1 || index >= events.getSize()) return null;
+        return events.get(index);
     }
 
     public void setRoot(StackPane root) {
