@@ -13,6 +13,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
@@ -131,8 +132,10 @@ public class Main extends Application {
             CheckBox flipField = new CheckBox("Field Flipped");
             flipField.selectedProperty().bindBidirectional(fieldFlipped);
             VBox.setVgrow(fieldPane, Priority.ALWAYS);
+            VBox vbox = new VBox(flipField, fieldPane);
+            vbox.setPadding(new Insets(5));
 
-            splitPane.getItems().set(1, new VBox(flipField, fieldPane));
+            splitPane.getItems().set(1, vbox);
             splitPane.setDividerPositions(dividerPos);
         };
     }
