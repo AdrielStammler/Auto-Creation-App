@@ -92,6 +92,8 @@ jobs:
           zip auto-creation-${VERSION}-linux-x64.deb.zip   auto-creation-${VERSION}-linux-x64.deb
 
       - uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_RELEASE_TOKEN }}
         with:
           name: ${{ github.ref_name }}
           draft: true
