@@ -110,6 +110,7 @@ public class Field {
             pane.getTransforms().add(new Rotate(180, xSize / 2, ySize / 2));
         }
 
+        Helper.updateSelection();
         return wrapper;
     }
 
@@ -200,7 +201,6 @@ public class Field {
     }
 
     private static void drawRobotPoses(Pane fieldPane) {
-        Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
         Translation2d scale = Helper.robotImageScale(AppStateManager.getInstance().getRobotSize());
         Line prevLine = null;
 
@@ -221,12 +221,7 @@ public class Field {
                 robotView.setFitWidth(ROBOT_IMAGE.getWidth() * scale.getX());
                 robotView.setFitHeight(ROBOT_IMAGE.getHeight() * scale.getY());
 
-                if (event.equals(selectedEvent)) {
-                    Helper.highlightImage(robotView);
-                    selectedImageView = robotView;
-
-                    fieldPane.getChildren().add(Helper.createThreshold(robotView.getX(), robotView.getY(), driveEvent.getThreshold()));
-                } else Helper.colorRobot(robotView, i == 0, i == events.size() - 1);
+                Helper.colorRobot(robotView, i == 0, i == events.size() - 1);
 
                 if (prevLine != null) {
                     Helper.setLinePos(prevLine, position, false);
