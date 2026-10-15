@@ -15,6 +15,7 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
@@ -489,8 +490,12 @@ public class Field {
             string.append(customToString(pos));
 
             Text label = new Text(string.toString());
+            label.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+            label.setStyle("-fx-fill: white; -fx-font-weight: bold;");
 
             StackPane root = new StackPane(label);
+            root.setAlignment(Pos.CENTER);
+            root.setStyle("-fx-background-radius: 5; -fx-background-color: rgba(0, 0, 0, 0.65); -fx-padding: 2px 5px;");
             root.setLayoutX(pos.getX());
             root.setLayoutY(pos.getY());
             root.setId("Label");
