@@ -496,8 +496,12 @@ public class Field {
             StackPane root = new StackPane(label);
             root.setAlignment(Pos.CENTER);
             root.setStyle("-fx-background-radius: 5; -fx-background-color: rgba(0, 0, 0, 0.65); -fx-padding: 2px 5px;");
-            root.setLayoutX(pos.getX());
-            root.setLayoutY(pos.getY());
+
+            root.widthProperty().addListener((obs, oldVal, newVal) -> root.setLayoutX(pos.getX() - (newVal.doubleValue() / 2.0)));
+            root.heightProperty().addListener((obs, oldVal, newVal) -> root.setLayoutY(pos.getY() - (newVal.doubleValue() / 2.0)));
+
+            root.setLayoutX(pos.getX() - (root.getWidth() / 2.0));
+            root.setLayoutY(pos.getY() - (root.getHeight() / 2.0));
             root.setId("Label");
             return root;
         }
@@ -530,8 +534,8 @@ public class Field {
 
             StackPane label = (StackPane) fieldPane.lookup("#Label");
             if (label == null) throw new IllegalStateException("Label could not be found");
-            label.setLayoutX(pos.getX());
-            label.setLayoutY(pos.getY());
+            label.setLayoutX(pos.getX() - (label.getWidth() / 2.0));
+            label.setLayoutY(pos.getY() - (label.getHeight() / 2.0));
         }
 
         /**
