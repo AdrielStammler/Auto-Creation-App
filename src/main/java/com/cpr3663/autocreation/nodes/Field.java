@@ -28,6 +28,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 
@@ -296,6 +297,8 @@ public class Field {
             Event selectedEvent = AppStateManager.getInstance().getSelectedEvent();
             Circle threshold = (Circle) fieldPane.lookup("#Threshold");
             if (threshold != null) fieldPane.getChildren().remove(threshold);
+            StackPane label = (StackPane) fieldPane.lookup("#Label");
+            if (label != null) fieldPane.getChildren().remove(label);
             if (selectedImageView != null) colorRobot(selectedImageView);
             if (selectedAprilTag != null) clearColor(selectedAprilTag);
             if (!(selectedEvent instanceof DriveEvent)) {
@@ -307,7 +310,9 @@ public class Field {
             if (selectedImageView == null) throw new IllegalStateException("Selected Event does not exist on the fieldPane");
             highlightImage(selectedImageView);
 
-            fieldPane.getChildren().add(createThreshold(selectedImageView.getX(), selectedImageView.getY(), ((DriveEvent) selectedEvent).getThreshold()));
+            Translation2d pos = unCenterRobotPixels(selectedImageView.getX(), selectedImageView.getY());
+            fieldPane.getChildren().add(createThreshold(pos, ((DriveEvent) selectedEvent).getThreshold()));
+            fieldPane.getChildren().add(createLabel(pos, (DriveEvent) selectedEvent));
 
             AprilTag aprilTag = ((DriveEvent) selectedEvent).getAprilTag();
             if (aprilTag == null || aprilTag.ID == -1) return;
@@ -446,8 +451,7 @@ public class Field {
             selectedImageView.setRotate(currentAngle + 90.0);
         }
 
-        private static Circle createThreshold(double x, double y, double thresholdM) {
-            Translation2d pos = unCenterRobotPixels(x, y);
+        private static Circle createThreshold(Translation2d pos, double thresholdM) {
             Circle threshold = new Circle(pos.getX(), pos.getY(), thresholdM * PIXELS_PER_METER);
             threshold.setMouseTransparent(true);
             threshold.setFill(Color.TRANSPARENT);
@@ -468,6 +472,35 @@ public class Field {
             return threshold;
         }
 
+        private static StackPane createLabel(Translation2d pos, DriveEvent event) {
+            StringBuilder string = new StringBuilder();
+            string.append("Compared to: ");
+            AprilTag tag = event.getAprilTag();
+            if (tag.ID < 0) {
+                string.append("Origin");
+            } else {
+                string.append("Tag: ");
+                string.append(tag.ID);
+                string.append(", At: ");
+                string.append(customToString(tag.pose.toPose2d().getTranslation()));
+            }
+            string.append(System.lineSeparator());
+            string.append("Position: ");
+            string.append(customToString(pos));
+
+            Text label = new Text(string.toString());
+
+            StackPane root = new StackPane(label);
+            root.setLayoutX(pos.getX());
+            root.setLayoutY(pos.getY());
+            root.setId("Label");
+            return root;
+        }
+
+        private static String customToString(Translation2d pos) {
+            return String.format("(%.2f, %.2f)", pos.getX(), pos.getY());
+        }
+
         private static void updateRobotPos(double pixelsX, double pixelsY) {
             selectedImageView.setX(pixelsX);
             selectedImageView.setY(pixelsY);
@@ -483,12 +516,17 @@ public class Field {
             if (fromLine != null) {
                 setLinePos(fromLine, pixelsX, pixelsY, true);
             }
+            Translation2d pos = unCenterRobotPixels(pixelsX, pixelsY);
 
             Circle threshold = (Circle) fieldPane.lookup("#Threshold");
             if (threshold == null) throw new IllegalStateException("Threshold could not be found");
-            Translation2d pos = unCenterRobotPixels(pixelsX, pixelsY);
             threshold.setCenterX(pos.getX());
             threshold.setCenterY(pos.getY());
+
+            StackPane label = (StackPane) fieldPane.lookup("#Label");
+            if (label == null) throw new IllegalStateException("Label could not be found");
+            label.setLayoutX(pos.getX());
+            label.setLayoutY(pos.getY());
         }
 
         /**
@@ -524,6 +562,16 @@ public class Field {
                 driveEvent.setAprilTag(tag);
                 highlightImage(tagView);
                 selectedAprilTag = tagView;
+            }
+
+
+            StackPane label = (StackPane) fieldPane.lookup("#Label");
+            if (label != null)
+                fieldPane.getChildren().remove(label);
+
+            if (event instanceof DriveEvent driveEvent) {
+                Translation2d pos = label == null ? toPixels(driveEvent.getX(), driveEvent.getY()) : new Translation2d(label.getLayoutX(), label.getLayoutY());
+                fieldPane.getChildren().add(createLabel(pos, driveEvent));
             }
         }
 

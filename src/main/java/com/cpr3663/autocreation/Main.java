@@ -154,7 +154,7 @@ public class Main extends Application {
             AboutController.UpdateResult result = task.getValue();
             if (result.isUpdateAvailable()) {
                 String url = updateChecker.getLatestReleaseUrl();
-                Toast.Builder.of(result.getMessage() + "\n").link("Click Here For Update", url).duration(10_000).bkgdColor(Color.color(0.0, 0.25, 0.0)).show();
+                Toast.Builder.of(result.getMessage() + System.lineSeparator()).link("Click Here For Update", url).duration(10_000).bkgdColor(Color.color(0.0, 0.25, 0.0)).show();
             }
         });
 
