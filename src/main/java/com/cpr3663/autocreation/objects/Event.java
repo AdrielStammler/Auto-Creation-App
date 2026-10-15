@@ -4,6 +4,7 @@ import com.cpr3663.autocreation.Constants;
 import com.cpr3663.autocreation.util.Enums;
 import javafx.beans.property.*;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -137,7 +138,7 @@ public class Event {
         return String.join(Constants.Events.DELIMITER, name, paramNames, params, Boolean.toString(isAfterPrev()), getDelayType().name(), Double.toString(getDelay()));
     }
 
-    public record Type(String name, String... parameters) {
+    public record Type(String name, String... parameters) implements Serializable {
         public Type(String name, List<String> parameters) {
             this(name, sortedArray(parameters));
         }
