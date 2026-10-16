@@ -389,15 +389,16 @@ public class Field {
             }
             boolean shouldRotate = e.getButton() == MouseButton.SECONDARY;
             if (isRobot && !shouldRotate) {
-                double width = robot.getBoundsInLocal().getWidth();
-                double height = robot.getBoundsInLocal().getHeight();
-                Translation2d scenePos = Helper.eventLocalPixels(e);
-                Bounds bounds = robot.localToScene(robot.getBoundsInLocal());
-                Translation2d pos = scenePos.minus(new Translation2d(bounds.getCenterX(), bounds.getCenterY()));
-                Translation2d target = new Translation2d(0, -(height / 2) * 9 / 10);
-                target = target.rotateBy(Rotation2d.fromDegrees(robot.getRotate()));
+                // Makes coordinates local to the robot so the rotation doesn't matter
+                Translation2d clickPos = Helper.pointToTranslation(robot.sceneToLocal(e.getSceneX(), e.getSceneY()));
 
-                shouldRotate = pos.getDistance(target) <= width / 4;
+                Bounds bounds = robot.getBoundsInLocal();
+                double width = bounds.getWidth();
+                double height = bounds.getHeight();
+
+                Translation2d target = new Translation2d(bounds.getMinX() + width / 2, bounds.getMinY() + height * 0.1);
+
+                shouldRotate = clickPos.getDistance(target) <= Math.min(width, height) / 4;
             }
             if (shouldRotate) {
                 isRotating[0] = true;
@@ -600,6 +601,10 @@ public class Field {
 
         private static Translation2d sceneToLocalPixels(double x, double y) {
             Point2D point = fieldPane.sceneToLocal(x, y);
+            return new Translation2d(point.getX(), point.getY());
+        }
+
+        private static Translation2d pointToTranslation(Point2D point) {
             return new Translation2d(point.getX(), point.getY());
         }
     }
